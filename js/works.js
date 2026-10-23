@@ -51,7 +51,7 @@ const Works = {
    const q=this.data(g);if(!this.flag(g,'arena'))return UI.msg('El maletín está tras el cierre de inspección.');
    if(q.upgrades.includes('uzi_cycle'))return UI.msg('El maletín de inspección ya está vacío.');
    q.upgrades.push('uzi_cycle');q.radioDone=true;g.picked.add(it.id);g.items=g.items.filter(i=>i.id!==it.id);
-   g.player.xp+=45;Hospital.checkpoint(g);return UI.msg('Kit de ciclo UZI: −18 % de esfuerzo y −15 % de dispersión. La petición de auxilio era una grabación.',7500);
+   Hospital.checkpoint(g);return UI.msg('Kit de ciclo UZI: −18 % de esfuerzo y −15 % de dispersión. La petición de auxilio era una grabación.',7500);
   }
   if(it.type==='wx_exit') {
    if(!this.flag(g,'gate'))return UI.msg('La presión de los tres ramales mantiene la salida cerrada.');

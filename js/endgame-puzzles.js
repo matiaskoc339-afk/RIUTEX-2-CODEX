@@ -27,7 +27,7 @@ const EndPuzzles={
   const ingredient={cryo:'lf_serum',dna:'lf_genome',balance:'lf_catalyst'}[k];if(ingredient){g.inv.keys.push(ingredient);Endgame.data(g).ingredients.push(ingredient);}
   if(k==='gl'){g.giveWeapon('gl6',5,true);Endgame.data(g).gl=true;}
   if(['m9','shot','uzi','optic','fire'].includes(k)){Endgame.data(g).modules.push(k);Workshop.rewardMaterials(g,'screw_small',4);Workshop.rewardMaterials(g,'powder_small',3);}
-  g.player.xp+=ingredient||k==='gl'?70:35;Endgame.openDoors(g);g.resume();Hospital.checkpoint(g);Sound.play('pickup');
+  Endgame.openDoors(g);g.resume();Hospital.checkpoint(g);Sound.play('pickup');
   UI.msg(ingredient?KEYS[ingredient]+' aislado. '+Endgame.data(g).ingredients.length+' / 3 muestras.':k==='gl'?'GL-6 recuperado. Tecla 5; repite para alternar con el FL-4. Granadas propias en Construcción.':({thermal:'La criobóveda libera sus válvulas interiores.',spectrum:'El testigo coincide. Se abre la cámara del genoma.',culture:'El cultivo estéril libera la bóveda de catalizadores.',m9:'M9 · Memoria de impacto instalada.',shot:'M12 · Compresión estable instalada.',uzi:'UZI · Alimentación constante instalada: +6 de capacidad.',optic:'R-98 · Cristal colimador instalado.',fire:'FL-4 · Sello refractario instalado.'})[k],6500);
   if(Endgame.data(g).ingredients.length===3&&!Endgame.data(g).wrenSeen){Endgame.data(g).wrenSeen=true;UI.msg('Wren (intercomunicador): «Tres muestras. Has reconstruido mi cura. Te espero junto al reactor». El núcleo del vestíbulo reconoce los componentes.',10000);Sound.tone(90,1,.2,'triangle');Hospital.checkpoint(g);}return true;
  },

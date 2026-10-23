@@ -5682,7 +5682,7 @@ const ITEMS = { // w,h = casillas que ocupa en el maletín
   screw_large: { name: 'Tornillos grandes', short: 'Torn. G', color: '#65717c', w: 1, h: 1, use: false, cap: 20, desc: 'Pernos industriales. Sirven para fabricar munición pesada.' },
   powder_small: { name: 'Pólvora pequeña', short: 'Pólv. P', color: '#b99b61', w: 1, h: 1, use: false, cap: 30, desc: 'Pequeña carga de pólvora para munición ligera.' },
   powder_large: { name: 'Pólvora grande', short: 'Pólv. G', color: '#72543d', w: 1, h: 1, use: false, cap: 20, desc: 'Carga de pólvora de alto rendimiento para munición pesada.' },
-  sample: { name: 'Muestra de Riutex-V1', short: 'Muestra', color: '#38a9ff', w: 1, h: 1, use: false, desc: 'Se absorbe desde K para obtener 40 EXP. Puedes conservarla sin usarla; ocupa una casilla.' }
+  sample: { name: 'Muestra de Riutex-V1', short: 'Muestra', color: '#38a9ff', w: 1, h: 1, use: false, desc: 'Se absorbe desde K para obtener 15 EXP. Recogerla no da EXP. Puedes conservarla sin usarla; ocupa una casilla.' }
 };
 const AMMO = { pistol: 'am_pistol', shotgun: 'am_shells', viper: 'am_smg', rifle: 'am_rifle', launcher: 'am_grenade' }; // arma -> tipo de munición
 const KEYS = { enfermeria: 'Llave de la enfermería', almacen: 'Llave del almacén', seguridad: 'Tarjeta de seguridad', director: 'Llave del director', salida: 'Llave de la salida', taller: 'Llave del taller', pase_a: 'Pase de seguridad A', pase_b: 'Pase de seguridad B', llave_voss: 'Llave del sanctum de Voss', acceso: 'Llave de acceso militar', llave_arm_a: 'Llave de armería A', llave_arm_b: 'Llave de armería B', tarjeta: 'Tarjeta del puesto de mando', lab: 'Tarjeta del laboratorio', fusible_a: 'Fusible A', fusible_b: 'Fusible B', fusible_c: 'Fusible C' };
@@ -7941,7 +7941,7 @@ const Trees = {
     this.$('treeInfo').textContent = txt;
     if (!s || s.kind === 'core') { b.textContent = s ? 'Núcleo' : 'Selecciona un nodo'; b.disabled = true; } else if (m.has(id)) { b.textContent = s.type === 'active' ? (m.equipped === id ? 'Seleccionada' : 'Seleccionar habilidad') : 'Adquirida'; b.disabled = s.type !== 'active'; } else { b.textContent = 'Comprar (' + s.cost + ' EXP)'; b.disabled = !!m.canBuy(id, p.xp); }
     const bindBtn = this.$('bBind'); bindBtn.style.display = s && m.has(id) && s.type === 'active' ? 'block' : 'none'; bindBtn.textContent = s && m.bindings[id] ? 'Cambiar tecla (' + g.keyName(m.bindings[id]) + ')' : 'Asignar tecla';
-    if (sb) { sb.textContent = 'Absorber muestra de Riutex (+40 EXP) · ' + g.inv.samples; sb.disabled = g.inv.samples <= 0; }
+    if (sb) { sb.textContent = 'Absorber muestra de Riutex (+' + R2_XP.sample + ' EXP) · ' + g.inv.samples; sb.disabled = g.inv.samples <= 0; }
   };
 })();
 
@@ -7950,6 +7950,8 @@ const Trees = {
 // Carga después de game.js. Solo actúa cuando el nivel es 'mansion' u 'hospital*'; RIUTEX 1 queda intacto.
 const isR2lvl = l => l === 'mansion' || (l || '').startsWith('hospital');
 const isR2 = () => isR2lvl(Game.lvl);
+// Únicas fuentes no bélicas de XP: documentos nuevos y muestras consumidas.
+const R2_XP = Object.freeze({ document: 2, sample: 15 });
 const D4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 
 // ---------- Navegación (A* con penalización junto a paredes + comprobación de línea "gorda") ----------
@@ -8119,7 +8121,7 @@ const Hospital = {
   inject(g) { // F: el frasco de la mansión. Regenera el brazo y despierta los primeros poderes
     const p = g.player, m = g.mut, c = g.carn; const s = g.story; s.armHealed = true; s.seq = 'healed'; s.riutexUsed = (s.riutexUsed || 0) + 1; m.tutorial = true; m.phases = Math.max(1, m.phases);
 
-    p.maxEnergy = 100 + m.phases * 20 + m.mod('en'); p.energy = p.maxEnergy; p.hp = Math.max(p.hp, Math.round(p.maxHp * .6)); p.xp += 20; g.fxInject('#38a9ff'); g.fxMutate(); g.cam.shake = 16; g.ring(p.x, p.y, 220, '#70d6ff');
+    p.maxEnergy = 100 + m.phases * 20 + m.mod('en'); p.energy = p.maxEnergy; p.hp = Math.max(p.hp, Math.round(p.maxHp * .6)); g.fxInject('#38a9ff'); g.fxMutate(); g.cam.shake = 16; g.ring(p.x, p.y, 220, '#70d6ff');
     if (c && !c.dormant) { const a = Math.atan2(c.y - p.y, c.x - p.x); Level.move(c, Math.cos(a) * 70, Math.sin(a) * 70); c.state = 'recover'; c.mt = 4.2; c.stagger = 1.2; }
     g.pz['h:shutter'] = true; g.pz['h:forced'] = true; for (const id of ['forced']) { const d = Level.doors.find(d => d.id === id); if (d && !d.open) { Level.openDoor(d); Sound.play('door'); } }
     UI.msg('El Riutex reconstruye tu brazo. K: elige tus habilidades; ninguna técnica se aprende automáticamente.', 10000); },
@@ -8244,7 +8246,7 @@ const Hospital = {
   const _prm = G.promptText; G.promptText = function () { if (isR2()) { const s = this.story; if (s.restrained) return '[E] Zafarte de las correas (' + s.struggle + '/12)'; if (!this.nearItem()) { const f = Level.doors.find(d => d.id === 'forced' && !d.open); if (f && Math.hypot(44.5 * TILE - this.player.x, 7.5 * TILE - this.player.y) < 64) return 'Mantén [E]: forzar la puerta (' + Math.round(Math.min(1, (s.force || 0) / 1.2) * 100) + '%)'; if (!Level.nearDoor(this.player)) { const d = Hospital.nearOpenDoor(this.player); if (d) return '[E] Cerrar puerta'; } } } return _prm.call(this); };
   const _inj = G.useInj; G.useInj = function () { if (isR2() && this.story.armCut && !this.story.armHealed && this.state === 'play') return Hospital.inject(this); return _inj.call(this); };
   // inyectar muestra en R2: la muestra da EXP directa (no hay fases)
-  const _sam = G.injectSample; G.injectSample = function () { if (isR2()) { if (this.inv.samples <= 0) return UI.msg('No tienes muestras.'); this.inv.remove('sample'); this.player.xp += 40; this.story.riutexUsed++; this.fxInject('#38a9ff'); UI.msg('Muestra absorbida: +40 EXP.', 3500); return UI.renderTree(this); } return _sam.call(this); };
+  const _sam = G.injectSample; G.injectSample = function () { if (isR2()) { if (this.inv.samples <= 0) return UI.msg('No tienes muestras.'); this.inv.remove('sample'); this.player.xp += R2_XP.sample; this.story.riutexUsed++; this.fxInject('#38a9ff'); UI.msg('Muestra absorbida: +' + R2_XP.sample + ' EXP.', 3500); return UI.renderTree(this); } return _sam.call(this); };
   // tras morir, "Reintentar" carga el último punto de control (autoguardado)
   const _init = G.init; G.init = function () { _init.call(this); const $ = id => document.getElementById(id), g = this;
     if ($('bNew')) $('bNew').onclick = () => { Sound.unlock(); g.startLvl = 'mansion'; g.start(false); }; if ($('bLegacy')) $('bLegacy').onclick = () => { Sound.unlock(); g.startLvl = 'asylum'; g.start(false); };
@@ -8266,7 +8268,7 @@ const Hospital = {
   const _ed = Enemy.prototype.draw; Enemy.prototype.draw = function (ctx) {
     _ed.call(this, ctx); const t = this.type; if (!['enfermera', 'camillero', 'hinchado', 'cirujano', 'sonambulo', 'rastrero'].includes(t) || this.dead || (this.def.latent && !this.alert)) return;
     ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.face); if (t === 'enfermera') { ctx.fillStyle = '#f0f0f0'; ctx.fillRect(-1, -6, 6, 12); ctx.fillStyle = '#c02030'; ctx.fillRect(1, -1, 2, 2); } else if (t === 'camillero') { ctx.fillStyle = '#9aa4ac'; ctx.fillRect(10, -13, 18, 26); ctx.fillStyle = '#6a7078'; ctx.fillRect(12, -11, 14, 22); } else if (t === 'hinchado') { ctx.fillStyle = 'rgba(190,170,70,.75)'; ctx.beginPath(); ctx.arc(-2, 0, 15, 0, 6.283); ctx.fill(); ctx.fillStyle = '#6a5a20'; ctx.beginPath(); ctx.arc(-6, -5, 4, 0, 6.283); ctx.fill(); } else if (t === 'cirujano') { ctx.fillStyle = '#3a6a5a'; ctx.fillRect(2, -7, 8, 14); ctx.fillStyle = '#d0e0e0'; ctx.fillRect(10, -8, 10, 2); } else if (t === 'sonambulo') { ctx.fillStyle = '#dcd4c8'; ctx.fillRect(-6, -9, 8, 18); } ctx.restore(); };
-  // Las bajas complementan explorar; sin multiplicador ni premios aleatorios enormes.
+  // Bajas pequeñas y progresivas; sin multiplicador ni premios aleatorios enormes.
   // def.xp también identifica élites para el botín: sus valores originales se conservan.
   const _xp = mutationXPReward; mutationXPReward = function (d, b, m) {
     if (!isR2()) return _xp(d, b, m);
@@ -9196,7 +9198,7 @@ const BlueSkills = {
       "Asignar tecla" +
       (g.mut.bindings[id] ? " · " + g.keyName(g.mut.bindings[id]) : "");
     UI.$("bSample").textContent =
-      "Absorber muestra · +40 EXP (" + g.inv.samples + ")";
+      "Absorber muestra · +" + R2_XP.sample + " EXP (" + g.inv.samples + ")";
     UI.$("bSample").disabled = g.inv.samples <= 0;
   },
 };
@@ -9329,24 +9331,23 @@ const BluePuzzles = {
     if (type === "mix") {
       this.reward(g, "inj_green");
       this.reward(g, "inj_blue");
-      UI.msg("Suero estabilizado: inyección verde y azul. +30 EXP.", 5000);
+      UI.msg("Suero estabilizado: inyección verde y azul.", 5000);
     }
     if (type === "hydro") {
       this.reward(g, "inj_yellow");
       this.reward(g, "am_shells", 6);
       UI.msg(
-        "El agua baja: recuperas una inyección amarilla y cartuchos. +30 EXP.",
+        "El agua baja: recuperas una inyección amarilla y cartuchos.",
         5000,
       );
     }
     if (type === "eeg") {
       this.reward(g, "sample");
       UI.msg(
-        "Sincronización estable. Muestra de Riutex recuperada. +30 EXP.",
+        "Sincronización estable. Muestra de Riutex recuperada; absórbela desde K.",
         5000,
       );
     }
-    g.player.xp += 30;
     Sound.play("pickup");
     Hospital.checkpoint(g);
     return true;
@@ -9975,7 +9976,6 @@ const Blue = {
       key = g.lvl + ":" + room;
     if (room && !visits[key]) {
       visits[key] = true;
-      g.player.xp += 5;
       const label = UI.$("location");
       label.textContent = room;
       label.classList.remove("show");
@@ -10285,9 +10285,11 @@ const Blue = {
   };
   const take = Game.take;
   Game.take = function (it) {
-    const docs = this.inv.docs.length;
+    const doc = it?.type === "doc";
+    if (doc && (this.picked.has(it.id) || !this.items.includes(it))) return;
+    const fresh = doc && !this.inv.docs.includes(it.doc);
     take.call(this, it);
-    if (this.inv.docs.length > docs) this.player.xp += 4;
+    if (fresh && this.inv.docs.includes(it.doc)) this.player.xp += R2_XP.document;
   };
   const openDoc = Game.openDoc;
   Game.openDoc = function (id) {
@@ -10795,7 +10797,6 @@ const StalkerMind = {
       key = g.lvl + ":" + room;
     if (room && !visits[key]) {
       visits[key] = true;
-      g.player.xp += 5;
       UI.$("location").textContent = room;
       UI.$("location").classList.remove("show");
       void UI.$("location").offsetWidth;
@@ -13512,7 +13513,6 @@ const WeaponPuzzles = {
     g.pz[q.flag] = true;
     g.pz["blue:" + c.type] = true;
     g.inv.keys = g.inv.keys.filter((k) => !this.need[c.kind].includes(k));
-    g.player.xp += c.kind === "shotgun" ? 35 : 45;
     Adventure.sync(g);
     g.resume();
     Sound.play("door");
@@ -17342,7 +17342,7 @@ const WorksPuzzles = {
    g.inv.keys=g.inv.keys.filter(k=>!this.needs[kind].includes(k));
    if(kind==='filter'){Works.data(g).filter=true;if(!g.inv.keys.includes('wx_filter'))g.inv.keys.push('wx_filter');}
    if(kind==='hoist')Works.data(g).upgrades.push('shot_compensator');
-   g.player.xp+=kind==='hoist'?45:35;Works.openDoors(g);
+   Works.openDoors(g);
   }
   g.resume();Hospital.checkpoint(g);Sound.play('pickup');
   UI.msg({pumps:'Trasvase estable. El aliviadero baja; el pozo y su atajo responden.',cages:'Las nueve jaulas están en silencio. Cede el cierre del quirófano animal.',gears:'La presión cae. La prensa queda liberada y las fugas se cortan.',filter:'Filtro de vertidos instalado: −45 % de acumulación de veneno.',hoist:'Compensador M12 recuperado: +12 % de daño y −10 % de esfuerzo, solo escopeta.',main:'La compuerta del colector ya está abierta.'}[kind],6500);return true;
@@ -17425,7 +17425,7 @@ const Works = {
    const q=this.data(g);if(!this.flag(g,'arena'))return UI.msg('El maletín está tras el cierre de inspección.');
    if(q.upgrades.includes('uzi_cycle'))return UI.msg('El maletín de inspección ya está vacío.');
    q.upgrades.push('uzi_cycle');q.radioDone=true;g.picked.add(it.id);g.items=g.items.filter(i=>i.id!==it.id);
-   g.player.xp+=45;Hospital.checkpoint(g);return UI.msg('Kit de ciclo UZI: −18 % de esfuerzo y −15 % de dispersión. La petición de auxilio era una grabación.',7500);
+   Hospital.checkpoint(g);return UI.msg('Kit de ciclo UZI: −18 % de esfuerzo y −15 % de dispersión. La petición de auxilio era una grabación.',7500);
   }
   if(it.type==='wx_exit') {
    if(!this.flag(g,'gate'))return UI.msg('La presión de los tres ramales mantiene la salida cerrada.');
@@ -17746,7 +17746,7 @@ const Depths={
  use(g,it){
   if(it.type==='ds_launcher_case')return DepthsPuzzle.open(g,'ds_gun');
   if(it.type==='ds_sterilizer'){if(this.data(g).guard.won)return UI.msg('El ciclo está terminado. Puedes recuperar el traje del estuche.');if(this.data(g).guard.active)return UI.msg('La contención sigue activa.');return DepthsPuzzle.open(g,'ds_suit');}
-  if(it.type==='ds_suit_case'){if(!this.data(g).guard.won)return UI.msg('El cierre depende del esterilizador de estas celdas. Consulta Seguridad S-4.',4500);if(!ProtectionSuit.acquire(g))return UI.msg('El traje ya forma parte de tu equipo.');g.picked.add(it.id);g.player.xp+=65;Hospital.checkpoint(g);Sound.play('pickup');return UI.msg('S-4 equipado. La capa absorbe golpes y filtra veneno. Solo se repara en el banco del armero.',7000);}
+  if(it.type==='ds_suit_case'){if(!this.data(g).guard.won)return UI.msg('El cierre depende del esterilizador de estas celdas. Consulta Seguridad S-4.',4500);if(!ProtectionSuit.acquire(g))return UI.msg('El traje ya forma parte de tu equipo.');g.picked.add(it.id);Hospital.checkpoint(g);Sound.play('pickup');return UI.msg('S-4 equipado. La capa absorbe golpes y filtra veneno. Solo se repara en el banco del armero.',7000);}
   if(it.type==='ds_back'){if(this.data(g).nest.active&&!this.data(g).nest.won)return UI.msg('La colonia ha sellado el pasillo.');return Hospital.goto(g,WorksMap.id,[72,4]);}
   if(it.type==='ds_cache'){const q=this.data(g);if(q.cache)return UI.msg('La reserva de la última estación está vacía.');q.cache=true;for(const [t,n]of [['am_pistol',48],['am_shells',12],['am_smg',60],['am_rifle',10],['am_fuel',2],['inj_green',2],['inj_cure',2]])for(let i=0;i<(ITEMS[t].cap?1:n);i++)BluePuzzles.reward(g,t,ITEMS[t].cap?n:undefined);Hospital.checkpoint(g);return UI.msg('Reserva de emergencia recogida una sola vez. Lo que no cabía queda en el baúl; aún puedes volver al refugio.',6000);}
   if(it.type==='ds_finish')return this.end(g);
@@ -17767,7 +17767,7 @@ const DepthsPuzzle={
  solved(g,k){const q=WorksPuzzles.values(g,k);return k==='ds_gun'?q.v.every((v,i)=>v===i):this.reach(q).size===9&&!!(this.portsAt(q,8)&2);},
  action(g,i){if(g.state!=='worksPuzzle'||!this.needs[WorksPuzzles.cur])return false;const k=WorksPuzzles.cur,q=WorksPuzzles.values(g);if(this.missing(g,k).length)return WorksPuzzles.feedback('Faltan componentes. El expediente indica sus sectores.');if(k==='ds_gun'){const hole=q.v.indexOf(8);if(Math.abs(i%3-hole%3)+Math.abs(Math.floor(i/3)-Math.floor(hole/3))!==1)return false;[q.v[i],q.v[hole]]=[q.v[hole],q.v[i]];}else q.turns[i]=(q.turns[i]+1)%4;Sound.play('door');this.render(g);return true;},
  complete(g){const k=WorksPuzzles.cur;if(g.state!=='worksPuzzle'||!this.needs[k])return false;if(this.missing(g,k).length){WorksPuzzles.feedback('Falta '+this.missing(g,k).map(t=>KEYS[t]).join(' + '));return false;}if(k==='ds_suit'&&(!Works.flag(g,'gears')||!g.inv.docs.includes('ds_suit_note'))){WorksPuzzles.feedback('Revisa Seguridad S-4 y detén el tren de presión de Fundición antes de esterilizar.');return false;}if(!this.solved(g,k)){WorksPuzzles.feedback(k==='ds_gun'?'Las trazas del plano todavía no coinciden con la guía.':'Deben recibir corriente los nueve ramales y la salida inferior derecha.');return false;}
-  if(k==='ds_gun'){if(Depths.data(g).gun)return false;g.giveWeapon('flamethrower',3,true);Depths.data(g).gun=true;g.player.xp+=50;g.inv.keys=g.inv.keys.filter(t=>!this.needs[k].includes(t));g.resume();Hospital.checkpoint(g);UI.msg('FL-4 recuperado. Tecla 5 para equipar; R para recargar. Mantén clic para lanzar fuego. Fabrica tanques en Construcción. El armero puede mejorarlo.',7500);return true;}
+  if(k==='ds_gun'){if(Depths.data(g).gun)return false;g.giveWeapon('flamethrower',3,true);Depths.data(g).gun=true;g.inv.keys=g.inv.keys.filter(t=>!this.needs[k].includes(t));g.resume();Hospital.checkpoint(g);UI.msg('FL-4 recuperado. Tecla 5 para equipar; R para recargar. Mantén clic para lanzar fuego. Fabrica tanques en Construcción. El armero puede mejorarlo.',7500);return true;}
   g.resume();if(!Depths.guard(g))return false;g.inv.keys=g.inv.keys.filter(t=>!this.needs[k].includes(t));return true;
  },
  render(g){const k=WorksPuzzles.cur,q=WorksPuzzles.values(g),gun=k==='ds_gun',id=gun?'ds_launcher':'ds_suit_note',miss=this.missing(g,k),box=UI.$('wxMechanism');UI.$('wxTitle').textContent=gun?'FL-4 / plano de montaje':'S-4 / esterilizador de cuarentena';UI.$('wxInstructions').textContent=gun?'Desliza una placa vecina al hueco para reconstruir el plano. La guía conserva la forma final. Los ajustes se guardan al salir.':'Gira los conductos. Conduce corriente desde la entrada izquierda al último ramal derecho; los nueve deben iluminarse. Comprobar inicia un encuentro opcional: prepárate antes.';UI.$('wxFeedback').textContent=miss.length?'FALTA · '+miss.map(t=>KEYS[t]).join(' + '):'';UI.$('wxReset').classList.remove('hidden');UI.$('wxConfirm').textContent=gun?'Abrir estuche':'Iniciar esterilización / combate';UI.$('wxClue').innerHTML='<strong>'+DOCS[id].title+'</strong><p>'+FieldDesk.escape(g.inv.docs.includes(id)?DOCS[id].text:'Expediente pendiente. Puedes explorar y volver sin perder el ajuste.').replace(/\n/g,'<br>')+'</p>';
@@ -18233,7 +18233,7 @@ const CastlePuzzles={
   const d=this.defs[k];g.pz['h:cl_'+k]=true;g.inv.keys=g.inv.keys.filter(id=>!d[2].includes(id));
   if(k==='r98'){g.giveWeapon('r98',8,true);Castle.data(g).r98=true;}
   if(['m9','shotgun','uzi','optic','fire'].includes(k)){Castle.data(g).modules.push(k);Workshop.rewardMaterials(g,'screw_small',4);Workshop.rewardMaterials(g,'powder_small',3);}
-  g.player.xp+=['r98','balance','resonance'].includes(k)?60:35;Castle.openDoors(g);g.resume();Hospital.checkpoint(g);Sound.play('pickup');UI.msg(({portraits:'El linaje devuelve luz a la biblioteca.',light:'El receptor inferior se ilumina. El freno del Taller responde.',balance:'Once y once. Se libera la torre de poniente.',tide:'Dos mitades. El agua mueve el astrolabio de la planta alta.',stars:'Búho, luna, serpiente. La resonancia puede responder.',resonance:'La torre de levante reconoce el canto.',r98:'R-98 Vésper recuperado. Tecla 4; repítela para alternar rifles. Munición propia en Construcción.',m9:'M9 · Cerrojo de seda instalado: menos esfuerzo y dispersión.',shotgun:'M12 · Choke de cortina instalado: mayor alcance e impacto.',uzi:'UZI · Alimentador de torre instalado: +8 al cargador.',optic:'Rifle del hospital · Cámara de enfoque instalada: más daño y precisión.',fire:'FL-4 · Válvula cerámica instalada: menos esfuerzo y +10 de combustible por tanque.'})[k],6500);return true;
+  Castle.openDoors(g);g.resume();Hospital.checkpoint(g);Sound.play('pickup');UI.msg(({portraits:'El linaje devuelve luz a la biblioteca.',light:'El receptor inferior se ilumina. El freno del Taller responde.',balance:'Once y once. Se libera la torre de poniente.',tide:'Dos mitades. El agua mueve el astrolabio de la planta alta.',stars:'Búho, luna, serpiente. La resonancia puede responder.',resonance:'La torre de levante reconoce el canto.',r98:'R-98 Vésper recuperado. Tecla 4; repítela para alternar rifles. Munición propia en Construcción.',m9:'M9 · Cerrojo de seda instalado: menos esfuerzo y dispersión.',shotgun:'M12 · Choke de cortina instalado: mayor alcance e impacto.',uzi:'UZI · Alimentador de torre instalado: +8 al cargador.',optic:'Rifle del hospital · Cámara de enfoque instalada: más daño y precisión.',fire:'FL-4 · Válvula cerámica instalada: menos esfuerzo y +10 de combustible por tanque.'})[k],6500);return true;
  },
  replay(g){if(this.cur!=='resonance')return;[0,2,1,2,0].forEach((n,i)=>setTimeout(()=>{if(g.state!=='castlePuzzle'||this.cur!=='resonance')return;Sound.tone([330,440,550][n],.25,.16,'sine');UI.$('clPuzzleFeedback').textContent='CANTO · '+['HOJA','LUNA','OLA'][n];},i*550));},
  render(g){const k=this.cur,q=this.values(g),v=q.v,box=UI.$('clPuzzleBody'),d=this.defs[k],miss=this.missing(g,k);UI.$('clPuzzleTitle').textContent=d[0];UI.$('clPuzzleRule').textContent=({portraits:'Selecciona dos cuadros para intercambiarlos. Reconstruye la historia de izquierda a derecha.',m9:'Intercambia dos placas para reconstruir el sello de la guardia.',light:'Cada mando gira un espejo. Lleva el haz desde la entrada izquierda al receptor inferior izquierdo.',balance:'Cada pieza pasa de mesa a bandeja izquierda y después a derecha. Usa las seis; ambas bandejas deben pesar once.',tide:'Elige un recipiente de origen y uno de destino. Transfiere hasta vaciar el origen o llenar el destino. Conserva el agua y divídela en mitades.',stars:'Gira los tres anillos para centrar las siluetas de la carta, desde el anillo exterior al interior.',resonance:'Repite los cinco símbolos del canto. Puedes escucharlos y leerlos; un error reinicia la frase.',r98:'Desliza una placa vecina al hueco. Reconstruye A–H en orden, con el hueco abajo a la derecha.',shotgun:'Acerca cada indicador a la franja clara central. El mecanismo se libera con los tres ejes estables.',uzi:'Girar una rueda arrastra la siguiente al revés. Centra las cuatro muescas hacia el núcleo.',optic:'Cada mando cambia su obturador y sus dos vecinos. Deja abiertos los cinco.',fire:'Coloca las tres capas en el orden por el que circulará el combustible. Pulsa una capa para retirarla.'})[k];UI.$('clPuzzleFeedback').textContent=miss.length?'CONEXIÓN INCOMPLETA · '+miss.join(' · '):'';UI.$('clReplay').classList.toggle('hidden',k!=='resonance');const found=g.inv.docs.includes(d[1]);UI.$('clPuzzleClue').innerHTML='<strong>'+DOCS[d[1]].title+'</strong><p>'+FieldDesk.escape(found?DOCS[d[1]].text:'Todavía no has recogido este expediente. Puedes explorar y volver sin perder los ajustes.').replace(/\n/g,'<br>')+'</p>';
@@ -18269,7 +18269,7 @@ const Castle={
  beginPrison(g){const b=g.prisoner;if(!b||b.dead||b.active)return;Hospital.checkpoint(g);b.active=true;this.data(g).prison.active=true;const d=Level.doors.find(d=>d.id==='cl_cells_entry');d.key='h:cl_prison';Level.closeDoor(d,true);UI.msg('La reja cae. Camina por piedra limpia y abandona el origen de cada ruido.',5500);},
  beginRoyal(g){const b=g.boss;if(!(b instanceof RoyalRegent)||b.dead||b.active)return;Hospital.checkpoint(g);b.active=true;b.mode='intro';b.clock=3.2;g.curBoss=b;this.data(g).regent.active=true;const d=Level.doors.find(d=>d.id==='cl_throne_entry');d.key='h:cl_regent';Level.closeDoor(d,true);g.cam.shake=12;UI.msg('El escudo se levanta. La espada no espera a que termine de hacerlo.',5000);},
  part(g,it){if(g.picked.has(it.id))return false;const q=this.data(g);if(it.type==='cl_keydrop'&&!q.prison.won)return false;if(!g.inv.keys.includes(it.part))g.inv.keys.push(it.part);g.picked.add(it.id);g.items=g.items.filter(i=>i!==it);if(it.part==='cl_prison_key'){g.pz['h:cl_prison']=true;this.openDoors(g);Hospital.checkpoint(g);}Sound.play('pickup');UI.msg(KEYS[it.part]+' recuperado. Consulta su pista en Artefactos.',4500);return true;},
- bell(g,side){const q=this.data(g),need=side==='w'?'balance':'resonance';if(!this.flag(g,need))return UI.msg('El mecanismo de esta torre todavía retiene la campana.');if(q.bells.includes(side))return UI.msg('Esta campana ya ha respondido.');q.bells.push(side);g.player.xp+=70;g.cam.shake=15;Sound.tone(side==='w'?92:123,1.7,.3,'sine');Sound.noise(.7,.15,380);this.openDoors(g);CastleNoise.emit(g,g.player.x,g.player.y,1400,'campana');Hospital.checkpoint(g);UI.msg(q.bells.length===2?'Dos ecos recorren el castillo. El cierre de la sala real cede en la planta baja.':'Una campana ha despertado. Falta la voz de la otra torre.',6500);return true;},
+ bell(g,side){const q=this.data(g),need=side==='w'?'balance':'resonance';if(!this.flag(g,need))return UI.msg('El mecanismo de esta torre todavía retiene la campana.');if(q.bells.includes(side))return UI.msg('Esta campana ya ha respondido.');q.bells.push(side);g.cam.shake=15;Sound.tone(side==='w'?92:123,1.7,.3,'sine');Sound.noise(.7,.15,380);this.openDoors(g);CastleNoise.emit(g,g.player.x,g.player.y,1400,'campana');Hospital.checkpoint(g);UI.msg(q.bells.length===2?'Dos ecos recorren el castillo. El cierre de la sala real cede en la planta baja.':'Una campana ha despertado. Falta la voz de la otra torre.',6500);return true;},
  use(g,it){const q=this.data(g);if(it.type==='cl_part'||it.type==='cl_keydrop')return this.part(g,it);if(it.type==='cl_puzzle')return CastlePuzzles.open(g,it.kind);if(it.type==='cl_bell')return this.bell(g,it.id.endsWith('_w')?'w':'e');
   if(it.type==='cl_back'){if(q.prison.active&&!q.prison.won)return UI.msg('La reja del patio mantiene cerrado el regreso.');return Hospital.goto(g,DepthsMap.id,[53,21]);}
   if(it.type==='cl_to_hub'){if(!this.flag(g,'prison'))return UI.msg('La llave que lleva el Tallador abre esta escalera.');q.enteredHub=true;return Hospital.goto(g,CastleMap.lower,[56,52]);}
@@ -18463,7 +18463,7 @@ const EndPuzzles={
   const ingredient={cryo:'lf_serum',dna:'lf_genome',balance:'lf_catalyst'}[k];if(ingredient){g.inv.keys.push(ingredient);Endgame.data(g).ingredients.push(ingredient);}
   if(k==='gl'){g.giveWeapon('gl6',5,true);Endgame.data(g).gl=true;}
   if(['m9','shot','uzi','optic','fire'].includes(k)){Endgame.data(g).modules.push(k);Workshop.rewardMaterials(g,'screw_small',4);Workshop.rewardMaterials(g,'powder_small',3);}
-  g.player.xp+=ingredient||k==='gl'?70:35;Endgame.openDoors(g);g.resume();Hospital.checkpoint(g);Sound.play('pickup');
+  Endgame.openDoors(g);g.resume();Hospital.checkpoint(g);Sound.play('pickup');
   UI.msg(ingredient?KEYS[ingredient]+' aislado. '+Endgame.data(g).ingredients.length+' / 3 muestras.':k==='gl'?'GL-6 recuperado. Tecla 5; repite para alternar con el FL-4. Granadas propias en Construcción.':({thermal:'La criobóveda libera sus válvulas interiores.',spectrum:'El testigo coincide. Se abre la cámara del genoma.',culture:'El cultivo estéril libera la bóveda de catalizadores.',m9:'M9 · Memoria de impacto instalada.',shot:'M12 · Compresión estable instalada.',uzi:'UZI · Alimentación constante instalada: +6 de capacidad.',optic:'R-98 · Cristal colimador instalado.',fire:'FL-4 · Sello refractario instalado.'})[k],6500);
   if(Endgame.data(g).ingredients.length===3&&!Endgame.data(g).wrenSeen){Endgame.data(g).wrenSeen=true;UI.msg('Wren (intercomunicador): «Tres muestras. Has reconstruido mi cura. Te espero junto al reactor». El núcleo del vestíbulo reconoce los componentes.',10000);Sound.tone(90,1,.2,'triangle');Hospital.checkpoint(g);}return true;
  },
@@ -18706,7 +18706,7 @@ const MenuScene = {
     menu.querySelector('h1').innerHTML='<span>RIUTEX</span><em>2</em>';menu.querySelector('h1').setAttribute('aria-label','RIUTEX 2');
     menu.querySelector('h2').textContent='EL CUSTODIO';
     UI.$('bNew').querySelectorAll('span')[1].textContent='Nueva partida';
-    menu.querySelector('.menu-footer').innerHTML='<span>HISTORIA COMPLETA / v0.18.0</span><span>EL SILENCIO NO TE SALVARÁ.</span><span>CUATRO FASES</span>';menu.appendChild(menu.querySelector('.menu-footer'));
+    menu.querySelector('.menu-footer').innerHTML='<span>HISTORIA COMPLETA / v0.18.1</span><span>EL SILENCIO NO TE SALVARÁ.</span><span>CUATRO FASES</span>';menu.appendChild(menu.querySelector('.menu-footer'));
     const opt=document.createElement('button');opt.id='bMenuOptions';opt.innerHTML='<span class="button-index">03</span><span>Opciones</span><span class="button-arrow">↗</span>';menu.querySelector('.menu-actions').appendChild(opt);
     const panel=document.createElement('section');panel.id='menuOptions';panel.className='screen hidden';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-labelledby','presentationOptionsTitle');
     panel.innerHTML='<div class="presentation-options"><span class="eyebrow">RIUTEX 2 / CONFIGURACIÓN</span><h2 id="presentationOptionsTitle">OPCIONES</h2><label for="menuVolume">Volumen <output id="menuVolumeValue"></output><input id="menuVolume" type="range" min="0" max="100" step="1"></label><label for="menuReduceMotion">Reducir movimiento y destellos<input id="menuReduceMotion" type="checkbox"></label><p>WASD · moverte &nbsp; / &nbsp; Ratón · apuntar y disparar<br>Shift · correr &nbsp; / &nbsp; E · interactuar &nbsp; / &nbsp; R · recargar<br>Tab · maletín &nbsp; / &nbsp; J · documentos &nbsp; / &nbsp; M · mapa<br>K · habilidades &nbsp; / &nbsp; Esc · pausa</p><button id="bMenuOptionsClose">Volver al menú</button></div>';

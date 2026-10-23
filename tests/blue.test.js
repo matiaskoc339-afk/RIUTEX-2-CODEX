@@ -21,7 +21,7 @@ test("Los mecanismos rechazan resultados incorrectos y conservan ajustes al sali
   assert.equal(run("BluePuzzles.complete(Game)"), false);
   assert.equal(Game.pz["blue:mix"], undefined);
 });
-test("Las recompensas no se pierden con maletín lleno ni se duplican", () => {
+test("Las recompensas materiales no se pierden con maletín lleno ni se duplican; sin XP extra", () => {
   start();
   while (Game.inv.add("inj_green")) {}
   const before = Game.stash.length,
@@ -30,7 +30,7 @@ test("Las recompensas no se pierden con maletín lleno ni se duplican", () => {
     "BluePuzzles.open(Game,'mix');BluePuzzles.cur.values=[2,1,3];BluePuzzles.complete(Game)",
   );
   assert.equal(Game.stash.length, before + 2);
-  assert.equal(Game.player.xp, xp + 30);
+  assert.equal(Game.player.xp, xp);
   assert.equal(run("BluePuzzles.complete(Game)"), false);
   assert.equal(Game.stash.length, before + 2);
 });

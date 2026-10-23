@@ -1,18 +1,18 @@
-# RIUTEX 2 · El Custodio · Historia completa · v0.18.0
+# RIUTEX 2 · El Custodio · Historia completa · v0.18.1
 
 Esta versión amplía **RIUTEX2_fase1_v0.2.2.zip**, la base que aportaste. Conserva su motor, historia, protagonistas y persecución. El contenido jugable comprende la mansión, el hospital las cloacas y fábrica de San Gabriel y el museo-fortaleza de Valcárcel y el laboratorio UMBRAL con sus dos desenlaces.
 
 ## Jugar
 
-La entrega incluye [RIUTEX2_Historia_Completa_v0.18.0.html](dist/RIUTEX2_Historia_Completa_v0.18.0.html), con gráficos, estilos y código integrados y sin descargas externas. Ábrelo en un navegador de escritorio con teclado y ratón. El sonido comienza con la primera interacción.
+La entrega incluye [RIUTEX2_Historia_Completa_v0.18.1.html](dist/RIUTEX2_Historia_Completa_v0.18.1.html), con gráficos, estilos y código integrados y sin descargas externas. Ábrelo en un navegador de escritorio con teclado y ratón. El sonido comienza con la primera interacción.
 
 Para ejecutar el proyecto fuente: `npm start` (o `python3 -m http.server 8000`). No hay dependencias de npm que instalar. Los guardados se almacenan en el navegador y dependen de la ubicación desde la que abras el juego. Esta edición utiliza guardados propios; conserva los de v0.2.2 sin importarlos a mapas que han cambiado.
 
-## Progresión de XP · v0.18.0
+## Progresión de XP · v0.18.1
 
-Las bajas dan mucha menos XP: 1–2 por enemigo del hospital y 3–4 en el laboratorio. Los minijefes dan 6–10 y los cuatro jefes finales 11, 14, 18 y 29. Se elimina el multiplicador ×2,5 y se impide volver a cobrar por un cadáver. La reducción ronda el 83–84 % en los mapas iniciales y el 63–78 % en los avanzados, comparando la XP de sus enemigos colocados con la media anterior.
+Solo conceden XP las bajas, absorber muestras de Riutex y recoger documentos nuevos. Enemigos: 1–2 XP en el hospital, 1–2 en cloacas, 2–3 en el castillo y 3–4 en el laboratorio. Los minijefes dan 6–10 y los cuatro jefes finales 11, 14, 18 y 29. Cada muestra consumida da 15 XP (antes 40), cada documento nuevo 2 (antes 4). Recoger una muestra no adelanta su premio.
 
-Exploración, documentos, puzles y costes del árbol conservan sus recompensas y reglas. La XP y las habilidades ya guardadas se conservan. [Tabla y validación del reparto](docs/PROGRESION_XP.md).
+Entrar en salas, resolver puzles, obtener armas, conseguir el traje, recoger el maletín de la arena, tocar campanas y la inyección inicial de la historia ya no conceden XP. Sus objetos, mecanismos y accesos siguen funcionando. Las muertes y los documentos no permiten cobrar dos veces; las crías invocadas no dan XP. La XP y habilidades ya guardadas se conservan. [Presupuestos y compras avanzadas comprobadas](docs/PROGRESION_XP.md).
 
 ## Primera Persona POV · v0.18.0
 

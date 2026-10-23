@@ -1,4 +1,4 @@
-// XP de bajas: presupuesto por mapas, jerarquía de enemigos y progreso real.
+// Solo bajas, documentos nuevos y muestras consumidas: premios y progreso real.
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {X,run}=require('./harness');const {Game:g,Hospital:H,Enemy,ENEMY_TYPES:E}=X;g.init();
 const floors=['mansion','hospital','hospital1','hospitalb','hospitalworks','hospitalcastle','hospitalcastle1','hospitalumbra'];
@@ -44,9 +44,43 @@ test('La progresión sigue permitiendo comprar y guardar mejoras sin modificar X
  assert.equal(g.player.xp,4);assert.equal(g.mut.canBuy('vigor',g.player.xp),null);g.buySkill('vigor');assert.ok(g.mut.has('vigor'));assert.equal(g.player.xp,0);
  g.player.xp=123;g.save(0);g.start(false,g.getSaveSlots()[0]);assert.equal(g.player.xp,123);assert.ok(g.mut.has('vigor'));
 });
-test('Explorar una sala nueva y recoger documentos mantiene su XP y no se duplica al revisitar',()=>{
- start();g.story.visited={};g.player.x=44.5*32;g.player.y=29.5*32;run('Blue.discover(Game)');assert.equal(g.player.xp,5);run('Blue.discover(Game)');assert.equal(g.player.xp,5);
- const doc=g.items.find(i=>i.doc==='a1');assert.ok(doc);g.take(doc);assert.equal(g.player.xp,9);assert.ok(!g.items.some(i=>i.id===doc.id));g.openDoc('a1');assert.equal(g.player.xp,9);
+test('Descubrir salas no da XP; cada documento nuevo da 2, sin repetir al releer, revisitar o cargar',()=>{
+ for(const pov of [false,true]){start();run(`FirstPerson.setEnabled(${pov})`);g.story.visited={};g.player.x=44.5*32;g.player.y=29.5*32;run('Blue.discover(Game)');assert.equal(g.player.xp,0);assert.ok(Object.keys(g.story.visited).length);run('Blue.discover(Game)');assert.equal(g.player.xp,0);
+  const doc=g.items.find(i=>i.doc==='a1');assert.ok(doc);g.take(doc);assert.equal(g.player.xp,2);assert.ok(!g.items.some(i=>i.id===doc.id));g.take(doc);assert.equal(g.player.xp,2);g.openDoc('a1');assert.equal(g.player.xp,2);
+  const duplicate={...doc,id:'duplicate_a1'};g.items.push(duplicate);g.take(duplicate);assert.equal(g.player.xp,2);
+  g.resume();g.save(0);g.start(false,g.getSaveSlots()[0]);g.openDoc('a1');assert.equal(g.player.xp,2);assert.ok(!g.items.some(i=>i.id===doc.id));
+ }run('FirstPerson.setEnabled(false)');
+});
+test('La inyección inicial y recoger equipo no conceden XP automática',()=>{
+ g.startLvl='mansion';g.start(false);H.toHospital(g);g.story.restrained=false;assert.equal(g.player.xp,0);H.inject(g);assert.equal(g.player.xp,0);H.lobbyReached(g);
+ const gun=g.items.find(i=>i.id==='pp1');g.take(gun);assert.ok(g.player.weapons.pistol);assert.equal(g.player.xp,0);
+});
+test('Las muestras dan 15 XP solo al consumirlas; recogerlas, dejarlas en el baúl o cargar no las duplica',()=>{
+ for(const pov of [false,true]){start();run(`FirstPerson.setEnabled(${pov})`);
+  const sample=g.items.find(i=>i.type==='sample');assert.ok(sample);g.take(sample);assert.equal(g.player.xp,0);assert.equal(g.inv.samples,1);
+  g.injectSample();assert.equal(g.player.xp,15);assert.equal(g.inv.samples,0);g.injectSample();assert.equal(g.player.xp,15);
+  g.save(0);g.start(false,g.getSaveSlots()[0]);g.injectSample();assert.equal(g.player.xp,15);assert.ok(!g.items.some(i=>i.id===sample.id));
+  g.inv.items=[];while(g.inv.add('inj_yellow')){};const stash=g.stash.length;run("BluePuzzles.reward(Game,'sample')");assert.equal(g.stash.length,stash+1);assert.equal(g.player.xp,15);g.injectSample();assert.equal(g.player.xp,15);
+  assert.match(X.ITEMS.sample.desc,/15 EXP/);
+ }run('FirstPerson.setEnabled(false)');
+});
+test('El puzle EEG entrega una muestra, sin XP hasta absorberla',()=>{
+ start();run("BluePuzzles.open(Game,'eeg');BluePuzzles.cur.values=[2,4,3]");assert.ok(run('BluePuzzles.complete(Game)'));assert.equal(g.player.xp,0);assert.equal(g.inv.samples,1);g.injectSample();assert.equal(g.player.xp,15);
+ assert.equal(run('BluePuzzles.complete(Game)'),false);assert.equal(g.player.xp,15);
+});
+test('Presupuesto finito por mapas y compras avanzadas sin XP de salas o misiones',()=>{
+ start();const seen=new Set();let budget=0;report.sources={};
+ for(const lvl of floors){g.lvl=lvl;const d=run(`R2_DATA('${lvl}')`),docIds=d.items.filter(i=>i[1]==='doc').map(i=>i[4].doc).filter(id=>{if(seen.has(id))return false;seen.add(id);return true;}),samples=d.items.filter(i=>i[1]==='sample').length;
+  const kills=d.enemies.reduce((n,e)=>n+reward(E[e[1]],false,lvl),0),docs=docIds.length*2,sampleXP=samples*15;budget+=kills+docs+sampleXP;
+  report.sources[lvl]={kills,documents:docIds.length,document_xp:docs,samples,sample_xp:sampleXP,total:kills+docs+sampleXP};
+ }
+ assert.ok(report.sources.mansion.total<=25);assert.ok(budget<900);
+ report.sources_total=budget;report.advanced_paths={};
+ for(const target of ['gold_fire_discipline','gold_organic_reactor']){start();g.player.xp=budget;const order=[],seenPath=new Set();
+  const visit=id=>{if(seenPath.has(id))return;seenPath.add(id);for(const req of X.SKILLS[id].requires||[])visit(req);if(id!=='core')order.push(id);};visit(target);
+  const cost=order.reduce((n,id)=>n+X.SKILLS[id].cost,0);assert.ok(cost<=budget*.6,target+': '+cost+' / '+budget);
+  for(const id of order){assert.equal(g.mut.canBuy(id,g.player.xp),null,id);g.buySkill(id);assert.ok(g.mut.has(id),id);}assert.ok(g.mut.has(target));report.advanced_paths[target]={cost,nodes:order.length};
+ }
 });
 test('Las crías invocadas siguen sin aportar XP y las bajas no reaparecen al cargar',()=>{
  start();const child=run('new MutantSpider(1400,944,99500,true)');child.hurt(1000,0,g);assert.equal(g.player.xp,0);
@@ -55,4 +89,4 @@ test('Las crías invocadas siguen sin aportar XP y las bajas no reaparecen al ca
 test('El cálculo de RIUTEX 1 conserva sus premios y modificadores anteriores',()=>{
  start();const random=Math.random;try{Math.random=()=>0;assert.equal(reward(E.sonambulo,false,'asylum'),1);Math.random=()=>.999999;assert.equal(reward(E.sonambulo,false,'asylum'),5);assert.equal(reward(E.lf_wren,true,'lab'),25);assert.equal(reward(E.lf_wren,true,'lab',.5),38);}finally{Math.random=random;}
 });
-test.after(()=>{report.scope='Presupuesto exacto de los enemigos colocados en ocho mapas, frente a la media del cálculo anterior. No incluye XP de exploración, documentos, muestras, puzles ni misiones; tampoco es una medida de dificultad humana.';fs.writeFileSync(path.join(__dirname,'../artifacts/xp-balance-results.json'),JSON.stringify(report,null,2)+'\n');});
+test.after(()=>{report.scope='Presupuestos finitos de ocho mapas: bajas colocadas, documentos únicos y muestras colocadas. No incluyen oleadas, minijefes, jefes ni muestras de puzles. Se compran dos rutas avanzadas por separado con el presupuesto calculado; no es una simulación de dificultad humana.';fs.writeFileSync(path.join(__dirname,'../artifacts/xp-balance-results.json'),JSON.stringify(report,null,2)+'\n');});

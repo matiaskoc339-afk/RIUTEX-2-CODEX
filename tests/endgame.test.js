@@ -3,7 +3,7 @@ const {X,run}=require('./harness');const {Game:g,Hospital:H,Level:L,Weapons:W}=X
 function start(lvl='hospitalumbra'){g.startLvl='mansion';g.start(false);H.toHospital(g);g.story.restrained=false;H.inject(g);g.story.seq='free';g.pz['h:boss']=g.pz['h:ds_spider']=g.pz['h:cl_regent']=true;g.killed.add(900);g.state='play';H.goto(g,lvl);g.keys={};g.mouse.down=g.mouse.clicked=false;g.player.invuln=0;g.player.hp=100;g.player.poison=0;return g;}
 function puzzle(k,keys=[],flags=[]){g.inv.keys.push(...keys);for(const f of flags)g.pz['h:lf_'+f]=true;run(`EndPuzzles.open(Game,'${k}')`);}
 function act(i){return run(`EndPuzzles.action(Game,${JSON.stringify(i)})`);}
-function done(){return run('EndPuzzles.complete(Game)');}
+function done(){const xp=g.player.xp,result=run('EndPuzzles.complete(Game)');assert.equal(g.player.xp,xp,'Ingredientes, arma y módulos no conceden XP');return result;}
 function boss(){start('hospitalorigin');g.inv.keys.push('lf_serum','lf_genome','lf_catalyst');run('Endgame.begin(Game)');g.boss.recover(1);return g.boss;}
 function steps(b,t){for(let i=0;i<Math.ceil(t*60);i++)b.update(1/60,g);}
 function reach(x,y){const q=[[x,y]],s=new Set([x+','+y]);for(let i=0;i<q.length;i++){const [a,b]=q[i];for(const [dx,dy]of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=a+dx,ny=b+dy,k=nx+','+ny;if(L.grid[ny]?.[nx]!==0||s.has(k))continue;s.add(k);q.push([nx,ny]);}}return s;}

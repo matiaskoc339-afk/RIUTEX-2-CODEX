@@ -46,7 +46,7 @@ const WorksPuzzles = {
    g.inv.keys=g.inv.keys.filter(k=>!this.needs[kind].includes(k));
    if(kind==='filter'){Works.data(g).filter=true;if(!g.inv.keys.includes('wx_filter'))g.inv.keys.push('wx_filter');}
    if(kind==='hoist')Works.data(g).upgrades.push('shot_compensator');
-   g.player.xp+=kind==='hoist'?45:35;Works.openDoors(g);
+   Works.openDoors(g);
   }
   g.resume();Hospital.checkpoint(g);Sound.play('pickup');
   UI.msg({pumps:'Trasvase estable. El aliviadero baja; el pozo y su atajo responden.',cages:'Las nueve jaulas están en silencio. Cede el cierre del quirófano animal.',gears:'La presión cae. La prensa queda liberada y las fugas se cortan.',filter:'Filtro de vertidos instalado: −45 % de acumulación de veneno.',hoist:'Compensador M12 recuperado: +12 % de daño y −10 % de esfuerzo, solo escopeta.',main:'La compuerta del colector ya está abierta.'}[kind],6500);return true;

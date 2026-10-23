@@ -2,6 +2,8 @@
 // Carga después de game.js. Solo actúa cuando el nivel es 'mansion' u 'hospital*'; RIUTEX 1 queda intacto.
 const isR2lvl = l => l === 'mansion' || (l || '').startsWith('hospital');
 const isR2 = () => isR2lvl(Game.lvl);
+// Únicas fuentes no bélicas de XP: documentos nuevos y muestras consumidas.
+const R2_XP = Object.freeze({ document: 2, sample: 15 });
 const D4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 
 // ---------- Navegación (A* con penalización junto a paredes + comprobación de línea "gorda") ----------
@@ -171,7 +173,7 @@ const Hospital = {
   inject(g) { // F: el frasco de la mansión. Regenera el brazo y despierta los primeros poderes
     const p = g.player, m = g.mut, c = g.carn; const s = g.story; s.armHealed = true; s.seq = 'healed'; s.riutexUsed = (s.riutexUsed || 0) + 1; m.tutorial = true; m.phases = Math.max(1, m.phases);
 
-    p.maxEnergy = 100 + m.phases * 20 + m.mod('en'); p.energy = p.maxEnergy; p.hp = Math.max(p.hp, Math.round(p.maxHp * .6)); p.xp += 20; g.fxInject('#38a9ff'); g.fxMutate(); g.cam.shake = 16; g.ring(p.x, p.y, 220, '#70d6ff');
+    p.maxEnergy = 100 + m.phases * 20 + m.mod('en'); p.energy = p.maxEnergy; p.hp = Math.max(p.hp, Math.round(p.maxHp * .6)); g.fxInject('#38a9ff'); g.fxMutate(); g.cam.shake = 16; g.ring(p.x, p.y, 220, '#70d6ff');
     if (c && !c.dormant) { const a = Math.atan2(c.y - p.y, c.x - p.x); Level.move(c, Math.cos(a) * 70, Math.sin(a) * 70); c.state = 'recover'; c.mt = 4.2; c.stagger = 1.2; }
     g.pz['h:shutter'] = true; g.pz['h:forced'] = true; for (const id of ['forced']) { const d = Level.doors.find(d => d.id === id); if (d && !d.open) { Level.openDoor(d); Sound.play('door'); } }
     UI.msg('El Riutex reconstruye tu brazo. K: elige tus habilidades; ninguna técnica se aprende automáticamente.', 10000); },
@@ -296,7 +298,7 @@ const Hospital = {
   const _prm = G.promptText; G.promptText = function () { if (isR2()) { const s = this.story; if (s.restrained) return '[E] Zafarte de las correas (' + s.struggle + '/12)'; if (!this.nearItem()) { const f = Level.doors.find(d => d.id === 'forced' && !d.open); if (f && Math.hypot(44.5 * TILE - this.player.x, 7.5 * TILE - this.player.y) < 64) return 'Mantén [E]: forzar la puerta (' + Math.round(Math.min(1, (s.force || 0) / 1.2) * 100) + '%)'; if (!Level.nearDoor(this.player)) { const d = Hospital.nearOpenDoor(this.player); if (d) return '[E] Cerrar puerta'; } } } return _prm.call(this); };
   const _inj = G.useInj; G.useInj = function () { if (isR2() && this.story.armCut && !this.story.armHealed && this.state === 'play') return Hospital.inject(this); return _inj.call(this); };
   // inyectar muestra en R2: la muestra da EXP directa (no hay fases)
-  const _sam = G.injectSample; G.injectSample = function () { if (isR2()) { if (this.inv.samples <= 0) return UI.msg('No tienes muestras.'); this.inv.remove('sample'); this.player.xp += 40; this.story.riutexUsed++; this.fxInject('#38a9ff'); UI.msg('Muestra absorbida: +40 EXP.', 3500); return UI.renderTree(this); } return _sam.call(this); };
+  const _sam = G.injectSample; G.injectSample = function () { if (isR2()) { if (this.inv.samples <= 0) return UI.msg('No tienes muestras.'); this.inv.remove('sample'); this.player.xp += R2_XP.sample; this.story.riutexUsed++; this.fxInject('#38a9ff'); UI.msg('Muestra absorbida: +' + R2_XP.sample + ' EXP.', 3500); return UI.renderTree(this); } return _sam.call(this); };
   // tras morir, "Reintentar" carga el último punto de control (autoguardado)
   const _init = G.init; G.init = function () { _init.call(this); const $ = id => document.getElementById(id), g = this;
     if ($('bNew')) $('bNew').onclick = () => { Sound.unlock(); g.startLvl = 'mansion'; g.start(false); }; if ($('bLegacy')) $('bLegacy').onclick = () => { Sound.unlock(); g.startLvl = 'asylum'; g.start(false); };
@@ -318,7 +320,7 @@ const Hospital = {
   const _ed = Enemy.prototype.draw; Enemy.prototype.draw = function (ctx) {
     _ed.call(this, ctx); const t = this.type; if (!['enfermera', 'camillero', 'hinchado', 'cirujano', 'sonambulo', 'rastrero'].includes(t) || this.dead || (this.def.latent && !this.alert)) return;
     ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.face); if (t === 'enfermera') { ctx.fillStyle = '#f0f0f0'; ctx.fillRect(-1, -6, 6, 12); ctx.fillStyle = '#c02030'; ctx.fillRect(1, -1, 2, 2); } else if (t === 'camillero') { ctx.fillStyle = '#9aa4ac'; ctx.fillRect(10, -13, 18, 26); ctx.fillStyle = '#6a7078'; ctx.fillRect(12, -11, 14, 22); } else if (t === 'hinchado') { ctx.fillStyle = 'rgba(190,170,70,.75)'; ctx.beginPath(); ctx.arc(-2, 0, 15, 0, 6.283); ctx.fill(); ctx.fillStyle = '#6a5a20'; ctx.beginPath(); ctx.arc(-6, -5, 4, 0, 6.283); ctx.fill(); } else if (t === 'cirujano') { ctx.fillStyle = '#3a6a5a'; ctx.fillRect(2, -7, 8, 14); ctx.fillStyle = '#d0e0e0'; ctx.fillRect(10, -8, 10, 2); } else if (t === 'sonambulo') { ctx.fillStyle = '#dcd4c8'; ctx.fillRect(-6, -9, 8, 18); } ctx.restore(); };
-  // Las bajas complementan explorar; sin multiplicador ni premios aleatorios enormes.
+  // Bajas pequeñas y progresivas; sin multiplicador ni premios aleatorios enormes.
   // def.xp también identifica élites para el botín: sus valores originales se conservan.
   const _xp = mutationXPReward; mutationXPReward = function (d, b, m) {
     if (!isR2()) return _xp(d, b, m);

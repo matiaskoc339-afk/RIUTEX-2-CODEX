@@ -54,7 +54,9 @@ with local_server(ROOT) as base_url, sync_playwright() as p:
  record('Patio y galería sur se recorren con movimiento continuo',page.evaluate("!!Game.story.visited['hospital:Patio de invierno']&&!!Game.story.visited['hospital:Galería sur']"))
  page.keyboard.press('m');record('Plano y descubrimiento sin revelar el hospital entero',page.is_visible('#map') and page.locator('#mapDrawing svg').count()==1)
  page.screenshot(path=str(ROOT/'artifacts/blue-map.png'));page.keyboard.press('m')
- # Interfaz del árbol con la EXP realmente obtenida en la introducción y exploración.
+ # Un segundo documento permite comprar Vigor sin XP gratuita por salas o puzles.
+ page.evaluate("qa.take('w_exit_note');if(Game.state==='doc')Game.closeDoc()")
+ # Interfaz del árbol con la EXP realmente obtenida de los documentos recogidos.
  page.keyboard.press('k');record('Una red con inicio común y 153 opciones',page.locator('.network-branch').count()==3 and page.evaluate('Object.keys(SKILLS).length===153'))
  page.locator('[data-skill="vigor"]').click();xp=page.evaluate('Game.player.xp');page.click('#bBuy')
  record('Comprar descuenta EXP y cambia salud máxima',page.evaluate(f"Game.mut.has('vigor')&&Game.player.xp==={xp}-4&&Game.player.maxHp===110"))

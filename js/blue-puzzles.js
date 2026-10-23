@@ -121,24 +121,23 @@ const BluePuzzles = {
     if (type === "mix") {
       this.reward(g, "inj_green");
       this.reward(g, "inj_blue");
-      UI.msg("Suero estabilizado: inyección verde y azul. +30 EXP.", 5000);
+      UI.msg("Suero estabilizado: inyección verde y azul.", 5000);
     }
     if (type === "hydro") {
       this.reward(g, "inj_yellow");
       this.reward(g, "am_shells", 6);
       UI.msg(
-        "El agua baja: recuperas una inyección amarilla y cartuchos. +30 EXP.",
+        "El agua baja: recuperas una inyección amarilla y cartuchos.",
         5000,
       );
     }
     if (type === "eeg") {
       this.reward(g, "sample");
       UI.msg(
-        "Sincronización estable. Muestra de Riutex recuperada. +30 EXP.",
+        "Sincronización estable. Muestra de Riutex recuperada; absórbela desde K.",
         5000,
       );
     }
-    g.player.xp += 30;
     Sound.play("pickup");
     Hospital.checkpoint(g);
     return true;

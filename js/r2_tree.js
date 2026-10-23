@@ -100,6 +100,6 @@ const Trees = {
     this.$('treeInfo').textContent = txt;
     if (!s || s.kind === 'core') { b.textContent = s ? 'Núcleo' : 'Selecciona un nodo'; b.disabled = true; } else if (m.has(id)) { b.textContent = s.type === 'active' ? (m.equipped === id ? 'Seleccionada' : 'Seleccionar habilidad') : 'Adquirida'; b.disabled = s.type !== 'active'; } else { b.textContent = 'Comprar (' + s.cost + ' EXP)'; b.disabled = !!m.canBuy(id, p.xp); }
     const bindBtn = this.$('bBind'); bindBtn.style.display = s && m.has(id) && s.type === 'active' ? 'block' : 'none'; bindBtn.textContent = s && m.bindings[id] ? 'Cambiar tecla (' + g.keyName(m.bindings[id]) + ')' : 'Asignar tecla';
-    if (sb) { sb.textContent = 'Absorber muestra de Riutex (+40 EXP) · ' + g.inv.samples; sb.disabled = g.inv.samples <= 0; }
+    if (sb) { sb.textContent = 'Absorber muestra de Riutex (+' + R2_XP.sample + ' EXP) · ' + g.inv.samples; sb.disabled = g.inv.samples <= 0; }
   };
 })();

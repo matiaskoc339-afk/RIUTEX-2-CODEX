@@ -638,7 +638,7 @@ const BlueSkills = {
       "Asignar tecla" +
       (g.mut.bindings[id] ? " · " + g.keyName(g.mut.bindings[id]) : "");
     UI.$("bSample").textContent =
-      "Absorber muestra · +40 EXP (" + g.inv.samples + ")";
+      "Absorber muestra · +" + R2_XP.sample + " EXP (" + g.inv.samples + ")";
     UI.$("bSample").disabled = g.inv.samples <= 0;
   },
 };

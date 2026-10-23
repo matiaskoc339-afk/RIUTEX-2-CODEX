@@ -183,7 +183,6 @@ const WeaponPuzzles = {
     g.pz[q.flag] = true;
     g.pz["blue:" + c.type] = true;
     g.inv.keys = g.inv.keys.filter((k) => !this.need[c.kind].includes(k));
-    g.player.xp += c.kind === "shotgun" ? 35 : 45;
     Adventure.sync(g);
     g.resume();
     Sound.play("door");

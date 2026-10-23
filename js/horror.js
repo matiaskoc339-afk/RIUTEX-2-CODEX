@@ -400,7 +400,6 @@ const StalkerMind = {
       key = g.lvl + ":" + room;
     if (room && !visits[key]) {
       visits[key] = true;
-      g.player.xp += 5;
       UI.$("location").textContent = room;
       UI.$("location").classList.remove("show");
       void UI.$("location").offsetWidth;

@@ -1,3 +1,18 @@
+# Validación de v0.18.1 · Tres fuentes de XP
+
+Solo conceden XP las bajas, los documentos nuevos (2) y las muestras consumidas (15). Se retiran los premios de salas, puzles, equipo, campanas, maletín de la arena, ingredientes y primera inyección obligatoria. Los mecanismos y sus recompensas materiales siguen funcionando.
+
+- Motor: **277 pruebas**, **103 comprobaciones de integración** y **15 mapas**, sin fallos. El ajuste final de la prueba de inyección se vuelve a ejecutar dentro de las **14 pruebas específicas de XP**, todas correctas.
+- Los puzles existentes del hospital, fábrica, traje, armas, castillo y laboratorio comprueban sus recompensas sin sumar XP. También se comprueban campanas y maletín de la arena sin premio adicional.
+- Navegador: **75 comprobaciones en 3 grupos**: fuentes de XP/HUD/guardado **34**, prólogo y hospital **24**, HTML integrado **17**. Sin errores JavaScript ni solicitudes externas del HTML integrado.
+- El navegador consume una muestra mediante el botón real del árbol, que anuncia +15 EXP; resuelve un puzle por sus botones sin cobrar XP. Se repite en ambas perspectivas, junto con documentos y guardado/carga.
+- El recorrido inicial usa la XP de dos documentos para comprar Vigor; caminar y resolver el reloj no regalan experiencia.
+- Presupuesto finito de ocho mapas: **670 XP** de bajas normales, documentos únicos y muestras colocadas, sin incluir jefes, oleadas ni la muestra EEG. Las pruebas compran por separado rutas avanzadas humana de **310 XP / 24 nodos** y mutante de **348 XP / 27 nodos** con requisitos reales.
+
+Las muertes preparadas de jefes aíslan sus recompensas y no equivalen a victorias adicionales. El presupuesto exige obtener todo lo contado; no mide una primera partida humana ni una campaña completa con recursos naturales. Los combates y grupos antiguos se conservan como historial debajo y en RESULTADOS.json. El HTML se prueba por HTTP: el Chromium administrado bloquea file:// y ese acceso no se cuenta como validado.
+
+---
+
 # Validación de v0.18.0 · Progresión de XP
 
 Las nuevas bajas de RIUTEX 2 dan cantidades pequeñas y predecibles según peligrosidad, zona y condición de jefe. Se elimina el multiplicador ×2,5. Cada muerte de un enemigo común solo procesa sus recompensas una vez, aunque vuelva a recibir daño.

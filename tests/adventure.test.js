@@ -26,6 +26,11 @@ function take(id) {
   Game.take(it);
   if (Game.state === "doc") Game.closeDoc();
 }
+function complete() {
+  const xp = Game.player.xp, result = run("WeaponPuzzles.complete(Game)");
+  assert.equal(Game.player.xp, xp, "Liberar armas no concede XP");
+  return result;
+}
 function solveRack() {
   for (const [id, delta, count] of [
     [2, -1, 2],
@@ -39,7 +44,7 @@ function solveRack() {
       assert.ok(run("WeaponPuzzles.move(Game," + delta + ")"));
   }
   assert.ok(run("WeaponPuzzles.solved()"));
-  return run("WeaponPuzzles.complete(Game)");
+  return complete();
 }
 test("El prólogo entrega un AK automático fuerte, con munición propia", () => {
   fresh();
@@ -116,7 +121,7 @@ test("Escopeta: faltan piezas, no se puede abrir antes de explorar", () => {
   take("q_crank");
   take("q_shot_rack");
   assert.equal(Game.state, "puzzle");
-  assert.equal(run("WeaponPuzzles.complete(Game)"), false);
+  assert.equal(complete(), false);
   assert.ok(!Game.pz["adv:shotgun"]);
   assert.ok(!Game.items.some((i) => i.id === "q_shotgun"));
 });
@@ -178,7 +183,7 @@ test("El cierre óptico requiere piezas de dos plantas diferentes", () => {
   run("WeaponPuzzles.open(Game,'optics')");
   assert.equal(Game.state, "puzzle");
   assert.ok(!run("WeaponPuzzles.solved()"));
-  assert.equal(run("WeaponPuzzles.complete(Game)"), false);
+  assert.equal(complete(), false);
 });
 test("El haz necesita los tres testigos y el receptor para liberar la UZI", () => {
   hospital();
@@ -188,7 +193,7 @@ test("El haz necesita los tres testigos y el receptor para liberar la UZI", () =
   run("WeaponPuzzles.open(Game,'optics')");
   for (let i = 0; i < 6; i++) run("WeaponPuzzles.turn(Game," + i + ")");
   assert.equal(run("WeaponPuzzles.beam(BluePuzzles.cur.angles).lit.size"), 3);
-  assert.ok(run("WeaponPuzzles.complete(Game)"));
+  assert.ok(complete());
   assert.ok(!Game.player.weapons.viper);
   take("q_uzi");
   assert.ok(Game.player.weapons.viper);

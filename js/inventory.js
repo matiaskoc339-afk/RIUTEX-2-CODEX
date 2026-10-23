@@ -18,7 +18,7 @@ const ITEMS = { // w,h = casillas que ocupa en el maletín
   screw_large: { name: 'Tornillos grandes', short: 'Torn. G', color: '#65717c', w: 1, h: 1, use: false, cap: 20, desc: 'Pernos industriales. Sirven para fabricar munición pesada.' },
   powder_small: { name: 'Pólvora pequeña', short: 'Pólv. P', color: '#b99b61', w: 1, h: 1, use: false, cap: 30, desc: 'Pequeña carga de pólvora para munición ligera.' },
   powder_large: { name: 'Pólvora grande', short: 'Pólv. G', color: '#72543d', w: 1, h: 1, use: false, cap: 20, desc: 'Carga de pólvora de alto rendimiento para munición pesada.' },
-  sample: { name: 'Muestra de Riutex-V1', short: 'Muestra', color: '#38a9ff', w: 1, h: 1, use: false, desc: 'Se absorbe desde K para obtener 40 EXP. Puedes conservarla sin usarla; ocupa una casilla.' }
+  sample: { name: 'Muestra de Riutex-V1', short: 'Muestra', color: '#38a9ff', w: 1, h: 1, use: false, desc: 'Se absorbe desde K para obtener 15 EXP. Recogerla no da EXP. Puedes conservarla sin usarla; ocupa una casilla.' }
 };
 const AMMO = { pistol: 'am_pistol', shotgun: 'am_shells', viper: 'am_smg', rifle: 'am_rifle', launcher: 'am_grenade' }; // arma -> tipo de munición
 const KEYS = { enfermeria: 'Llave de la enfermería', almacen: 'Llave del almacén', seguridad: 'Tarjeta de seguridad', director: 'Llave del director', salida: 'Llave de la salida', taller: 'Llave del taller', pase_a: 'Pase de seguridad A', pase_b: 'Pase de seguridad B', llave_voss: 'Llave del sanctum de Voss', acceso: 'Llave de acceso militar', llave_arm_a: 'Llave de armería A', llave_arm_b: 'Llave de armería B', tarjeta: 'Tarjeta del puesto de mando', lab: 'Tarjeta del laboratorio', fusible_a: 'Fusible A', fusible_b: 'Fusible B', fusible_c: 'Fusible C' };

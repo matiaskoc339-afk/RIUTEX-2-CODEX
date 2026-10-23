@@ -20,7 +20,6 @@ const Blue = {
       key = g.lvl + ":" + room;
     if (room && !visits[key]) {
       visits[key] = true;
-      g.player.xp += 5;
       const label = UI.$("location");
       label.textContent = room;
       label.classList.remove("show");
@@ -330,9 +329,11 @@ const Blue = {
   };
   const take = Game.take;
   Game.take = function (it) {
-    const docs = this.inv.docs.length;
+    const doc = it?.type === "doc";
+    if (doc && (this.picked.has(it.id) || !this.items.includes(it))) return;
+    const fresh = doc && !this.inv.docs.includes(it.doc);
     take.call(this, it);
-    if (this.inv.docs.length > docs) this.player.xp += 4;
+    if (fresh && this.inv.docs.includes(it.doc)) this.player.xp += R2_XP.document;
   };
   const openDoc = Game.openDoc;
   Game.openDoc = function (id) {

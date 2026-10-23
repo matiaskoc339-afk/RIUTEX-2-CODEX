@@ -1,8 +1,8 @@
 {
-  "version": "0.18.0",
+  "version": "0.18.1",
   "date": "2026-10-23",
   "scope": "RIUTEX 2 completo: mansión, hospital, fábrica, castillo, laboratorio UMBRAL, Wren/ORIGEN y dos epílogos",
-  "system_tests": 273,
+  "system_tests": 277,
   "system_failures": 0,
   "integration_checks": 103,
   "map_validations": 15,
@@ -76,12 +76,12 @@
     "endings": 2
   },
   "browser_groups": {
-    "experience-browser-results.json": 22,
-    "survival-browser-results.json": 38,
+    "experience-browser-results.json": 34,
+    "browser-blue-results.json": 24,
     "standalone-blue-results.json": 17
   },
-  "browser_checks_total": 77,
-  "standalone_headless_fps": 48.9,
+  "browser_checks_total": 75,
+  "standalone_headless_fps": 49.7,
   "file_access": {
     "attempted": true,
     "status": "blocked_by_environment",
@@ -397,7 +397,7 @@
     "weapon": "r98",
     "reserve": 11
   },
-  "notes": "v0.18.0 sustituye la bonificación ×2,5 por bajas pequeñas y predecibles, crecientes por zona y peligrosidad. Conserva premios superiores para minijefes y jefes, XP de exploración y progreso guardado. Los cadáveres no vuelven a conceder XP ni botín por daño repetido. v0.17.2 amplía cinco veces el recorrido vertical de cámara en POV para ratón y flechas, manteniendo velocidad, sensibilidad y retícula centrada. v0.17.1 añade sensibilidad del ratón 25–250 %, sincronizada entre Opciones y Pausa, aplicada a ambos ejes y guardada sin alterar la preferencia POV ni las partidas. v0.17.0 diferencia las criaturas y objetos de primera persona, separa Carnicero/Vacío y C-17/Camillero antes de la caché, recorta el margen transparente de objetos sueltos y centra la mira al inclinar la cámara. v0.16.2 añade el botón Bloquear ratón, visible solo en POV sin captura y durante la partida; Esc libera y pausa. v0.16.1 corrige el sentido vertical de ratón/flechas y elimina únicamente en POV la máscara de salas sin visitar, manteniendo oclusión física, descubrimiento del plano y oscuridad clásica. v0.16 añade la opción Primera Persona POV en ajustes y pausa, con vista clásica predeterminada, materiales, enemigos frontales, armas y avisos proyectados. v0.15.1 renueva exclusivamente la presentación del menú; se elimina la figura humana y se intensifican disparos, material de sangre, entorno y botones. v0.15 conserva balance porcentual, opciones persistentes y fundidos. Rutas, mecanismos y finales con movimiento, puertas y botones reales; enemigos retirados solo para aislar geometría. Combates independientes con IA y recursos preparados finitos. El controlador conoce posiciones y avisos y no representa una primera partida humana ni valida los recursos de la campaña íntegra. UMBRAL se recorre en sus 26 espacios; sus tres cámaras no permiten eludir cierres. Wren atraviesa tres mutaciones sin saltos. El GL-6 tiene identidad independiente de la migración LG-4/FL-4, granadas fabricables, explosión y cuatro mejoras. La decisión del antídoto se guarda, elimina poderes mutantes y el brazo reconstruido al curarse, o conserva la transformación. Ambos finales caminan por la calle y muestran el helicóptero antes del resultado. Capturas preparadas de formas no se cuentan como combates. La inyección de vida máxima sustituye al rifle del hospital. HTML integrado probado por HTTP sin recursos externos; Chromium administrado bloquea file://, intento que no se cuenta como superado.",
+  "notes": "v0.18.1 limita los ingresos de XP a bajas, documentos nuevos (2) y muestras consumidas (15). Salas, puzles, armas, traje, maletín de oleadas, campanas, ingredientes y primera inyección dan cero. Se conservan las bajas pequeñas de v0.18.0, los objetos de recompensa y el progreso guardado. Presupuesto colocado de ocho mapas: 670 XP; se comprueban por separado rutas avanzadas humana de 310 y mutante de 348 con requisitos reales. v0.18.0 sustituye la bonificación ×2,5 por bajas pequeñas y predecibles, crecientes por zona y peligrosidad. Conserva premios superiores para minijefes y jefes, XP de exploración y progreso guardado. Los cadáveres no vuelven a conceder XP ni botín por daño repetido. v0.17.2 amplía cinco veces el recorrido vertical de cámara en POV para ratón y flechas, manteniendo velocidad, sensibilidad y retícula centrada. v0.17.1 añade sensibilidad del ratón 25–250 %, sincronizada entre Opciones y Pausa, aplicada a ambos ejes y guardada sin alterar la preferencia POV ni las partidas. v0.17.0 diferencia las criaturas y objetos de primera persona, separa Carnicero/Vacío y C-17/Camillero antes de la caché, recorta el margen transparente de objetos sueltos y centra la mira al inclinar la cámara. v0.16.2 añade el botón Bloquear ratón, visible solo en POV sin captura y durante la partida; Esc libera y pausa. v0.16.1 corrige el sentido vertical de ratón/flechas y elimina únicamente en POV la máscara de salas sin visitar, manteniendo oclusión física, descubrimiento del plano y oscuridad clásica. v0.16 añade la opción Primera Persona POV en ajustes y pausa, con vista clásica predeterminada, materiales, enemigos frontales, armas y avisos proyectados. v0.15.1 renueva exclusivamente la presentación del menú; se elimina la figura humana y se intensifican disparos, material de sangre, entorno y botones. v0.15 conserva balance porcentual, opciones persistentes y fundidos. Rutas, mecanismos y finales con movimiento, puertas y botones reales; enemigos retirados solo para aislar geometría. Combates independientes con IA y recursos preparados finitos. El controlador conoce posiciones y avisos y no representa una primera partida humana ni valida los recursos de la campaña íntegra. UMBRAL se recorre en sus 26 espacios; sus tres cámaras no permiten eludir cierres. Wren atraviesa tres mutaciones sin saltos. El GL-6 tiene identidad independiente de la migración LG-4/FL-4, granadas fabricables, explosión y cuatro mejoras. La decisión del antídoto se guarda, elimina poderes mutantes y el brazo reconstruido al curarse, o conserva la transformación. Ambos finales caminan por la calle y muestran el helicóptero antes del resultado. Capturas preparadas de formas no se cuentan como combates. La inyección de vida máxima sustituye al rifle del hospital. HTML integrado probado por HTTP sin recursos externos; Chromium administrado bloquea file://, intento que no se cuenta como superado.",
   "origin_combat": {
     "won": true,
     "state": "play",
@@ -450,20 +450,13 @@
     "previous_browser_suites": "Los escenarios de lógica y recorrido aíslan la presentación; polish-browser verifica los fundidos con requestAnimationFrame real."
   },
   "regression_baseline": {
-    "version": "0.17.2",
-    "system_tests": 263,
+    "version": "0.18.0",
+    "system_tests": 273,
     "integration_checks": 103,
     "map_validations": 15,
-    "browser_groups": {
-      "pov-pitch-browser-results.json": 42,
-      "pov-patch-browser-results.json": 14,
-      "pov-sensitivity-browser-results.json": 14,
-      "pov-capture-browser-results.json": 15,
-      "standalone-blue-results.json": 17
-    },
-    "browser_checks_total": 102
+    "browser_checks_total": 77
   },
-  "validation_scope": "Motor, integración y mapas completos; diez pruebas específicas de XP y presupuesto de ocho mapas. Navegador: bajas/HUD en ambas perspectivas, premios de ocho jefes/minijefes, compras/guardado, supervivencia/armero/C-17 y HTML integrado. Los otros grupos conservan su validación anterior.",
+  "validation_scope": "Motor: 277 pruebas, 103 comprobaciones de integración y 15 mapas. Catorce pruebas específicas de XP y aserciones de cero XP en los puzles existentes de todas las fases. Navegador: XP, documentos y absorción por controles en ambas perspectivas; prólogo y hospital con movimiento; HTML integrado. Los otros grupos conservan resultados históricos y no se repiten sus combates.",
   "pov": {
     "optional": true,
     "default_enabled": false,
@@ -507,7 +500,7 @@
     }
   },
   "kill_xp_balance": {
-    "version": "0.18.0",
+    "version": "0.18.1",
     "floors": {
       "mansion": {
         "count": 7,
@@ -624,6 +617,100 @@
         "after": 29
       }
     ],
-    "scope": "Presupuesto exacto de los enemigos colocados en ocho mapas, frente a la media del cálculo anterior. No incluye XP de exploración, documentos, muestras, puzles ni misiones; tampoco es una medida de dificultad humana."
+    "sources": {
+      "mansion": {
+        "kills": 7,
+        "documents": 7,
+        "document_xp": 14,
+        "samples": 0,
+        "sample_xp": 0,
+        "total": 21
+      },
+      "hospital": {
+        "kills": 38,
+        "documents": 32,
+        "document_xp": 64,
+        "samples": 1,
+        "sample_xp": 15,
+        "total": 117
+      },
+      "hospital1": {
+        "kills": 35,
+        "documents": 17,
+        "document_xp": 34,
+        "samples": 1,
+        "sample_xp": 15,
+        "total": 84
+      },
+      "hospitalb": {
+        "kills": 22,
+        "documents": 8,
+        "document_xp": 16,
+        "samples": 1,
+        "sample_xp": 15,
+        "total": 53
+      },
+      "hospitalworks": {
+        "kills": 60,
+        "documents": 20,
+        "document_xp": 40,
+        "samples": 0,
+        "sample_xp": 0,
+        "total": 100
+      },
+      "hospitalcastle": {
+        "kills": 48,
+        "documents": 11,
+        "document_xp": 22,
+        "samples": 0,
+        "sample_xp": 0,
+        "total": 70
+      },
+      "hospitalcastle1": {
+        "kills": 52,
+        "documents": 10,
+        "document_xp": 20,
+        "samples": 0,
+        "sample_xp": 0,
+        "total": 72
+      },
+      "hospitalumbra": {
+        "kills": 123,
+        "documents": 15,
+        "document_xp": 30,
+        "samples": 0,
+        "sample_xp": 0,
+        "total": 153
+      }
+    },
+    "sources_total": 670,
+    "advanced_paths": {
+      "gold_fire_discipline": {
+        "cost": 310,
+        "nodes": 24
+      },
+      "gold_organic_reactor": {
+        "cost": 348,
+        "nodes": 27
+      }
+    },
+    "scope": "Presupuestos finitos de ocho mapas: bajas colocadas, documentos únicos y muestras colocadas. No incluyen oleadas, minijefes, jefes ni muestras de puzles. Se compran dos rutas avanzadas por separado con el presupuesto calculado; no es una simulación de dificultad humana."
+  },
+  "xp_sources": {
+    "allowed": [
+      "kills",
+      "new_document_pickup",
+      "consumed_riutex_sample"
+    ],
+    "document": 2,
+    "sample": 15,
+    "mandatory_initial_injection": 0,
+    "room_discovery": 0,
+    "puzzle_completion": 0,
+    "weapon_or_suit_pickup": 0,
+    "bells": 0,
+    "arena_case": 0,
+    "antidote_ingredients": 0,
+    "old_save_xp_preserved": true
   }
 }
