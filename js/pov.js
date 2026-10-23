@@ -3,7 +3,16 @@
 const FirstPerson = {
   key:'riutex_pov_v016', enabled:false, ready:false, armed:false, fallback:false,
   dragging:false, dragMoved:false, dragDistance:0, pitch:0, turnKeys:{},
-  sensitivity:.00235, ignoreUnlock:false, ignoreEscapeUntil:0,
+  sensitivity:.00235, sensitivityPercent:100, ignoreUnlock:false, ignoreEscapeUntil:0,
+  saveSettings(){
+    try{localStorage.setItem(this.key,JSON.stringify({enabled:this.enabled,sensitivityPercent:this.sensitivityPercent}));}catch(e){}
+  },
+  setSensitivity(value){
+    const number=typeof value==='number'||typeof value==='string'&&value.trim()!==''?Number(value):NaN;
+    this.sensitivityPercent=Number.isFinite(number)?Math.max(25,Math.min(250,Math.round(number/5)*5)):100;
+    this.sensitivity=.00235*this.sensitivityPercent/100;
+    this.saveSettings();this.refreshUI(Game);return this.sensitivityPercent;
+  },
   active(g=Game){return !!(this.enabled&&g?.player&&typeof isR2lvl==='function'&&isR2lvl(g.lvl));},
   playable(g=Game){return this.active(g)&&g.state==='play'&&!g.mut?.bindingTarget&&!(typeof SceneTransitions!=='undefined'&&SceneTransitions.active);},
   locked(){return typeof document!=='undefined'&&document.pointerLockElement===Game.cv&&!!Game.cv;},
@@ -45,7 +54,7 @@ const FirstPerson = {
   setEnabled(value){
     const next=!!value;
     if(next!==this.enabled){this.release(Game);this.enabled=next;this.pitch=0;}
-    try{localStorage.setItem(this.key,JSON.stringify({enabled:this.enabled}));}catch(e){}
+    this.saveSettings();
     this.sync(Game);this.refreshUI(Game);return this.enabled;
   },
   refreshUI(g=Game){
@@ -57,6 +66,11 @@ const FirstPerson = {
     document.body.classList.toggle('pov-dragging',playing&&this.dragging);
     if(this.menuCheck&&this.menuCheck.checked!==this.enabled)this.menuCheck.checked=this.enabled;
     if(this.pauseCheck&&this.pauseCheck.checked!==this.enabled)this.pauseCheck.checked=this.enabled;
+    for(const input of this.sensitivityInputs||[]){
+      if(Number(input.value)!==this.sensitivityPercent)input.value=this.sensitivityPercent;
+      input.setAttribute('aria-valuetext',this.sensitivityPercent+' %');
+      const output=document.getElementById(input.id+'Value');if(output&&output.value!==this.sensitivityPercent+' %')output.value=this.sensitivityPercent+' %';
+    }
     if(this.hint){
       this.hint.classList.toggle('hidden',!this.playable(g)||this.locked());
       const text=this.armed&&this.fallback
@@ -98,10 +112,14 @@ const FirstPerson = {
   },
   init(){
     if(this.ready||typeof HTMLCanvasElement==='undefined')return;this.ready=true;
-    try{this.enabled=JSON.parse(localStorage.getItem(this.key)||'{}')?.enabled===true;}catch(e){this.enabled=false;}
+    let saved={};try{saved=JSON.parse(localStorage.getItem(this.key)||'{}')||{};}catch(e){}
+    this.enabled=saved.enabled===true;this.setSensitivity(saved.sensitivityPercent??100);this.sensitivityInputs=[];
     const makeSetting=(id,helpId)=>{
       const row=document.createElement('div');row.className='pov-setting';
       row.innerHTML='<label for="'+id+'"><span>Primera Persona POV</span><input id="'+id+'" type="checkbox" aria-describedby="'+helpId+'"></label><p id="'+helpId+'">W/S: avanzar y retroceder · A/D: desplazarte de lado.<br>Ratón: mirar · Flechas: alternativa. Desactiva para volver a la vista clásica.</p>';
+      const sliderId=id+'Sensitivity';
+      row.insertAdjacentHTML('beforeend','<div class="pov-sensitivity"><label for="'+sliderId+'"><span>Sensibilidad del ratón</span><output id="'+sliderId+'Value" for="'+sliderId+'">100 %</output></label><input id="'+sliderId+'" type="range" min="25" max="250" step="5" value="100" aria-describedby="'+sliderId+'Help"><p id="'+sliderId+'Help">Más lento ← → Más rápido · 100 %: sensibilidad normal.</p></div>');
+      const input=row.querySelector('input[type=range]');input.oninput=()=>this.setSensitivity(input.value);input.onkeydown=e=>e.stopPropagation();this.sensitivityInputs.push(input);
       return row;
     };
     const menu=UI.$('menuOptions')?.querySelector('.presentation-options');

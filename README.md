@@ -1,16 +1,18 @@
-# RIUTEX 2 · El Custodio · Historia completa · v0.17.0
+# RIUTEX 2 · El Custodio · Historia completa · v0.17.1
 
 Esta versión amplía **RIUTEX2_fase1_v0.2.2.zip**, la base que aportaste. Conserva su motor, historia, protagonistas y persecución. El contenido jugable comprende la mansión, el hospital las cloacas y fábrica de San Gabriel y el museo-fortaleza de Valcárcel y el laboratorio UMBRAL con sus dos desenlaces.
 
 ## Jugar
 
-La entrega incluye [RIUTEX2_Historia_Completa_v0.17.0.html](dist/RIUTEX2_Historia_Completa_v0.17.0.html), con gráficos, estilos y código integrados y sin descargas externas. Ábrelo en un navegador de escritorio con teclado y ratón. El sonido comienza con la primera interacción.
+La entrega incluye [RIUTEX2_Historia_Completa_v0.17.1.html](dist/RIUTEX2_Historia_Completa_v0.17.1.html), con gráficos, estilos y código integrados y sin descargas externas. Ábrelo en un navegador de escritorio con teclado y ratón. El sonido comienza con la primera interacción.
 
 Para ejecutar el proyecto fuente: `npm start` (o `python3 -m http.server 8000`). No hay dependencias de npm que instalar. Los guardados se almacenan en el navegador y dependen de la ubicación desde la que abras el juego. Esta edición utiliza guardados propios; conserva los de v0.2.2 sin importarlos a mapas que han cambiado.
 
-## Primera Persona POV · v0.17.0
+## Primera Persona POV · v0.17.1
 
 En **Opciones**, activa **Primera Persona POV**. También puedes cambiarla desde **Esc → Pausa** durante la partida. Empieza desactivada: la vista clásica sigue disponible. El ajuste se recuerda en el navegador y puedes cambiarlo sin reiniciar ni perder progreso.
+
+La barra **Sensibilidad del ratón** está en Opciones y Pausa: de **25 % a 250 %**, con **100 %** como valor normal. Se aplica al instante a la mirada horizontal y vertical y se recuerda al volver a abrir el juego.
 
 Pulsa **Bloquear ratón** en la ayuda inferior para capturar el cursor en primera persona. **Esc** lo libera y pausa. El botón reaparece al reanudar; si el navegador rechaza la captura, puedes reintentar o usar el arrastre con clic derecho.
 

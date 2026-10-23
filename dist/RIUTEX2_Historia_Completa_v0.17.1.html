@@ -5091,6 +5091,11 @@ body.scene-changing #hud{visibility:hidden}
 .pov-setting label{display:flex;justify-content:space-between;align-items:center;gap:20px;margin:0!important;color:#deded3;font:600 17px/1.35 Rajdhani,sans-serif;letter-spacing:.035em;cursor:pointer}
 .pov-setting input[type=checkbox]{width:20px;height:20px;accent-color:#9dbab6;flex-shrink:0}
 .pov-setting p{font:400 13px/1.5 Rajdhani,sans-serif!important;color:#a7b3ae!important;letter-spacing:.015em!important;margin:9px 0 5px!important}
+.pov-sensitivity{margin-top:12px;padding-top:10px;border-top:1px solid #96a9a01f}
+.pov-sensitivity label{font-size:15px;gap:12px}
+.pov-sensitivity output{min-width:48px;color:#c2d7ca;font-variant-numeric:tabular-nums;text-align:right}
+.pov-sensitivity input[type=range]{display:block;width:100%;height:24px;margin:6px 0;accent-color:#a4c3b5;cursor:pointer}
+.pov-sensitivity input[type=range]:focus-visible{outline:2px solid #c1d9cb;outline-offset:3px}
 #pause>.pov-setting{width:min(520px,90vw);padding:16px 20px;border:1px solid #617d7c48;background:#101b21c9}
 #menuOptions .presentation-options{max-height:calc(100vh - 36px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:#718e87 #11191d}
 #pause{overflow-y:auto;padding-top:20px;padding-bottom:20px;justify-content:safe center}
@@ -18689,7 +18694,7 @@ const MenuScene = {
     menu.querySelector('h1').innerHTML='<span>RIUTEX</span><em>2</em>';menu.querySelector('h1').setAttribute('aria-label','RIUTEX 2');
     menu.querySelector('h2').textContent='EL CUSTODIO';
     UI.$('bNew').querySelectorAll('span')[1].textContent='Nueva partida';
-    menu.querySelector('.menu-footer').innerHTML='<span>HISTORIA COMPLETA / v0.17.0</span><span>EL SILENCIO NO TE SALVARÁ.</span><span>CUATRO FASES</span>';menu.appendChild(menu.querySelector('.menu-footer'));
+    menu.querySelector('.menu-footer').innerHTML='<span>HISTORIA COMPLETA / v0.17.1</span><span>EL SILENCIO NO TE SALVARÁ.</span><span>CUATRO FASES</span>';menu.appendChild(menu.querySelector('.menu-footer'));
     const opt=document.createElement('button');opt.id='bMenuOptions';opt.innerHTML='<span class="button-index">03</span><span>Opciones</span><span class="button-arrow">↗</span>';menu.querySelector('.menu-actions').appendChild(opt);
     const panel=document.createElement('section');panel.id='menuOptions';panel.className='screen hidden';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-labelledby','presentationOptionsTitle');
     panel.innerHTML='<div class="presentation-options"><span class="eyebrow">RIUTEX 2 / CONFIGURACIÓN</span><h2 id="presentationOptionsTitle">OPCIONES</h2><label for="menuVolume">Volumen <output id="menuVolumeValue"></output><input id="menuVolume" type="range" min="0" max="100" step="1"></label><label for="menuReduceMotion">Reducir movimiento y destellos<input id="menuReduceMotion" type="checkbox"></label><p>WASD · moverte &nbsp; / &nbsp; Ratón · apuntar y disparar<br>Shift · correr &nbsp; / &nbsp; E · interactuar &nbsp; / &nbsp; R · recargar<br>Tab · maletín &nbsp; / &nbsp; J · documentos &nbsp; / &nbsp; M · mapa<br>K · habilidades &nbsp; / &nbsp; Esc · pausa</p><button id="bMenuOptionsClose">Volver al menú</button></div>';
@@ -19570,7 +19575,16 @@ const POVModels = {
 const FirstPerson = {
   key:'riutex_pov_v016', enabled:false, ready:false, armed:false, fallback:false,
   dragging:false, dragMoved:false, dragDistance:0, pitch:0, turnKeys:{},
-  sensitivity:.00235, ignoreUnlock:false, ignoreEscapeUntil:0,
+  sensitivity:.00235, sensitivityPercent:100, ignoreUnlock:false, ignoreEscapeUntil:0,
+  saveSettings(){
+    try{localStorage.setItem(this.key,JSON.stringify({enabled:this.enabled,sensitivityPercent:this.sensitivityPercent}));}catch(e){}
+  },
+  setSensitivity(value){
+    const number=typeof value==='number'||typeof value==='string'&&value.trim()!==''?Number(value):NaN;
+    this.sensitivityPercent=Number.isFinite(number)?Math.max(25,Math.min(250,Math.round(number/5)*5)):100;
+    this.sensitivity=.00235*this.sensitivityPercent/100;
+    this.saveSettings();this.refreshUI(Game);return this.sensitivityPercent;
+  },
   active(g=Game){return !!(this.enabled&&g?.player&&typeof isR2lvl==='function'&&isR2lvl(g.lvl));},
   playable(g=Game){return this.active(g)&&g.state==='play'&&!g.mut?.bindingTarget&&!(typeof SceneTransitions!=='undefined'&&SceneTransitions.active);},
   locked(){return typeof document!=='undefined'&&document.pointerLockElement===Game.cv&&!!Game.cv;},
@@ -19612,7 +19626,7 @@ const FirstPerson = {
   setEnabled(value){
     const next=!!value;
     if(next!==this.enabled){this.release(Game);this.enabled=next;this.pitch=0;}
-    try{localStorage.setItem(this.key,JSON.stringify({enabled:this.enabled}));}catch(e){}
+    this.saveSettings();
     this.sync(Game);this.refreshUI(Game);return this.enabled;
   },
   refreshUI(g=Game){
@@ -19624,6 +19638,11 @@ const FirstPerson = {
     document.body.classList.toggle('pov-dragging',playing&&this.dragging);
     if(this.menuCheck&&this.menuCheck.checked!==this.enabled)this.menuCheck.checked=this.enabled;
     if(this.pauseCheck&&this.pauseCheck.checked!==this.enabled)this.pauseCheck.checked=this.enabled;
+    for(const input of this.sensitivityInputs||[]){
+      if(Number(input.value)!==this.sensitivityPercent)input.value=this.sensitivityPercent;
+      input.setAttribute('aria-valuetext',this.sensitivityPercent+' %');
+      const output=document.getElementById(input.id+'Value');if(output&&output.value!==this.sensitivityPercent+' %')output.value=this.sensitivityPercent+' %';
+    }
     if(this.hint){
       this.hint.classList.toggle('hidden',!this.playable(g)||this.locked());
       const text=this.armed&&this.fallback
@@ -19665,10 +19684,14 @@ const FirstPerson = {
   },
   init(){
     if(this.ready||typeof HTMLCanvasElement==='undefined')return;this.ready=true;
-    try{this.enabled=JSON.parse(localStorage.getItem(this.key)||'{}')?.enabled===true;}catch(e){this.enabled=false;}
+    let saved={};try{saved=JSON.parse(localStorage.getItem(this.key)||'{}')||{};}catch(e){}
+    this.enabled=saved.enabled===true;this.setSensitivity(saved.sensitivityPercent??100);this.sensitivityInputs=[];
     const makeSetting=(id,helpId)=>{
       const row=document.createElement('div');row.className='pov-setting';
       row.innerHTML='<label for="'+id+'"><span>Primera Persona POV</span><input id="'+id+'" type="checkbox" aria-describedby="'+helpId+'"></label><p id="'+helpId+'">W/S: avanzar y retroceder · A/D: desplazarte de lado.<br>Ratón: mirar · Flechas: alternativa. Desactiva para volver a la vista clásica.</p>';
+      const sliderId=id+'Sensitivity';
+      row.insertAdjacentHTML('beforeend','<div class="pov-sensitivity"><label for="'+sliderId+'"><span>Sensibilidad del ratón</span><output id="'+sliderId+'Value" for="'+sliderId+'">100 %</output></label><input id="'+sliderId+'" type="range" min="25" max="250" step="5" value="100" aria-describedby="'+sliderId+'Help"><p id="'+sliderId+'Help">Más lento ← → Más rápido · 100 %: sensibilidad normal.</p></div>');
+      const input=row.querySelector('input[type=range]');input.oninput=()=>this.setSensitivity(input.value);input.onkeydown=e=>e.stopPropagation();this.sensitivityInputs.push(input);
       return row;
     };
     const menu=UI.$('menuOptions')?.querySelector('.presentation-options');

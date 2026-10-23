@@ -1,3 +1,14 @@
+# Validación de v0.17.1 · Sensibilidad del ratón
+
+La barra nativa de Opciones y Pausa controla ambos ejes del ratón en POV de 25 % a 250 %, en pasos de 5 %. El valor predeterminado de 100 % conserva el ajuste anterior. Se guarda por navegador y las dos ventanas se sincronizan. Los ajustes antiguos reciben el valor normal; valores guardados inválidos se normalizan.
+
+- Motor repetido: **263 pruebas**, **103 comprobaciones de integración** y **15 mapas**, sin fallos.
+- Navegador repetido: **87 comprobaciones en 4 grupos**: sensibilidad 14, captura 15, presentación/fundidos 41 y HTML integrado 17.
+- Un arrastre real idéntico produce diez veces el giro y la inclinación a 250 % que a 25 %. Se verifican persistencia, control con teclado, pausa a 720p y ausencia de disparos o gasto de recursos.
+- Las demás validaciones, incluidas las de modelos y campaña, se conservan debajo como historial.
+
+---
+
 # Validación de v0.17.0 · Criaturas, objetos y mira POV
 
 La revisión diferencia treinta identidades, incluyendo a los enemigos comunes, los encuentros opcionales y los jefes. Se corrige la caché que confundía Carnicero/Vacío y C-17/Camillero. Los objetos sueltos se distinguen por función y arma/pieza concreta; la mira permanece centrada al inclinar la cámara.
