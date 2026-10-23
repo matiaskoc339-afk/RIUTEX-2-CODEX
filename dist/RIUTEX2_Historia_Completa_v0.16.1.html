@@ -18684,7 +18684,7 @@ const MenuScene = {
     menu.querySelector('h1').innerHTML='<span>RIUTEX</span><em>2</em>';menu.querySelector('h1').setAttribute('aria-label','RIUTEX 2');
     menu.querySelector('h2').textContent='EL CUSTODIO';
     UI.$('bNew').querySelectorAll('span')[1].textContent='Nueva partida';
-    menu.querySelector('.menu-footer').innerHTML='<span>HISTORIA COMPLETA / v0.16.0</span><span>EL SILENCIO NO TE SALVARÁ.</span><span>CUATRO FASES</span>';menu.appendChild(menu.querySelector('.menu-footer'));
+    menu.querySelector('.menu-footer').innerHTML='<span>HISTORIA COMPLETA / v0.16.1</span><span>EL SILENCIO NO TE SALVARÁ.</span><span>CUATRO FASES</span>';menu.appendChild(menu.querySelector('.menu-footer'));
     const opt=document.createElement('button');opt.id='bMenuOptions';opt.innerHTML='<span class="button-index">03</span><span>Opciones</span><span class="button-arrow">↗</span>';menu.querySelector('.menu-actions').appendChild(opt);
     const panel=document.createElement('section');panel.id='menuOptions';panel.className='screen hidden';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-labelledby','presentationOptionsTitle');
     panel.innerHTML='<div class="presentation-options"><span class="eyebrow">RIUTEX 2 / CONFIGURACIÓN</span><h2 id="presentationOptionsTitle">OPCIONES</h2><label for="menuVolume">Volumen <output id="menuVolumeValue"></output><input id="menuVolume" type="range" min="0" max="100" step="1"></label><label for="menuReduceMotion">Reducir movimiento y destellos<input id="menuReduceMotion" type="checkbox"></label><p>WASD · moverte &nbsp; / &nbsp; Ratón · apuntar y disparar<br>Shift · correr &nbsp; / &nbsp; E · interactuar &nbsp; / &nbsp; R · recargar<br>Tab · maletín &nbsp; / &nbsp; J · documentos &nbsp; / &nbsp; M · mapa<br>K · habilidades &nbsp; / &nbsp; Esc · pausa</p><button id="bMenuOptionsClose">Volver al menú</button></div>';
@@ -19390,24 +19390,23 @@ const FirstPersonRenderer = {
     POVArt.init();return true;
   },
   propHeight(type){return /pillar|bars/.test(type)?54:/shelf|locker|wardrobe|book|machine/.test(type)?47:31;},
-  castRay(dx,dy,g,allowFog=false){
+  castRay(dx,dy,g){
     const p=g.player,sx=dx<0?-1:1,sy=dy<0?-1:1,stepX=Math.abs(TILE/dx),stepY=Math.abs(TILE/dy);
     let x=Math.floor(p.x/TILE),y=Math.floor(p.y/TILE),tx=Math.abs(((dx<0?x*TILE:(x+1)*TILE)-p.x)/dx),ty=Math.abs(((dy<0?y*TILE:(y+1)*TILE)-p.y)/dy),distance=0,side=0;
     const hits=[];if(!Number.isFinite(dx)||!Number.isFinite(dy)||Math.abs(dx)+Math.abs(dy)<1e-8)return {hits,distance:this.far,value:0,x,y};
     for(let i=0;i<140&&distance<this.far;i++){
       if(tx<ty){distance=tx;tx+=stepX;x+=sx;side=0;}else{distance=ty;ty+=stepY;y+=sy;side=1;}
       const value=Level.grid[y]?.[x]??1;
-      const fog=allowFog&&this.allowedCells&&value!==1&&!this.allowed(x,y);
-      if(value===0&&!fog)continue;
-      const door=this.doorTiles?.get(x+','+y),type=Level.props[x+','+y],height=value===4&&!fog?this.propHeight(type||'crate'):this.wallHeight;
+      if(value===0)continue;
+      const door=this.doorTiles?.get(x+','+y),type=Level.props[x+','+y],height=value===4?this.propHeight(type||'crate'):this.wallHeight;
       const wx=p.x+dx*distance,wy=p.y+dy*distance;let u=((side?wx:wy)/TILE)%1;if(u<0)u+=1;if((side===0&&dx>0)||(side===1&&dy<0))u=1-u;
       if(door){const along=door.horizontal?wx/TILE:wy/TILE;u=Math.max(0,Math.min(.999,(along-door.start)/door.span));}
-      hits.push({distance:Math.max(.01,distance),value,x,y,side,u,height,door:door?.door,fog,type,wx,wy});
-      if(fog||value!==4||hits.length>=9)break;
+      hits.push({distance:Math.max(.01,distance),value,x,y,side,u,height,door:door?.door,type,wx,wy});
+      if(value!==4||hits.length>=9)break;
     }
     const last=hits[hits.length-1];return {hits,distance:last?.distance??this.far,value:last?.value??0,x:last?.x??x,y:last?.y??y};
   },
-  allowed(x,y){return this.allowedCells?.has(x+','+y)||false;},
+  allowed(x,y){return Level.grid[y]?.[x]!==undefined;},
   project(x,y,z=0){
     const v=this.camera;if(!v)return {x:0,y:0,depth:-1,scale:0,visible:false};const dx=x-v.x,dy=y-v.y,depth=dx*v.cos+dy*v.sin,lateral=-dx*v.sin+dy*v.cos,scale=v.focal/Math.max(this.near,depth);
     return {x:this.W*.5+lateral*scale,y:v.horizon+(v.eye-z)*scale,depth,scale,visible:depth>this.near&&depth<this.far};
@@ -19415,16 +19414,11 @@ const FirstPersonRenderer = {
   setup(g){
     const p=g.player,W=this.W,H=this.H,yaw=p.angle||0,pitch=typeof FirstPerson!=='undefined'?FirstPerson.pitch||0:0;
     const bob=MenuScene.motionReduced()?0:Math.sin(p.walkT||0)*(p.running?.35:.18);
-    this.camera={x:p.x,y:p.y,cos:Math.cos(yaw),sin:Math.sin(yaw),focal:W/(2*Math.tan(this.fov/2)),horizon:H*.49+pitch*H*.62,eye:this.eyeHeight+bob,yaw};
+    this.camera={x:p.x,y:p.y,cos:Math.cos(yaw),sin:Math.sin(yaw),focal:W/(2*Math.tan(this.fov/2)),horizon:H*.49-pitch*H*.62,eye:this.eyeHeight+bob,yaw};
     this.current=g;this.theme=POVArt.theme(g);this.doorTiles=new Map();
     for(const door of Level.doors){const xs=door.tiles.map(t=>t[0]),ys=door.tiles.map(t=>t[1]),horizontal=Math.max(...xs)-Math.min(...xs)>=Math.max(...ys)-Math.min(...ys),start=horizontal?Math.min(...xs):Math.min(...ys),span=(horizontal?Math.max(...xs):Math.max(...ys))-start+1;for(const [x,y]of door.tiles)this.doorTiles.set(x+','+y,{door,horizontal,start,span});}
-    HorrorVision.prepare(g);const discoveryKey=g.lvl+'|'+(HorrorVision.entered||[]).map(r=>r.n).join('|');
-    if(this.discoveryKey!==discoveryKey){this.discoveryKey=discoveryKey;this.allowedCells=new Set();
-    // La geometría conocida se conserva hasta entrar en otra estancia.
-    for(const r of HorrorVision.entered||[])for(let y=r.y;y<r.y+r.h;y++)for(let x=r.x;x<r.x+r.w;x++)this.allowedCells.add(x+','+y);
-    for(const d of Level.doors)for(const [x,y]of d.tiles)this.allowedCells.add(x+','+y);
-    for(const [a,b,w,h]of R2_DATA(g.lvl).cuts||[])for(let y=b;y<b+h;y++)for(let x=a;x<a+w;x++)this.allowedCells.add(x+','+y);
-    }
+    // El plano descubre salas al entrar; en POV la vista depende solo de la geometría.
+    HorrorVision.prepare(g);
     const room=HorrorVision.roomAt(p.x/TILE,p.y/TILE);this.outside=g.lvl==='hospitalstreet'||/Jardín|Patio|Calle|Invernadero|exterior/i.test(room?.n||'');
     this.lamps=Level.lamps.filter(l=>Math.hypot(l.x-p.x,l.y-p.y)<700).slice(0,18);this.cellCache=new Map();this.stats={level:g.lvl,columns:W,sprites:0,groundCues:0,visibleEnemies:0,occludedSprites:0};
   },
@@ -19472,15 +19466,12 @@ const FirstPersonRenderer = {
   walls(g){
     const c=g.ctx,W=this.W,H=this.H,v=this.camera,plane=Math.tan(this.fov/2);this.depth.fill(this.far);
     for(let x=0;x<W;x++){
-      const nx=2*(x+.5)/W-1,dx=v.cos-v.sin*plane*nx,dy=v.sin+v.cos*plane*nx,result=this.castRay(dx,dy,g,true);
+      const nx=2*(x+.5)/W-1,dx=v.cos-v.sin*plane*nx,dy=v.sin+v.cos*plane*nx,result=this.castRay(dx,dy,g);
       for(let j=result.hits.length-1;j>=0;j--){
         const hit=result.hits[j],depth=Math.max(this.near,hit.distance),scale=v.focal/depth,top=v.horizon+(v.eye-hit.height)*scale,bottom=v.horizon+v.eye*scale,a=Math.max(0,Math.floor(top)),b=Math.min(H,Math.ceil(bottom));if(b<=a)continue;
-        if(hit.fog){c.fillStyle='#030609';c.fillRect(x,a,1,b-a);}
-        else{
-          const texture=this.wallTexture(hit),u=Math.max(0,Math.min(texture.width-1,Math.floor(hit.u*texture.width))),light=this.light(depth,nx,hit.wx,hit.wy)*(hit.side?.86:1);
-          const sourceY=(a-top)/(bottom-top)*texture.height,sourceH=(b-a)/(bottom-top)*texture.height;
-          c.drawImage(texture,u,sourceY,1,sourceH,x,a,1,b-a);c.fillStyle=`rgba(2,6,10,${Math.min(.96,1-light)})`;c.fillRect(x,a,1,b-a);
-        }
+        const texture=this.wallTexture(hit),u=Math.max(0,Math.min(texture.width-1,Math.floor(hit.u*texture.width))),light=this.light(depth,nx,hit.wx,hit.wy)*(hit.side?.86:1);
+        const sourceY=(a-top)/(bottom-top)*texture.height,sourceH=(b-a)/(bottom-top)*texture.height;
+        c.drawImage(texture,u,sourceY,1,sourceH,x,a,1,b-a);c.fillStyle=`rgba(2,6,10,${Math.min(.96,1-light)})`;c.fillRect(x,a,1,b-a);
         for(let y=a;y<b;y++)this.depth[y*W+x]=depth;
       }
     }

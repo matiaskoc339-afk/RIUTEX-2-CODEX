@@ -3,12 +3,13 @@ import json, os
 from playwright.sync_api import sync_playwright
 from browser_server import local_server
 r=Path(__file__).resolve().parents[1]
+version=json.loads((r/'package.json').read_text())['version'];html_name='RIUTEX2_Historia_Completa_v'+version+'.html'
 with local_server(r) as base_url, sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
  page=b.new_page(viewport={'width':1440,'height':900});errors=[];requests=[]
  page.on('pageerror',lambda e:errors.append(str(e)))
  page.on('request',lambda req:requests.append(req.url))
- page.goto(base_url+'/dist/RIUTEX2_Historia_Completa_v0.16.0.html')
+ page.goto(base_url+'/dist/'+html_name)
  page.click('#bNew');page.wait_for_function('!SceneTransitions.active');page.keyboard.down('w');page.wait_for_timeout(750);page.keyboard.up('w')
  assert page.evaluate("Game.lvl==='mansion'&&Game.player.y<46*32"),'El HTML no mueve al jugador'
  page.evaluate("Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Hospital.lobbyReached(Game);Game.player.x=52*32;Game.player.y=28*32;Game.giveWeapon('pistol',24,true)")
@@ -59,7 +60,7 @@ with local_server(r) as base_url, sync_playwright() as p:
  file_access={'attempted':True,'status':'not_run'}
  offline=b.new_context(offline=True);filepage=offline.new_page()
  try:
-  filepage.goto((r/'dist/RIUTEX2_Historia_Completa_v0.16.0.html').as_uri())
+  filepage.goto((r/'dist'/html_name).as_uri())
   filepage.click('#bNew');filepage.wait_for_function('!SceneTransitions.active');filepage.keyboard.down('w');filepage.wait_for_timeout(400);filepage.keyboard.up('w')
   assert filepage.evaluate("Game.lvl==='mansion'&&Game.player.y<46*32")
   file_access={'attempted':True,'status':'passed'}
@@ -67,9 +68,9 @@ with local_server(r) as base_url, sync_playwright() as p:
   if 'ERR_BLOCKED_BY_ADMINISTRATOR' not in str(exc):raise
   file_access={'attempted':True,'status':'blocked_by_environment','reason':'Chromium administrado bloquea file:// con ERR_BLOCKED_BY_ADMINISTRATOR. HTML validado por HTTP, sin recursos externos.'}
  finally:offline.close()
- external=[url for url in requests if not url.startswith('data:') and not url.endswith('/dist/RIUTEX2_Historia_Completa_v0.16.0.html')]
+ external=[url for url in requests if not url.startswith('data:') and not url.endswith('/dist/'+html_name)]
  assert not external,external
  assert not errors,errors
- result={'version':'0.16.0','standalone':True,'checks':['Movimiento','Inicio hospital','153 opciones','Plano','Expediente e iconos','Fabricación y artefactos','Mecanismo','Guardado tras recargar','Recursos integrados','POV y materiales integrados','Volver a vista clásica desde pausa en HTML integrado','Final C-0 integrado','Fábrica y fauna integradas','Cueva y Matriarca integradas','FL-4 y banco del S-4 integrados','Calabozo, 44 salas y mecanismos del castillo con CSS integrado','Laboratorio, GL-6 e instrumentación final integrados'],'external_requests':external,'errors':errors,'file_access':file_access,'headless_fps':round(fps,1)}
+ result={'version':version,'standalone':True,'checks':['Movimiento','Inicio hospital','153 opciones','Plano','Expediente e iconos','Fabricación y artefactos','Mecanismo','Guardado tras recargar','Recursos integrados','POV y materiales integrados','Volver a vista clásica desde pausa en HTML integrado','Final C-0 integrado','Fábrica y fauna integradas','Cueva y Matriarca integradas','FL-4 y banco del S-4 integrados','Calabozo, 44 salas y mecanismos del castillo con CSS integrado','Laboratorio, GL-6 e instrumentación final integrados'],'external_requests':external,'errors':errors,'file_access':file_access,'headless_fps':round(fps,1)}
  (r/'artifacts/standalone-blue-results.json').write_text(json.dumps(result,ensure_ascii=False,indent=2));print(result)
  b.close()

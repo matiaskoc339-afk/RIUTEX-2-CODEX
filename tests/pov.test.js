@@ -55,15 +55,19 @@ test('Las quince plantas conservan su geometría y perspectivas con el mismo gua
  fixture();for(const lvl of ['mansion','hospital','hospital1','hospitalb','hospitalchem','hospitalworks','hospitalpit','hospitalnest','hospitalcells','hospitalcastle','hospitalcastle1','hospitalroyal','hospitalumbra','hospitalorigin','hospitalstreet']){if(lvl==='mansion')g.start(false);else H.goto(g,lvl);assert.equal(fp().active(g),true,lvl);assert.ok(L.grid.length===L.H&&L.grid[0].length===L.W,lvl);const shape=JSON.stringify(L.grid);fp().setEnabled(false);assert.equal(JSON.stringify(L.grid),shape);fp().setEnabled(true);assert.equal(JSON.stringify(L.grid),shape);}
 });
 test('El raycaster usa la misma pared física que los proyectiles',()=>{
- const p=fixture(),tx=Math.floor(p.x/32)+1,ty=Math.floor(p.y/32),old=L.grid[ty][tx];try{L.grid[ty][tx]=1;const ray=run('FirstPersonRenderer.castRay(1,0,Game,true)');assert.equal(ray.value,1);near(ray.distance,16);}finally{L.grid[ty][tx]=old;}
+ const p=fixture(),tx=Math.floor(p.x/32)+1,ty=Math.floor(p.y/32),old=L.grid[ty][tx];try{L.grid[ty][tx]=1;const ray=run('FirstPersonRenderer.castRay(1,0,Game)');assert.equal(ray.value,1);near(ray.distance,16);}finally{L.grid[ty][tx]=old;}
 });
 test('Abrir una puerta cambia el rayo visual sin alterar sus baldosas ni inventar accesos',()=>{
- const p=fixture(),tx=Math.floor(p.x/32)+1,ty=Math.floor(p.y/32),old=L.grid[ty][tx],door={id:'pov_test',open:false,key:null,tiles:[[tx,ty]]};try{L.grid[ty][tx]=2;L.doors.push(door);const closed=run('FirstPersonRenderer.castRay(1,0,Game,true)');assert.equal(closed.value,2);near(closed.distance,16);L.openDoor(door);const opened=run('FirstPersonRenderer.castRay(1,0,Game,true)');assert.ok(opened.distance>32);assert.equal(door.open,true);assert.equal(L.grid[ty][tx],0);}finally{L.grid[ty][tx]=old;L.doors=L.doors.filter(d=>d!==door);}
+ const p=fixture(),tx=Math.floor(p.x/32)+1,ty=Math.floor(p.y/32),old=L.grid[ty][tx],door={id:'pov_test',open:false,key:null,tiles:[[tx,ty]]};try{L.grid[ty][tx]=2;L.doors.push(door);const closed=run('FirstPersonRenderer.castRay(1,0,Game)');assert.equal(closed.value,2);near(closed.distance,16);L.openDoor(door);const opened=run('FirstPersonRenderer.castRay(1,0,Game)');assert.ok(opened.distance>32);assert.equal(door.open,true);assert.equal(L.grid[ty][tx],0);}finally{L.grid[ty][tx]=old;L.doors=L.doors.filter(d=>d!==door);}
 });
 test('El mobiliario visible sigue bloqueando la línea de combate',()=>{
- const p=fixture(),tx=Math.floor(p.x/32)+1,ty=Math.floor(p.y/32),old=L.grid[ty][tx],key=tx+','+ty,prop=L.props[key];try{L.grid[ty][tx]=4;L.props[key]='bed';const ray=run('FirstPersonRenderer.castRay(1,0,Game,true)'),hit=ray.hits.find(h=>h.value===4);assert.ok(hit);near(hit.distance,16);assert.ok(hit.height>=26);assert.equal(L.los(p.x,p.y,p.x+96,p.y),false);}finally{L.grid[ty][tx]=old;if(prop)L.props[key]=prop;else delete L.props[key];}
+ const p=fixture(),tx=Math.floor(p.x/32)+1,ty=Math.floor(p.y/32),old=L.grid[ty][tx],key=tx+','+ty,prop=L.props[key];try{L.grid[ty][tx]=4;L.props[key]='bed';const ray=run('FirstPersonRenderer.castRay(1,0,Game)'),hit=ray.hits.find(h=>h.value===4);assert.ok(hit);near(hit.distance,16);assert.ok(hit.height>=26);assert.equal(L.los(p.x,p.y,p.x+96,p.y),false);}finally{L.grid[ty][tx]=old;if(prop)L.props[key]=prop;else delete L.props[key];}
 });
 
 test('Mirar arriba y abajo no cambia la dirección ni el plano de combate',()=>{
- const p=fixture();p.angle=.71;fp().look(0,140,g);near(p.angle,.71);assert.ok(Number.isFinite(fp().pitch)&&Math.abs(fp().pitch)<=.35);fp().sync(g);near(Math.atan2(g.mouse.y+g.cam.y-p.y,g.mouse.x+g.cam.x-p.x),.71);
+ const p=fixture(),renderer=run('FirstPersonRenderer');p.angle=.71;renderer.W=800;renderer.H=600;fp().pitch=0;
+ const landmark=[p.x+Math.cos(p.angle)*100,p.y+Math.sin(p.angle)*100,24],screenY=()=>{renderer.setup(g);return renderer.project(...landmark).y;},center=screenY();
+ fp().look(0,-100,g);assert.ok(screenY()>center,'Mirar arriba baja el punto fijo en pantalla');near(p.angle,.71);
+ fp().pitch=0;fp().look(0,100,g);assert.ok(screenY()<center,'Mirar abajo sube el punto fijo en pantalla');near(p.angle,.71);
+ assert.ok(Number.isFinite(fp().pitch)&&Math.abs(fp().pitch)<=.35);fp().sync(g);near(Math.atan2(g.mouse.y+g.cam.y-p.y,g.mouse.x+g.cam.x-p.x),.71);
 });

@@ -1,3 +1,17 @@
+# Validación de v0.16.1 · Ajuste de cámara y visibilidad POV
+
+Solo en primera persona se elimina la máscara de estancias sin visitar. El mundo visible sigue limitado por paredes, puertas cerradas y cobertura. El mapa conserva el descubrimiento al entrar; la vista clásica mantiene su oscuridad de exploración. Ratón y flechas tienen mirada vertical normal.
+
+- `npm test`: **263 pruebas del motor**, **103 comprobaciones de integración** y **15 mapas**, sin fallos.
+- Navegador repetido para esta revisión: **165 comprobaciones en 5 grupos**, sin errores JavaScript: ajuste enfocado 14, POV 83, efectos/epílogos 33, sistemas clásicos de horror 18 y HTML integrado 17.
+- En los dos umbrales reales comprobados, el enemigo añade más de 14 700 píxeles por la puerta abierta y ninguno al cerrarla, aunque la sala no figure como visitada. El plano sigue sin descubrirla y el mismo punto vuelve a negro al pasar a topdown.
+- Eventos reales de arrastre y flechas comprueban que mirar arriba baja un punto fijo en pantalla y mirar abajo lo sube; el giro horizontal no cambia.
+- El HTML integrado contiene los scripts actuales y no solicita recursos externos. El ZIP se coteja byte a byte.
+
+No se repitieron los otros grupos de combate y recorrido de la campaña en este parche: su ejecución completa v0.16.0 se conserva abajo y en `RESULTADOS.json` como historial. Las escenas de prueba preparadas no miden dificultad humana.
+
+---
+
 # Validación de v0.16.0 · Primera Persona POV
 
 La perspectiva es opcional y comienza desactivada. Se cambia en Opciones o Pausa; guarda su preferencia separada del progreso. La vista clásica conserva sus controles y render anteriores.
