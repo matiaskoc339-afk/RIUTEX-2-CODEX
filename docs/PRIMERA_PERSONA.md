@@ -1,4 +1,4 @@
-# Primera Persona POV · v0.16.2
+# Primera Persona POV · v0.17.0
 
 ## Uso
 
@@ -14,10 +14,11 @@ Los demás controles y ventanas conservan su comportamiento: E interactúa por p
 
 - `pov.js`: ajuste, entrada relativa, captura/alternativa de ratón y coordinación con ventanas. Los únicos enganches a Player.update/dodge son condicionales al modo activo.
 - `pov-renderer.js`: proyección desde la posición del jugador, profundidad por píxel, suelo/techo, paredes, puertas, cobertura, actores, proyectiles, campos y señales.
+- `pov-models.js`: treinta identidades de criaturas/encuentros, mutaciones, objetos sueltos y claves visuales de caché independientes de los tipos heredados. [Catálogo](MODELOS_POV.md).
 - `pov-art.js`: materiales y arte frontal propios, armamento en manos, enemigos y sus mutaciones, escuadrón, primer Custodio, documentos, suministros, mecanismos y helicóptero. Recursos locales y cachés acotadas.
 - `pov.css`: ajuste accesible y ayuda de control, incluidos 720p.
 
-Se mantiene la simulación original en dos dimensiones. El render usa paredes extruidas y actores frontales, con oclusión real; no es una ampliación del dibujo topdown. La inclinación vertical es visual y la retícula señala el plano horizontal de combate: no añade saltos, disparos a alturas independientes ni bonificaciones por disparar a la cabeza. La vida, armas, munición, habilidades, colisiones, IA, requisitos y guardados conservan sus reglas.
+Se mantiene la simulación original en dos dimensiones. El render usa paredes extruidas y actores frontales, con oclusión real; no es una ampliación del dibujo topdown. La inclinación vertical es visual y la retícula permanece en el centro al mirar arriba o abajo y el combate conserva su plano horizontal: no añade saltos, disparos a alturas independientes ni bonificaciones por disparar a la cabeza. La vida, armas, munición, habilidades, colisiones, IA, requisitos y guardados conservan sus reglas.
 
 Solo la vista POV prescinde de la máscara de habitaciones no visitadas: se puede mirar dentro por una puerta abierta antes de entrar. La oclusión por profundidad sigue ocultando lo que queda detrás de paredes y puertas cerradas. HorrorVision.prepare conserva el registro de visitas y el plano descubre cada sala al entrar. Al volver a topdown se mantiene su máscara de exploración original. El mobiliario sólido alcanza el plano de combate, por lo que la cobertura sigue bloqueando los disparos como en la vista clásica.
 

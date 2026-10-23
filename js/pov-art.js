@@ -4,6 +4,13 @@ const POVArt = {
   textures:new Map(), sprites:new Map(), ready:false,
   init(){if(this.ready)return true;if(typeof HTMLCanvasElement==='undefined')return false;this.ready=true;return true;},
   canvas(w=128,h=w){const c=document.createElement('canvas');c.width=w;c.height=h;return c;},
+  trimItem(source){
+    const pixels=source.getContext('2d').getImageData(0,0,source.width,source.height).data;let x0=source.width,y0=source.height,x1=-1,y1=-1;
+    for(let y=0;y<source.height;y++)for(let x=0;x<source.width;x++)if(pixels[(y*source.width+x)*4+3]>0){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y);}
+    if(x1<0)return source;x0=Math.max(0,x0-2);y0=Math.max(0,y0-2);x1=Math.min(source.width-1,x1+2);y1=Math.min(source.height-1,y1+2);
+    const image=this.canvas(x1-x0+1,y1-y0+1);image.getContext('2d').drawImage(source,x0,y0,image.width,image.height,0,0,image.width,image.height);
+    for(const key of ['povHeight','povWidth','povModel'])image[key]=source[key];return image;
+  },
   rng(seed){let n=seed>>>0;return()=>{n=(Math.imul(n,1664525)+1013904223)>>>0;return n/4294967296;};},
   hash(s){let n=2166136261;for(const c of String(s))n=Math.imul(n^c.charCodeAt(0),16777619);return n>>>0;},
   theme(g){const id=typeof g==='string'?g:g?.lvl||'';if(id==='mansion')return'mansion';if(/castle|cells|royal/.test(id))return'castle';if(/umbra|origin|lab/.test(id))return'lab';if(/street/.test(id))return'street';if(/works|nest|sewer|chem|^(?:hospital)?pit$/.test(id))return'works';return'hospital';},
@@ -71,8 +78,9 @@ const POVArt = {
     if(!this.init())return null;const type=String(e?.type||e?.kind||e||'unknown'),phase=Math.max(1,Math.min(3,e?.phase||1));const pose=/wind|attack|swing|slash|chain|charge|rush/.test(e?.mode||e?.state||'')?1:0;
     const angle=g?.player&&Number.isFinite(e?.face)?Math.atan2(g.player.y-e.y,g.player.x-e.x)-e.face:0,back=kind==='enemy'&&Math.cos(angle)<-.55;
     const gait=kind==='enemy'&&g?.state==='play'?Math.floor((g.t||0)*5+(Number(e.id)||0))%2:0;
-    const key=[kind,type,phase,pose,back?1:0,gait,e?.colony?1:0].join(':');if(this.sprites.has(key))return this.sprites.get(key);
-    const image=this.canvas(256),c=image.getContext('2d');image.povHeight=42;image.povWidth=25;
+    const model=kind==='enemy'?POVModels.identity(e):kind==='item'?POVModels.itemKey(e):type;
+    const key=[kind,model,phase,pose,back?1:0,gait,e?.colony?1:0,e?.enraged?1:0,kind==='item'?this.theme(g):''].join(':');if(this.sprites.has(key))return this.sprites.get(key);
+    let image=this.canvas(256);const c=image.getContext('2d');image.povHeight=42;image.povWidth=25;image.povModel=model;
     if(kind==='enemy')this.enemy(c,e,g,{phase,pose,back,gait,image});
     else if(kind==='ally'){this.ally(c,e);image.povHeight=42;image.povWidth=40;}
     else if(kind==='body'){this.body(c,e);image.povHeight=7;image.povWidth=28;}
@@ -80,6 +88,7 @@ const POVArt = {
     else if(kind==='prop'){this.prop(c,type);image.povHeight=/locker|shelf|pillar|bars/.test(type)?46:20;image.povWidth=30;}
     else if(kind==='barrel'){this.barrel(c);image.povHeight=26;image.povWidth=19;}
     else this.item(c,e,{image,theme:this.theme(g)});
+    if(kind==='item'&&(image.povTrim||/^inj_/.test(type)))image=this.trimItem(image);
     if(this.sprites.size>=128)this.sprites.delete(this.sprites.keys().next().value);this.sprites.set(key,image);return image;
   },
   ally(c,e){
@@ -93,6 +102,7 @@ const POVArt = {
     this.polygon(c,[[80,116],[178,128],[177,142],[77,132]],'#1b3039','#8a9d97');this.polygon(c,[[113,132],[133,133],[140,161],[121,161]],'#263e46');this.line(c,[[174,131],[204,134]],'#8f9e97',4);
   },
   enemy(c,e,g,o){
+    if(POVModels.enemy(c,e,o))return;
     const type=String(e.type||''),name=e.def?.name||'',{phase,pose,back,gait,image}=o;
     const butcher=e.id===900||/Carnicero|Carcelero/.test(name)||/butcher|carnicero/.test(type),wren=type==='lf_wren',regent=type==='cl_regent',blind=type==='cl_blind',spider=/spider|matriarch/.test(type),boss=!!e.isBoss||butcher;
     if(spider){this.spider(c,e,phase,pose,gait);image.povHeight=type==='ds_matriarch'?42+phase*9:12;image.povWidth=type==='ds_matriarch'?70+phase*8:28;return;}
@@ -210,6 +220,7 @@ const POVArt = {
   },
   machine(c){c.fillStyle='#2b434b';c.fillRect(57,30,143,216);c.fillStyle=this.material(c,['#a6b5a5','#789792','#3c6268']);c.fillRect(61,36,135,205);c.fillStyle='#122f39';c.fillRect(75,52,108,65);c.fillStyle='#8ec0af';c.fillRect(82,59,94,46);this.line(c,[[86,83],[100,83],[108,68],[115,96],[122,79],[153,79],[165,72]],'#d6e3b8',2);for(let y=140;y<222;y+=22){c.fillStyle='#2e5055';c.fillRect(77,y,103,11);c.fillStyle='#bfd0b3';c.fillRect(84,y+3,55,2);this.ellipse(c,168,y+5,3,3,y%44?'#b99a61':'#83b5a5');}},
   item(c,e,o){
+    if(POVModels.item(c,e,o)){o.image.povTrim=true;return;}
     const t=String(e?.type||''),id=String(e?.id||'');o.image.povHeight=10;o.image.povWidth=13;
     if(t==='h_hide'){this.prop(c,'locker');o.image.povHeight=43;o.image.povWidth=30;return;}
     if(t==='h_clock'){

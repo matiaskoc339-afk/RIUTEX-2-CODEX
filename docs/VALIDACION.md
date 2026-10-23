@@ -1,3 +1,17 @@
+# Validación de v0.17.0 · Criaturas, objetos y mira POV
+
+La revisión diferencia treinta identidades, incluyendo a los enemigos comunes, los encuentros opcionales y los jefes. Se corrige la caché que confundía Carnicero/Vacío y C-17/Camillero. Los objetos sueltos se distinguen por función y arma/pieza concreta; la mira permanece centrada al inclinar la cámara.
+
+- Motor: **263 pruebas**, **103 comprobaciones de integración** y **15 mapas**, sin fallos.
+- Navegador repetido: **232 comprobaciones en 7 grupos**: modelos/objetos/mira 52, controles y recorrido POV 83, efectos/epílogos 33, horror clásico 18, mirada/visibilidad 14, captura del ratón 15 y HTML integrado 17.
+- Las treinta familias tienen imágenes y máscaras de silueta distintas. Los cuatro jefes finales tienen tres dibujos de fase cada uno. Se inspeccionan treinta y seis muestras de objetos y cinco objetos sobre el suelo del hospital.
+- La retícula dibuja su centro real en el centro del canvas para inclinación negativa, neutra y positiva. La cámara sigue inclinándose.
+- Paneles y escenas de revisión incluidos en la entrega. El empaquetador verifica scripts y ZIP byte a byte.
+
+No se repitieron los combates completos de toda la campaña para este cambio de presentación. Sus validaciones anteriores permanecen abajo como historial. Los paneles y las fases preparadas no representan victorias ni una medición de dificultad humana.
+
+---
+
 # Validación de v0.16.2 · Botón Bloquear ratón
 
 Botón visible durante la partida en POV cuando el cursor está libre. Un clic captura la mirada sin disparar ni consumir recursos. Esc libera el cursor y pausa; reanudar vuelve a mostrar el botón. Si el navegador rechaza la captura, se conserva la alternativa y el botón permite reintentar. La vista clásica no muestra el botón.
