@@ -1,6 +1,6 @@
 """Empaqueta los scripts clásicos, CSS y SVG sin dependencias ni red."""
 from pathlib import Path
-import base64,re,mimetypes,json
+import base64,re,mimetypes,json,zipfile
 ROOT=Path(__file__).resolve().parents[1]
 html=(ROOT/'index.html').read_text()
 css='\n'.join((ROOT/f).read_text() for f in ['style.css','blue.css','horror.css','revision.css','presentation.css','adventure.css','fielddesk.css','survival.css','finale.css','works.css','depths.css','castle.css','endgame.css','polish.css','pov.css'])
@@ -20,3 +20,7 @@ out=ROOT/'dist';out.mkdir(exist_ok=True)
 version=json.loads((ROOT/'package.json').read_text())['version']
 path=out/('RIUTEX2_Historia_Completa_v'+version+'.html');path.write_text(html)
 print(path, path.stat().st_size,'bytes')
+itch=out/('RIUTEX2_itchio_v'+version+'.zip')
+with zipfile.ZipFile(itch,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as archive:
+ archive.writestr('index.html',html)
+print(itch, itch.stat().st_size,'bytes; index.html en la raíz para itch.io')

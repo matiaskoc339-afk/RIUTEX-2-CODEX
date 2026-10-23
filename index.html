@@ -16,7 +16,7 @@
     <p class="ctl">WASD mover · Ratón apuntar · Clic disparar · R recargar · E interactuar · Shift correr · Clic derecho golpe · 1-5 armas · TAB maletín · J diario · K mutaciones · Q / teclas asignadas: poderes · F inyección · ESC pausa · guarda en las camillas con E · E en taquillas: esconderte · E junto a una puerta abierta: cerrarla (solo el Carnicero puede abrirlas)</p>
     <div class="menu-footer"><span>RIUTEX-X</span><span>NO HAY CURA CONFIRMADA</span><span class="footer-coords">SECTOR 09 / LIMA</span></div>
   </div></div>
-<div id="pause" class="screen hidden"><h2>Pausa</h2>
+<div id="pause" class="screen hidden"><h2>Pausa</h2><button id="bSessionSlots">Partidas y copias</button>
   <button id="bRes">Reanudar</button>
   <button id="bRst">Reiniciar capítulo</button><button id="bMenu">Menú principal</button></div>
 <div id="inv" class="screen hidden"><div id="invCase"><h2>Maletín</h2><div id="invGrid"></div><div id="invCap"></div></div>
@@ -29,14 +29,14 @@
 <div id="pad" class="screen hidden"><h2 id="padT"></h2><div id="padD"></div><div id="padE"></div><div id="padKeys"></div><button id="bPadX">Cerrar</button></div>
 <div id="end" class="screen hidden"><h1 id="endH">FIN DE LA PARTE 2</h1><h2 id="endS">Las cloacas</h2><p id="endB"></p><button id="bEnd">Menú principal</button></div>
 <div id="cine" class="screen hidden"><p id="cineT"></p><span>[E / clic para continuar]</span></div>
-<div id="slots" class="screen hidden"><div class="slots-panel"><h2 id="saveSlotsTitle">PARTIDAS</h2><p id="saveSlotsHint"></p><div id="saveSlotsList"></div><div class="slot-actions"><button id="bSlotsSwitch" class="hidden">Cargar partida</button><button id="bSlotsClose">Ninguno / volver</button></div></div></div>
+<div id="slots" class="screen hidden"><div class="slots-panel"><h2 id="saveSlotsTitle">PARTIDAS</h2><p id="saveSlotsHint"></p><button id="bResumeSession" class="resume-session hidden"></button><div id="saveSlotsList"></div><p id="sessionSaveStatus" class="session-save-status" role="status"></p><div class="session-backup-actions"><button id="bExportSession">Descargar copia</button><button id="bImportSession">Importar copia</button><input id="sessionImportFile" type="file" accept=".json,application/json" hidden></div><div class="slot-actions"><button id="bSlotsSwitch" class="hidden">Cargar partida</button><button id="bSlotsClose">Ninguno / volver</button></div></div></div>
 <div id="stash" class="screen hidden"><div id="stCase"><h2>Tu maletín</h2><div id="stGrid"></div><div id="stInfo"></div></div>
   <div id="stSide"><h2>Baúl compartido</h2><div id="stList"></div><button id="bStSave">Guardar objeto seleccionado →</button><button id="bStClose">Cerrar (ESC)</button></div></div>
 <div id="dead" class="screen hidden"><h1 class="red">HAS MUERTO</h1>
   <button id="bRetry">Reintentar</button><button id="bMenu2">Menú principal</button></div>
 <script src="js/audio.js"></script><script src="js/levels.js"></script><script src="js/weapons.js"></script>
 <script src="js/player.js"></script><script src="js/enemies.js"></script><script src="js/docs.js"></script><script src="js/inventory.js"></script><script src="js/abilities.js"></script><script src="js/ui.js"></script>
-<script src="js/campaign.js"></script><script src="js/puzzles.js"></script><script src="js/sewer.js"></script><script src="js/base.js"></script><script src="js/lab.js"></script><script src="js/game.js"></script><script src="js/r2_levels.js"></script><script src="js/r2_tree.js"></script><script src="js/r2_story.js"></script><script src="js/blue-levels.js"></script><script src="js/blue-skills.js"></script><script src="js/blue-puzzles.js"></script><script src="js/blue-art.js"></script><script src="js/blue.js"></script><script src="js/horror.js"></script><script src="js/revision.js"></script><script src="js/presentation.js"></script><script src="js/adventure.js"></script><script src="js/weapon-puzzles.js"></script><script src="js/fielddesk.js"></script><script src="js/survival.js"></script><script src="js/workshop.js"></script><script src="js/finale.js"></script><script src="js/works-levels.js"></script><script src="js/works-enemies.js"></script><script src="js/works-puzzles.js"></script><script src="js/works.js"></script><script src="js/works-art.js"></script><script src="js/depths-levels.js"></script>
+<script src="js/campaign.js"></script><script src="js/puzzles.js"></script><script src="js/sewer.js"></script><script src="js/base.js"></script><script src="js/lab.js"></script><script src="js/save-codec.js"></script><script src="js/game.js"></script><script src="js/r2_levels.js"></script><script src="js/r2_tree.js"></script><script src="js/r2_story.js"></script><script src="js/blue-levels.js"></script><script src="js/blue-skills.js"></script><script src="js/blue-puzzles.js"></script><script src="js/blue-art.js"></script><script src="js/blue.js"></script><script src="js/horror.js"></script><script src="js/revision.js"></script><script src="js/presentation.js"></script><script src="js/adventure.js"></script><script src="js/weapon-puzzles.js"></script><script src="js/fielddesk.js"></script><script src="js/survival.js"></script><script src="js/workshop.js"></script><script src="js/finale.js"></script><script src="js/works-levels.js"></script><script src="js/works-enemies.js"></script><script src="js/works-puzzles.js"></script><script src="js/works.js"></script><script src="js/works-art.js"></script><script src="js/depths-levels.js"></script>
 <script src="js/protection.js"></script>
 <script src="js/arachnids.js"></script>
 <script src="js/depths.js"></script>
@@ -60,5 +60,8 @@
 <script src="js/pov-models.js"></script>
 <script src="js/pov.js"></script>
 <script src="js/pov-renderer.js"></script>
+<script src="js/pov-perception.js"></script>
+<script src="js/pov-viewmodel.js"></script>
+<script src="js/persistence.js"></script>
 <script src="js/main.js"></script>
 </body></html>

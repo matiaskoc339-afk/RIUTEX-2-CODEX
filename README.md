@@ -1,12 +1,26 @@
-# RIUTEX 2 · El Custodio · Historia completa · v0.18.1
+# RIUTEX 2 · El Custodio · Historia completa · v0.19.0
 
 Esta versión amplía **RIUTEX2_fase1_v0.2.2.zip**, la base que aportaste. Conserva su motor, historia, protagonistas y persecución. El contenido jugable comprende la mansión, el hospital las cloacas y fábrica de San Gabriel y el museo-fortaleza de Valcárcel y el laboratorio UMBRAL con sus dos desenlaces.
 
 ## Jugar
 
-La entrega incluye [RIUTEX2_Historia_Completa_v0.18.1.html](dist/RIUTEX2_Historia_Completa_v0.18.1.html), con gráficos, estilos y código integrados y sin descargas externas. Ábrelo en un navegador de escritorio con teclado y ratón. El sonido comienza con la primera interacción.
+La entrega incluye [RIUTEX2_Historia_Completa_v0.19.0.html](dist/RIUTEX2_Historia_Completa_v0.19.0.html), con gráficos, estilos y código integrados y sin descargas externas. Ábrelo en un navegador de escritorio con teclado y ratón. El sonido comienza con la primera interacción.
 
 Para ejecutar el proyecto fuente: `npm start` (o `python3 -m http.server 8000`). No hay dependencias de npm que instalar. Los guardados se almacenan en el navegador y dependen de la ubicación desde la que abras el juego. Esta edición utiliza guardados propios; conserva los de v0.2.2 sin importarlos a mapas que han cambiado.
+
+## Guardado web e itch.io · v0.19.0
+
+Para itch.io usa [RIUTEX2_itchio_v0.19.0.zip](dist/RIUTEX2_itchio_v0.19.0.zip): contiene un `index.html` integrado en la raíz. Se genera con `npm run build`. Sube ese ZIP como juego HTML para navegador y permite pantalla completa.
+
+La sesión se guarda cada diez segundos, al cerrar u ocultar la página, al pausar o volver al menú y tras recoger objetos, fabricar, consumir muestras o comprar habilidades. **Continuar → Continuar sesión** recupera posición, recursos, inventario, documentos, habilidades, puzles, enemigos heridos y fases de jefes. Los datos se comprimen para evitar llenar la cuota del navegador, conservando la lectura de guardados anteriores. Los tres huecos de las camillas y el punto de Reintentar se mantienen separados. Tras morir, la sesión continúa desde ese punto de control.
+
+**Pausa → Partidas y copias** permite descargar e importar una copia JSON. Si el navegador bloquea el almacenamiento, el juego avisa y ofrece la copia. El progreso pertenece al mismo navegador y origen web; no se sincroniza con la cuenta de itch.io. Borrar datos o usar una sesión privada puede eliminarlo. [Publicación y alcance de las pruebas](docs/ITCHIO_GUARDADO.md).
+
+## Visión y cuerpo en primera persona · v0.19.0
+
+Los enemigos con vista reaccionan en un frente amplio a 260–360 px según especie, con reacción breve y proximidad a 96 px. Puertas cerradas, paredes y muebles altos ocultan; pueden ver por encima de muebles bajos. Una puerta abierta permite detectar sin que el jugador haya entrado en la habitación. Los ciegos conservan su comportamiento auditivo, y los refugios y el camuflaje mantienen su función. Estas reglas se aplican al POV.
+
+Las siete armas tienen volúmenes en perspectiva, detalles propios y agarres conectados a los brazos. El golpe mueve el brazo izquierdo existente y baja el arma. La infección vuelve azul su tejido; perder el brazo lo retira. Elegir la cura elimina la mutación y la mano regenerada, y rechazarla transforma los dos brazos. [Detalles y validación](docs/POV_CUERPO_Y_VISION.md).
 
 ## Progresión de XP · v0.18.1
 

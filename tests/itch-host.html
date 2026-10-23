@@ -1,0 +1,7 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><title>RIUTEX · iframe de prueba</title>
+<style>body{margin:0}iframe{border:0;width:100vw;height:100vh}</style>
+<iframe name="riutex" sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-downloads" title="Juego HTML"></iframe>
+<script>
+const game=new URL(new URLSearchParams(location.search).get('game'),location.href);
+if(game.protocol==='http:'&&game.hostname==='127.0.0.1')document.querySelector('iframe').src=game.href;
+</script></html>

@@ -129,7 +129,7 @@ WeaponGlyphs.paths.flamethrower='<path fill="#77877b" d="M15 44h142v24H68L56 99H
   };
   const start=Game.start;
   Game.start=function(load,sv){
-    if(load&&!sv){sv=this.getSaveSlots().find(Boolean)||null;if(!sv){try{sv=JSON.parse(localStorage.getItem(SAVE_KEY));}catch{}}}
+    if(load&&!sv){sv=this.getSaveSlots().find(Boolean)||null;if(!sv){try{sv=SaveCodec.decode(localStorage.getItem(SAVE_KEY));}catch{}}}
     return start.call(this,load,Flamethrower.migrateSave(sv));
   };
   const build=Hospital.buildLevel;

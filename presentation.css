@@ -742,3 +742,8 @@ button:disabled {
     gap: 8px;
   }
 }
+.resume-session { display:block; width:100%; padding:16px; margin:12px 0 18px; text-align:left; border:1px solid #709aab; background:linear-gradient(110deg,#1c3341,#101820); color:#ddedf3; font-size:15px; letter-spacing:.04em; line-height:1.5; }
+.session-save-status { font-size:13px; line-height:1.5; }
+.session-save-status.save-error { color:#f3b99b; }
+.session-backup-actions { display:flex; flex-wrap:wrap; gap:10px; margin:16px 0; }
+.session-backup-actions button { flex:1; min-width:150px; }

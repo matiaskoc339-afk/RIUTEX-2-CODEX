@@ -18,6 +18,8 @@ for (const args of [
     "tests/polish.test.js",
     "tests/pov.test.js",
     "tests/experience.test.js",
+    "tests/persistence.test.js",
+    "tests/pov-combat.test.js",
   ],
   ["tests/t3.js"],
   ["tests/t4.js"],

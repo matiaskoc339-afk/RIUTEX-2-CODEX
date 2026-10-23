@@ -266,7 +266,7 @@ const StalkerMind = {
         c.state === "chase" ||
         Math.abs(Math.atan2(Math.sin(a - c.face), Math.cos(a - c.face))) < 1.35;
     const sees =
-      !p.hidden && !safe && d < 340 && inView && Level.los(c.x, c.y, p.x, p.y);
+      !p.hidden && !safe && d < 340 && inView && (typeof POVPerception!=='undefined'&&POVPerception.active(g)?POVPerception.line(c,p):Level.los(c.x,c.y,p.x,p.y));
     if (sees) {
       c.lastSeen = [p.x, p.y];
       c.tgt = c.lastSeen.slice();

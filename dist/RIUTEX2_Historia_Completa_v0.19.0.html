@@ -2784,6 +2784,11 @@ button:disabled {
     gap: 8px;
   }
 }
+.resume-session { display:block; width:100%; padding:16px; margin:12px 0 18px; text-align:left; border:1px solid #709aab; background:linear-gradient(110deg,#1c3341,#101820); color:#ddedf3; font-size:15px; letter-spacing:.04em; line-height:1.5; }
+.session-save-status { font-size:13px; line-height:1.5; }
+.session-save-status.save-error { color:#f3b99b; }
+.session-backup-actions { display:flex; flex-wrap:wrap; gap:10px; margin:16px 0; }
+.session-backup-actions button { flex:1; min-width:150px; }
 
 /* Arma y munición: una imagen por modelo, arco del cargador y reserva aparte. */
 #ammo {
@@ -5127,7 +5132,7 @@ body.pov-playing #prompt{max-width:min(620px,90vw);text-align:center;bottom:13vh
     <p class="ctl">WASD mover · Ratón apuntar · Clic disparar · R recargar · E interactuar · Shift correr · Clic derecho golpe · 1-5 armas · TAB maletín · J diario · K mutaciones · Q / teclas asignadas: poderes · F inyección · ESC pausa · guarda en las camillas con E · E en taquillas: esconderte · E junto a una puerta abierta: cerrarla (solo el Carnicero puede abrirlas)</p>
     <div class="menu-footer"><span>RIUTEX-X</span><span>NO HAY CURA CONFIRMADA</span><span class="footer-coords">SECTOR 09 / LIMA</span></div>
   </div></div>
-<div id="pause" class="screen hidden"><h2>Pausa</h2>
+<div id="pause" class="screen hidden"><h2>Pausa</h2><button id="bSessionSlots">Partidas y copias</button>
   <button id="bRes">Reanudar</button>
   <button id="bRst">Reiniciar capítulo</button><button id="bMenu">Menú principal</button></div>
 <div id="inv" class="screen hidden"><div id="invCase"><h2>Maletín</h2><div id="invGrid"></div><div id="invCap"></div></div>
@@ -5140,7 +5145,7 @@ body.pov-playing #prompt{max-width:min(620px,90vw);text-align:center;bottom:13vh
 <div id="pad" class="screen hidden"><h2 id="padT"></h2><div id="padD"></div><div id="padE"></div><div id="padKeys"></div><button id="bPadX">Cerrar</button></div>
 <div id="end" class="screen hidden"><h1 id="endH">FIN DE LA PARTE 2</h1><h2 id="endS">Las cloacas</h2><p id="endB"></p><button id="bEnd">Menú principal</button></div>
 <div id="cine" class="screen hidden"><p id="cineT"></p><span>[E / clic para continuar]</span></div>
-<div id="slots" class="screen hidden"><div class="slots-panel"><h2 id="saveSlotsTitle">PARTIDAS</h2><p id="saveSlotsHint"></p><div id="saveSlotsList"></div><div class="slot-actions"><button id="bSlotsSwitch" class="hidden">Cargar partida</button><button id="bSlotsClose">Ninguno / volver</button></div></div></div>
+<div id="slots" class="screen hidden"><div class="slots-panel"><h2 id="saveSlotsTitle">PARTIDAS</h2><p id="saveSlotsHint"></p><button id="bResumeSession" class="resume-session hidden"></button><div id="saveSlotsList"></div><p id="sessionSaveStatus" class="session-save-status" role="status"></p><div class="session-backup-actions"><button id="bExportSession">Descargar copia</button><button id="bImportSession">Importar copia</button><input id="sessionImportFile" type="file" accept=".json,application/json" hidden></div><div class="slot-actions"><button id="bSlotsSwitch" class="hidden">Cargar partida</button><button id="bSlotsClose">Ninguno / volver</button></div></div></div>
 <div id="stash" class="screen hidden"><div id="stCase"><h2>Tu maletín</h2><div id="stGrid"></div><div id="stInfo"></div></div>
   <div id="stSide"><h2>Baúl compartido</h2><div id="stList"></div><button id="bStSave">Guardar objeto seleccionado →</button><button id="bStClose">Cerrar (ESC)</button></div></div>
 <div id="dead" class="screen hidden"><h1 class="red">HAS MUERTO</h1>
@@ -5466,8 +5471,9 @@ class Enemy {
     if (this.frozen > 0) { this.frozen -= dt; return; }
     if (this.stagger > 0) { this.stagger -= dt; return; }
     this.cd -= dt;
-    if (this.def.latent && !this.alert && d < this.def.detect) { this.alert = true; this.stagger = .7; Sound.play('attack'); return; } // el Latente despierta
-    if (d < this.def.detect && Level.los(this.x, this.y, p.x, p.y)) this.alert = true; else if (d > this.def.detect * 2.2) this.alert = false;
+    const pov=typeof POVPerception!=='undefined'&&POVPerception.active(g),seen=pov?POVPerception.notice(this,g,dt):d<this.def.detect&&Level.los(this.x,this.y,p.x,p.y);
+    if (this.def.latent && !this.alert && (pov?seen:d<this.def.detect)) { this.alert = true; this.stagger = .7; Sound.play('attack'); return; } // el Latente despierta
+    if (seen) this.alert = true; else if (pov?!(this.povMemory>0):d>this.def.detect*2.2) this.alert = false;
     if (!this.alert) return;
     if (this.def.howler) { this.shriek = (this.shriek || 3) - dt; if (this.shriek <= 0) { this.shriek = 7; g.ring(this.x, this.y, 300, '#c04040'); Sound.play('attack'); for (const o of g.enemies) if (!o.dead && !o.isBoss && Math.hypot(o.x - this.x, o.y - this.y) < 420) o.alert = true; UI.msg('¡Un aullido atrae a los demás!', 2200); } } // el Aullador llama a los vecinos
     this.face = Math.atan2(dy, dx);
@@ -7269,6 +7275,44 @@ La segunda frase no estaba en el original. Fue añadida por Adrian Voss.`}
 });
 
 </script><script>
+// LZW síncrono sobre UTF-8, con diccionario limitado y códigos UTF-16 sin sustitutos.
+// Reduce la cuota de localStorage y permite escribir al salir, sin esperar tareas asíncronas.
+const SaveCodec={
+  prefix:'R2LZ1:',limit:32767,maxBytes:5000000,
+  encode(value){
+    const text=JSON.stringify(value);if(text.length<2000)return text;
+    const bytes=new TextEncoder().encode(text),codes=[];
+    const fresh=()=>new Map(Array.from({length:256},(_,i)=>[String.fromCharCode(i),i]));
+    let dict=fresh(),next=257,word='';
+    for(const byte of bytes){const ch=String.fromCharCode(byte),joined=word+ch;
+      if(dict.has(joined)){word=joined;continue;}
+      codes.push(dict.get(word));
+      if(next<=this.limit)dict.set(joined,next++);else{codes.push(256);dict=fresh();next=257;}
+      word=ch;
+    }
+    if(word)codes.push(dict.get(word));
+    const chunks=[];for(let i=0;i<codes.length;i+=4096)chunks.push(String.fromCharCode(...codes.slice(i,i+4096)));
+    const packed=this.prefix+chunks.join('');return packed.length<text.length?packed:text;
+  },
+  decode(text){
+    if(typeof text!=='string'||text.length>this.maxBytes)return null;
+    if(text.startsWith(this.prefix)){
+      const fresh=()=>Array.from({length:256},(_,i)=>String.fromCharCode(i));
+      let dict=fresh(),next=257,previous='',size=0;const words=[];
+      for(let i=this.prefix.length;i<text.length;i++){
+        const code=text.charCodeAt(i);if(code===256){dict=fresh();next=257;previous='';continue;}
+        const word=dict[code]??(code===next&&previous?previous+previous[0]:null);
+        if(word===null||word===undefined)throw new Error('Invalid save data');
+        size+=word.length;if(size>this.maxBytes)throw new Error('Save too large');words.push(word);
+        if(previous&&next<=this.limit)dict[next++]=previous+word[0];previous=word;
+      }
+      const binary=words.join(''),bytes=Uint8Array.from(binary,ch=>ch.charCodeAt(0));text=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
+    }
+    return JSON.parse(text,(key,value)=>['__proto__','prototype','constructor'].includes(key)?undefined:value);
+  }
+};
+
+</script><script>
 // Bucle principal, entrada, cámara, objetos, partículas, guardado y render.
 const SAVE_KEY = 'riutex2_blue_v030';
 const SAVE_SLOTS_KEY = 'riutex2_blue_slots_v030';
@@ -7317,20 +7361,21 @@ const Game = {
     b('bBind', () => this.assignSkillKey(UI.treeSel)); b('bRst', () => this.start(false)); b('bMenu', () => this.toMenu()); b('bMenu2', () => this.toMenu()); b('bRetry', () => this.start(this.hasSave()));
     this.refreshMenu(); UI.screen('menu'); requestAnimationFrame(t => this.loop(t));
   },
-  getSaveSlots() { try { return JSON.parse(localStorage.getItem(SAVE_SLOTS_KEY) || '[null,null,null]'); } catch (e) { return [null,null,null]; } },
-  hasSave() { return this.getSaveSlots().some(Boolean) || (() => { try { return !!localStorage.getItem(SAVE_KEY); } catch (e) { return false; } })(); },
+  validSave(s) { return !!(s && typeof s === 'object' && typeof s.lvl === 'string' && [s.x,s.y,s.hp,s.maxHp,s.xp].every(Number.isFinite) && s.maxHp > 0 && s.inv && Array.isArray(s.inv.items) && Array.isArray(s.inv.keys) && Array.isArray(s.inv.docs) && s.mut && Array.isArray(s.mut.owned) && s.story && typeof s.story === 'object' && Array.isArray(s.picked) && Array.isArray(s.killed)); },
+  getSaveSlots() { try { const slots = SaveCodec.decode(localStorage.getItem(SAVE_SLOTS_KEY) || 'null'); return Array.from({length:4}, (_,i) => Array.isArray(slots) && this.validSave(slots[i]) ? slots[i] : null); } catch (e) { return [null,null,null,null]; } },
+  hasSave() { return this.getSaveSlots().some(Boolean) || (() => { try { return this.validSave(SaveCodec.decode(localStorage.getItem(SAVE_KEY))); } catch (e) { return false; } })(); },
   refreshMenu() { document.getElementById('bCont').disabled = !this.hasSave(); },
   openSaveSlots(mode) { this.slotReturnState = this.state; this.slotFromPlay = this.state === 'play'; this.slotMode = mode; UI.renderSaveSlots(this, mode); this.state = 'slots'; UI.screen('slots'); },
   closeSaveSlots() { const back = this.slotReturnState || 'menu'; if (back === 'play') this.resume(); else this.toMenu(); },
   switchSaveSlotMode() { if (!this.slotFromPlay) return; this.slotMode = this.slotMode === 'save' ? 'load' : 'save'; UI.renderSaveSlots(this, this.slotMode); },
-  chooseSaveSlot(slot) { if (this.slotMode === 'save') { this.save(slot); this.resume(); UI.msg('Partida guardada en el hueco ' + (slot + 1) + '.', 2600); return; } const slots = this.getSaveSlots(); let data = slots[slot]; if (!data && slot === 0) { try { data = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch (e) {} } if (!data) return UI.msg('Este hueco está vacío.', 1800); this.start(false, data); },
+  chooseSaveSlot(slot) { if (this.slotMode === 'save') { if (!this.save(slot)) return; this.resume(); UI.msg('Partida guardada en el hueco ' + (slot + 1) + '.', 2600); return; } const slots = this.getSaveSlots(); let data = slots[slot]; if (!data && slot === 0) { try { data = SaveCodec.decode(localStorage.getItem(SAVE_KEY)); } catch (e) {} } if (!this.validSave(data)) return UI.msg('Este hueco está vacío o no contiene una partida válida.', 2400); this.start(false, data); },
   toMenu() { this.state = 'menu'; Sound.stopAmbient(); this.refreshMenu(); UI.screen('menu'); },
   pause() { this.state = 'pause'; UI.screen('pause'); }, resume() { this.state = 'play'; UI.screen(null); this.last = performance.now(); },
   start(load, slotData = null) {
     this.t = 0; this.bodies = []; this.particles = []; this.tracers = []; this.rings = []; this.projectiles = []; this.eproj = []; this.pools = []; this.barrels = []; this.dropN = 0; this.stash = []; this.picked = new Set(); this.killed = new Set(); this.cleared = false;
     this.inv = new Inventory(); this.mut = new Mutation(); this.pz = { power: false, safe: false, archive: false, boss: false, seq: [], valves: [0, 0, 0, 0], drain: false, fuses: false, gateD: false, locker: false, boss2: false, mandoT: false, taquilla: false, boss3: false, reactors: [0, 0, 0], reactor: false, bioT: false, cajaV: false, boss4: false, boss5: false, emily: false };
     this.story = { docs: [], samples: 0, riutexUsed: 0, decisions: [], read: [] }; // story: base para los finales
-    let sv = slotData; if (load && !sv) { const slots = this.getSaveSlots(); sv = slots.find(Boolean) || null; if (!sv) { try { sv = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch (e) {} } }
+    let sv = slotData; if (load && !sv) { const slots = this.getSaveSlots(); sv = slots.find(Boolean) || null; if (!sv) { try { sv = SaveCodec.decode(localStorage.getItem(SAVE_KEY)); } catch (e) {} } }
     const p = this.player = new Player(0, 0);
     if (sv) {
       Object.assign(p, { hp: sv.hp, xp: sv.xp }); p.mods = Object.assign(p.mods, sv.mods); p.maxHp = sv.maxHp || 60;
@@ -7409,7 +7454,7 @@ const Game = {
     for (const o of this.barrels) if (!o.dead && Math.hypot(o.x - b.x, o.y - b.y) < 100) setTimeout(() => this.explode(o), 150);
   },
   save(slot = 0) {
-    const p = this.player; try { const data = { lvl: this.lvl, x: p.x, y: p.y, hp: p.hp, maxHp: p.maxHp, xp: p.xp, cur: p.weapon && p.weapon.id, stash: this.stash, mods: p.mods, pz: this.pz, inv: this.inv.serialize(), drops: this.items.filter(i => i.id.startsWith('drop')).map(i => ({ id: i.id, type: i.type, x: i.x, y: i.y, carry: i.carry, amount: i.amount, count: i.count })), mut: this.mut.serialize(), energy: p.energy, lastCd: p.lastCd, story: this.story, doors: Level.doors.filter(d => d.open).map(d => d.id), picked: [...this.picked], killed: [...this.killed], savedAt: new Date().toISOString(), levelName: ({mansion:'RIUTEX 2 · Mansión',hospital:'RIUTEX 2 · Hospital (planta baja)',hospital1:'RIUTEX 2 · Hospital (primer piso)',hospitalb:'RIUTEX 2 · Hospital (sótano)',hospitalchem:'RIUTEX 2 · Contención C-0',hospitalworks:'RIUTEX 2 · Cloacas / Fábrica',hospitalpit:'RIUTEX 2 · Ensayo del almacén',hospitalnest:'RIUTEX 2 · Último colector',hospitalcells:'RIUTEX 2 · Calabozos de Valcárcel',hospitalcastle:'RIUTEX 2 · Castillo (planta baja)',hospitalcastle1:'RIUTEX 2 · Castillo (planta alta)',hospitalroyal:'RIUTEX 2 · Sala real',hospitalumbra:'RIUTEX 2 · Laboratorio UMBRAL',hospitalorigin:'RIUTEX 2 · Núcleo ORIGEN',hospitalstreet:'RIUTEX 2 · Epílogo San Gabriel',asylum:'Asilo',sewer:'Cloacas',base:'Instalaciones militares',lab:'Laboratorio'})[this.lvl] || this.lvl }; const slots = this.getSaveSlots(); slots[slot] = data; localStorage.setItem(SAVE_SLOTS_KEY, JSON.stringify(slots)); localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch (e) { UI.msg('No se pudo guardar.'); }
+    const p = this.player; try { const data = { lvl: this.lvl, x: p.x, y: p.y, hp: p.hp, maxHp: p.maxHp, xp: p.xp, cur: p.weapon && p.weapon.id, stash: this.stash, mods: p.mods, pz: this.pz, inv: this.inv.serialize(), drops: this.items.filter(i => i.id.startsWith('drop')).map(i => ({ id: i.id, type: i.type, x: i.x, y: i.y, carry: i.carry, amount: i.amount, count: i.count })), mut: this.mut.serialize(), energy: p.energy, lastCd: p.lastCd, story: this.story, doors: Level.doors.filter(d => d.open).map(d => d.id), picked: [...this.picked], killed: [...this.killed], savedAt: new Date().toISOString(), levelName: ({mansion:'RIUTEX 2 · Mansión',hospital:'RIUTEX 2 · Hospital (planta baja)',hospital1:'RIUTEX 2 · Hospital (primer piso)',hospitalb:'RIUTEX 2 · Hospital (sótano)',hospitalchem:'RIUTEX 2 · Contención C-0',hospitalworks:'RIUTEX 2 · Cloacas / Fábrica',hospitalpit:'RIUTEX 2 · Ensayo del almacén',hospitalnest:'RIUTEX 2 · Último colector',hospitalcells:'RIUTEX 2 · Calabozos de Valcárcel',hospitalcastle:'RIUTEX 2 · Castillo (planta baja)',hospitalcastle1:'RIUTEX 2 · Castillo (planta alta)',hospitalroyal:'RIUTEX 2 · Sala real',hospitalumbra:'RIUTEX 2 · Laboratorio UMBRAL',hospitalorigin:'RIUTEX 2 · Núcleo ORIGEN',hospitalstreet:'RIUTEX 2 · Epílogo San Gabriel',asylum:'Asilo',sewer:'Cloacas',base:'Instalaciones militares',lab:'Laboratorio'})[this.lvl] || this.lvl }; if (slot === null) return JSON.parse(JSON.stringify(data)); const slots = this.getSaveSlots(); slots[slot] = data; localStorage.setItem(SAVE_SLOTS_KEY, SaveCodec.encode(slots)); try { localStorage.setItem(SAVE_KEY, SaveCodec.encode(data)); } catch (e) {} return true; } catch (e) { UI.msg('No se pudo guardar. El navegador no permite almacenar la partida.'); return false; }
   },
   die() { this.state = 'dead'; Sound.stopAmbient(); setTimeout(() => { if (this.state === 'dead') UI.screen('dead'); }, 900); },
   interact() {
@@ -8231,7 +8276,7 @@ const Hospital = {
   const _build = G.buildLevel; G.buildLevel = function (lvl, sv) { if (isR2lvl(lvl)) return Hospital.buildLevel(this, lvl, sv); return _build.call(this, lvl, sv); };
   const _start = G.start; G.start = function (load, sv) {
     let lvl; if (sv) lvl = sv.lvl; else if (load) { const sl = this.getSaveSlots().find(Boolean); lvl = sl ? sl.lvl : this.startLvl; } else lvl = this.startLvl; lvl = lvl || 'asylum'; Trees.use(isR2lvl(lvl) ? 'r2' : 'r1');
-    if (!sv && !load) { try { const sl = this.getSaveSlots(); sl[3] = null; localStorage.setItem(SAVE_SLOTS_KEY, JSON.stringify(sl)); } catch (e) {} }
+    if (!sv && !load) { try { const sl = this.getSaveSlots(); sl[3] = null; localStorage.setItem(SAVE_SLOTS_KEY, SaveCodec.encode(sl)); } catch (e) {} }
     this.carnT = 0; _start.call(this, load, sv); if (isR2()) { Hospital.q = []; if (this.lvl === 'mansion' && !this.story.intro) { this.story.intro = true; Hospital.introMansion(this); } } };
   const _upd = G.update; G.update = function (dt) { _upd.call(this, dt); if (isR2()) { Hospital.tick(this, dt); const p = this.player, m = Trees.count(this.mut, 'mut'); p.evo = Math.min(1, m / 10 + (this.story.armHealed ? .25 : 0)); } };
   const _obj = G.objective; G.objective = function () { return isR2() ? Hospital.objective(this) : _obj.call(this); };
@@ -10663,7 +10708,7 @@ const StalkerMind = {
         c.state === "chase" ||
         Math.abs(Math.atan2(Math.sin(a - c.face), Math.cos(a - c.face))) < 1.35;
     const sees =
-      !p.hidden && !safe && d < 340 && inView && Level.los(c.x, c.y, p.x, p.y);
+      !p.hidden && !safe && d < 340 && inView && (typeof POVPerception!=='undefined'&&POVPerception.active(g)?POVPerception.line(c,p):Level.los(c.x,c.y,p.x,p.y));
     if (sees) {
       c.lastSeen = [p.x, p.y];
       c.tgt = c.lastSeen.slice();
@@ -17196,7 +17241,7 @@ class WorksEnemy extends Enemy {
     const was=this.memory<=0;this.target=[noise.x,noise.y];this.memory=5.5;
     if(was){this.clock=Math.max(this.clock,.45);Sound.tone(155,.22,.14,'sawtooth');}
    }
-  } else if(!p.hidden&&!Specializations.concealed(p)&&d<(this.isBoss?950:this.def.detect)&&Level.los(this.x,this.y,p.x,p.y)) {this.target=[p.x,p.y];this.memory=5;}
+  } else if(typeof POVPerception!=='undefined'&&POVPerception.active(g)&&!this.isBoss?POVPerception.notice(this,g,dt):!p.hidden&&!Specializations.concealed(p)&&d<(this.isBoss?950:this.def.detect)&&Level.los(this.x,this.y,p.x,p.y)) {this.target=[p.x,p.y];this.memory=5;}
   this.memory=Math.max(0,this.memory-dt);
   if(this.memory<=0)this.target=null;
  }
@@ -17971,7 +18016,7 @@ WeaponGlyphs.paths.flamethrower='<path fill="#77877b" d="M15 44h142v24H68L56 99H
   };
   const start=Game.start;
   Game.start=function(load,sv){
-    if(load&&!sv){sv=this.getSaveSlots().find(Boolean)||null;if(!sv){try{sv=JSON.parse(localStorage.getItem(SAVE_KEY));}catch{}}}
+    if(load&&!sv){sv=this.getSaveSlots().find(Boolean)||null;if(!sv){try{sv=SaveCodec.decode(localStorage.getItem(SAVE_KEY));}catch{}}}
     return start.call(this,load,Flamethrower.migrateSave(sv));
   };
   const build=Hospital.buildLevel;
@@ -18706,7 +18751,7 @@ const MenuScene = {
     menu.querySelector('h1').innerHTML='<span>RIUTEX</span><em>2</em>';menu.querySelector('h1').setAttribute('aria-label','RIUTEX 2');
     menu.querySelector('h2').textContent='EL CUSTODIO';
     UI.$('bNew').querySelectorAll('span')[1].textContent='Nueva partida';
-    menu.querySelector('.menu-footer').innerHTML='<span>HISTORIA COMPLETA / v0.18.1</span><span>EL SILENCIO NO TE SALVARÁ.</span><span>CUATRO FASES</span>';menu.appendChild(menu.querySelector('.menu-footer'));
+    menu.querySelector('.menu-footer').innerHTML='<span>HISTORIA COMPLETA / v0.19.0</span><span>EL SILENCIO NO TE SALVARÁ.</span><span>CUATRO FASES</span>';menu.appendChild(menu.querySelector('.menu-footer'));
     const opt=document.createElement('button');opt.id='bMenuOptions';opt.innerHTML='<span class="button-index">03</span><span>Opciones</span><span class="button-arrow">↗</span>';menu.querySelector('.menu-actions').appendChild(opt);
     const panel=document.createElement('section');panel.id='menuOptions';panel.className='screen hidden';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-labelledby','presentationOptionsTitle');
     panel.innerHTML='<div class="presentation-options"><span class="eyebrow">RIUTEX 2 / CONFIGURACIÓN</span><h2 id="presentationOptionsTitle">OPCIONES</h2><label for="menuVolume">Volumen <output id="menuVolumeValue"></output><input id="menuVolume" type="range" min="0" max="100" step="1"></label><label for="menuReduceMotion">Reducir movimiento y destellos<input id="menuReduceMotion" type="checkbox"></label><p>WASD · moverte &nbsp; / &nbsp; Ratón · apuntar y disparar<br>Shift · correr &nbsp; / &nbsp; E · interactuar &nbsp; / &nbsp; R · recargar<br>Tab · maletín &nbsp; / &nbsp; J · documentos &nbsp; / &nbsp; M · mapa<br>K · habilidades &nbsp; / &nbsp; Esc · pausa</p><button id="bMenuOptionsClose">Volver al menú</button></div>';
@@ -19145,52 +19190,7 @@ const POVArt = {
   helicopter(c){
     this.ellipse(c,128,125,62,42,'#485e5d');this.polygon(c,[[79,99],[120,87],[160,91],[178,116],[140,124],[83,120]],'#aac0b1','#162f38');this.line(c,[[122,89],[125,124]],'#29434b',5);this.polygon(c,[[172,124],[240,112],[248,117],[178,147]],'#4a6465','#213a44');this.line(c,[[128,82],[128,56]],'#7f9992',7);this.line(c,[[20,56],[236,56]],'#94a99d',7);for(const x of[83,172])this.line(c,[[x,153],[x,187]],'#5d797d',5);this.line(c,[[53,191],[202,191]],'#a2b6a9',6);this.ellipse(c,92,137,5,4,'#c7a082');
   },
-  drawWeapon(c,g,w,h,time=0){
-    const p=g?.player;if(!p)return;const id=p.weapon?.id||'',predator=p.predator>0,blade=p.blade>0,missing=g.story?.armCut&&!g.story?.armHealed;
-    const moving=!!p.running||!!(g.keys&&(g.keys.KeyW||g.keys.KeyA||g.keys.KeyS||g.keys.KeyD)),bob=moving?Math.sin(p.walkT||time*6)*2.4:Math.sin(time*.9)*.35;
-    const heavy=['ak','shotgun','rifle','r98','flamethrower','gl6','launcher'].includes(id);
-    const base=Math.min(w/1000,h/650),flash=p.flash>0,scale=base*.9,reload=p.reloading>0,anchor=id?(heavy?.55:.52):.57;
-    c.save();c.translate(w*anchor+bob*base,h+18*base+(flash?10:0)*base);c.scale(scale,scale);c.rotate(reload?-.26:0);
-    const skin=p.evo>.5?'#a9a590':'#bca88c',mut=p.evo>.15?'#786e83':'#45626a';
-    if(predator){this.hand(c,-104,-45,skin,true,-1);this.hand(c,152,-15,skin,true,1);for(const sign of[-1,1])for(let i=0;i<3;i++)this.polygon(c,[[sign*(75+i*24),-85],[sign*(60+i*30),-264-i*8],[sign*(90+i*24),-83]],'#b6c6b1','#405863');}
-    else if(!id){this.hand(c,111,-12,skin,blade,1);if(!missing)this.hand(c,-133,-5,skin,blade,-1);if(blade)this.polygon(c,[[86,-48],[4,-254],[63,-278],[131,-56]],'#b5c5b7','#486876');}
-    else{
-      this.polygon(c,[[57,21],[71,-143],[121,-163],[180,-70],[227,24]],mut,'#203d49');
-      if(!missing)this.polygon(c,[[-154,22],[-145,-93],[-52,-203],[-15,-172],[-69,-29],[-68,23]],'#456269','#1d3b48');
-      this.hand(c,113,-87,skin,false,1);
-      if(heavy)this.longWeapon(c,id,p,flash);else this.shortWeapon(c,id,p,flash);
-      if(!missing){c.save();c.translate(-48,-184);c.rotate(.72);this.ellipse(c,0,0,22,34,skin);for(let i=0;i<4;i++)this.line(c,[[-17+i*9,-6],[-11+i*9,17]],'#776f604a',2);c.restore();}
-    }
-    if(id&&!predator&&blade&&!missing){this.polygon(c,[[-124,-51],[-164,-258],[-135,-284],[-94,-65]],'#aebfb0','#456b72');this.line(c,[[-121,-75],[-141,-223]],'#bda1d177',3);}
-    if(p.slash>0){c.save();c.translate(-90,-80);c.rotate(-.8+p.slash*8);this.hand(c,0,0,skin,blade,-1);if(blade)this.polygon(c,[[-25,-34],[-68,-224],[-11,-259],[24,-27]],'#bed0c0','#476877');c.restore();}
-    c.restore();
-  },
-  hand(c,x,y,skin,mutant,side){
-    c.save();c.translate(x,y);c.rotate(side*.24);const g=c.createLinearGradient(-24,-80,35,20);g.addColorStop(0,skin);g.addColorStop(.5,mutant?'#9593a4':skin);g.addColorStop(1,'#766f65');this.polygon(c,[[-28,49],[-26,-39],[-15,-71],[15,-76],[36,-44],[30,18],[18,55]],g,'#4a5b57');for(let i=0;i<4;i++)this.line(c,[[-15+i*11,-46],[-15+i*11,-18]],'#6f7262',1.4);this.line(c,[[-12,-7],[7,-14],[23,-10]],'#e4d2b16b',1.4);if(mutant){this.line(c,[[-12,35],[-7,-3],[11,-24],[10,-66]],'#73567d',3);this.polygon(c,[[9,-65],[16,-112],[23,-68]],'#c3cfbb','#57727c');}c.restore();
-  },
-  shortWeapon(c,id,p,flash){
-    const uzi=id==='viper',metal=c.createLinearGradient(-49,-260,73,-90);metal.addColorStop(0,'#b3c2b8');metal.addColorStop(.18,'#667e83');metal.addColorStop(.52,'#354e5a');metal.addColorStop(1,'#152f3d');
-    this.polygon(c,[[6,-30],[-22,-155],[24,-174],[66,-79],[54,-16]],'#233c47','#7c9090');this.polygon(c,[[-39,-137],[-39,-249],[22,-283],[65,-146]],metal,'#18323e');
-    this.polygon(c,[[-33,-246],[20,-274],[31,-233],[-27,-218]],'#98aaa8','#cbd2bb');this.polygon(c,[[-33,-245],[-41,-251],[12,-283],[21,-276]],'#d0d5bf');
-    c.fillStyle='#102b39';c.fillRect(-15,-203,21,9);this.line(c,[[-27,-213],[-18,-152]],'#b1bcb354',2);for(let i=0;i<5;i++)this.line(c,[[37+i*3,-174],[44+i*3,-151]],'#9aaba066',1.5);
-    this.line(c,[[-22,-124],[21,-130],[34,-111],[28,-88],[3,-92]],'#1b323c',7);this.line(c,[[8,-126],[12,-106]],'#acb7a7',4);
-    if(uzi){this.polygon(c,[[-54,-157],[-63,-257],[2,-280],[70,-189],[63,-151]],metal,'#c3cbb359');for(let i=0;i<5;i++)this.line(c,[[-47+i*11,-196],[-47+i*11,-223]],'#122f3b',5);this.polygon(c,[[5,-144],[35,-151],[61,-53],[29,-36]],'#263e46','#849a98');this.line(c,[[-27,-264],[7,-277],[33,-258]],'#afbcb2',3);}
-    this.polygon(c,[[-22,-261],[15,-281],[27,-264],[-10,-246]],'#5f7d83','#b7c8b6');this.line(c,[[-13,-259],[17,-275]],'#d9debf',2);this.line(c,[[3,-281],[4,-290]],'#a1b5ad',3);this.line(c,[[-11,-210],[-6,-216],[3,-215],[9,-207]],'#c4d0bd',2);if(flash)this.muzzle(c,0,-284,45,p);
-  },
-  longWeapon(c,id,p,flash){
-    const flame=id==='flamethrower',gl=id==='gl6'||id==='launcher',shotgun=id==='shotgun',ak=id==='ak',rifle=id==='rifle'||id==='r98';
-    const metal=c.createLinearGradient(-85,-300,136,-85);metal.addColorStop(0,'#a2b8b0');metal.addColorStop(.18,'#63828a');metal.addColorStop(.55,'#304f5e');metal.addColorStop(1,'#142f40');
-    this.polygon(c,[[29,12],[-14,-146],[32,-179],[127,-32],[140,23]],ak?'#8c6d4f':'#3d5961','#182f3d');this.polygon(c,[[-50,-118],[-84,-267],[-34,-303],[96,-162],[85,-103]],metal,'#152e3f');
-    this.polygon(c,[[-64,-254],[-48,-305],[-28,-322],[19,-221]],'#193644','#9db4ae');this.line(c,[[-45,-301],[-24,-317],[15,-220]],'#a9bdb4',3);
-    const fore=shotgun||ak?'#8c7453':flame?'#697d6d':'#536d72';this.polygon(c,[[-66,-219],[-43,-267],[-11,-248],[37,-175],[13,-151]],fore,'#203b47');for(let i=0;i<6;i++)this.line(c,[[-53+i*8,-233+i*8],[-32+i*8,-247+i*8]],'#273f46',3);
-    this.polygon(c,[[6,-139],[47,-152],[78,-80],[43,-48]],'#263f4a','#809991');this.line(c,[[-37,-123],[-4,-135],[12,-115],[11,-89],[-11,-84]],'#102c3a',8);this.line(c,[[-12,-131],[-6,-108]],'#9aaea5',4);
-    if(ak){this.polygon(c,[[12,-139],[40,-149],[86,-63],[81,-16],[57,-4],[56,-44]],'#253f49','#8ca096');this.line(c,[[28,-132],[68,-53],[68,-20]],'#81958b',2);}
-    if(shotgun){this.line(c,[[-52,-291],[-23,-195]],'#536e76',13);this.line(c,[[-53,-293],[-23,-197]],'#b0c2b7',3);}
-    if(rifle){this.polygon(c,[[-42,-212],[-63,-265],[-45,-279],[-19,-232]],'#193542','#aabdb3');this.ellipse(c,-48,-255,27,18,'#516f77',.7);this.ellipse(c,-52,-261,18,13,'#0a2332',.7);this.ellipse(c,-54,-264,11,8,'#4a827d88',.7);this.line(c,[[-35,-219],[-9,-166]],'#b0c0b6',3);}
-    if(gl){this.polygon(c,[[-72,-188],[-86,-260],[-44,-297],[18,-211]],'#7f8b76','#bac4ac');this.ellipse(c,-61,-266,31,21,'#92a18d',.6);this.ellipse(c,-65,-271,23,15,'#6c837f',.6);this.line(c,[[-84,-274],[-48,-260]],'#b8c9b7',3);this.line(c,[[-68,-282],[-69,-266]],'#294650',4);for(let i=0;i<3;i++){this.ellipse(c,35+i*16,-165+i*23,8,13,'#b4a15f',-.4);this.ellipse(c,31+i*16,-171+i*23,5,6,'#d1cba7',-.4);}}
-    if(flame){this.polygon(c,[[-78,-171],[-105,-238],[-59,-274],[11,-194]],'#658272','#bbbf9b');this.ellipse(c,-78,-245,34,22,'#9daf9b',.6);this.ellipse(c,-85,-250,24,14,'#6f8e84',.6);this.line(c,[[-103,-257],[-70,-243]],'#bdc8ab',3);this.line(c,[[40,-101],[94,-138],[59,-219],[-20,-251]],'#bb9667',10);this.line(c,[[42,-103],[94,-141],[59,-219],[-21,-251]],'#e0c78e',2);this.ellipse(c,42,-166,22,23,'#b6c4ad');this.ellipse(c,42,-166,17,18,'#21404a');this.line(c,[[42,-166],[51,-177]],'#d7c486',2);this.ellipse(c,42,-166,3,3,'#c7cdb2');}
-    if(flash)this.muzzle(c,flame?-88:gl?-66:-43,flame?-267:gl?-288:-324,flame?76:gl?78:shotgun?68:52,p,flame);
-  },
+  drawWeapon(c,g,w,h,time=0){return POVViewmodel.draw(c,g,w,h,time);},
   muzzle(c,x,y,size,p,flame=false){
     c.save();c.translate(x,y);const glow=c.createRadialGradient(0,0,1,0,0,size);glow.addColorStop(0,'#fff1b7f0');glow.addColorStop(.16,flame?'#ffcc62d0':'#ffe8a1d0');glow.addColorStop(.5,'#e999535a');glow.addColorStop(1,'#ff8b3500');c.fillStyle=glow;c.fillRect(-size,-size,size*2,size*2);
     const points=[];for(let i=0;i<16;i++){const a=i*Math.PI/8,r=i%2?size*.17:size*(.45+((i*7)%5)*.08);points.push([Math.cos(a)*r,Math.sin(a)*r]);}this.polygon(c,points,'#fff0b6e6');if(flame){this.ellipse(c,-7,-26,17,42,'#ffc65a99',-.2);this.ellipse(c,5,-68,19,31,'#e8753f77',.25);}c.restore();
@@ -20079,6 +20079,355 @@ const FirstPersonRenderer = {
 (()=>{
   const render=Game.render;
   Game.render=function(){if(FirstPerson.active(this))return FirstPersonRenderer.render(this);return render.call(this);};
+})();
+
+</script>
+<script>
+// Percepción exclusiva del POV: frente amplio, cercanía, memoria breve y oclusión física.
+const POVPerception = {
+  active(g){return typeof FirstPerson!=='undefined'&&FirstPerson.active(g);},
+  blind(e){return e.type==='wx_listener'||e.type==='cl_blind'||e.def?.detect===0;},
+  line(e,p){
+    const dx=p.x-e.x,dy=p.y-e.y,d=Math.hypot(dx,dy),steps=Math.ceil(d/6);
+    for(let i=1;i<steps;i++){
+      const x=Math.floor((e.x+dx*i/steps)/TILE),y=Math.floor((e.y+dy*i/steps)/TILE),v=Level.grid[y]?.[x];
+      if(v===0)continue;
+      if(v===4&&FirstPersonRenderer.propHeight(Level.props[x+','+y]||'crate')<36)continue;
+      return false;
+    }
+    return true;
+  },
+  sees(e,g){
+    const p=g.player,d=Math.hypot(p.x-e.x,p.y-e.y);
+    if(e.dead||e.dormant||this.blind(e)||p.hidden||g.story?.restrained)return false;
+    if((WorksMap.is(g)&&WorksMap.safe(p))||(CastleMap.is(g)&&CastleMap.safe(p,g))||(EndMap.is(g)&&EndMap.safe(p,g)))return false;
+    if(Specializations.concealed(p)&&d>90)return false;
+    const range=e.def?.latent?Math.min(150,e.def.detect):Math.max(260,Math.min(360,e.def?.detect||260));
+    if(d>(e.alert||e.memory>0?Math.min(400,range+40):range))return false;
+    const a=Math.atan2(p.y-e.y,p.x-e.x)-(e.face||0),angle=Math.abs(Math.atan2(Math.sin(a),Math.cos(a)));
+    // A menos de tres casillas no puede ignorarte; más lejos debe mirarte.
+    if(d>96 && !e.alert && !(e.memory>0) && angle>(d<180?1.75:1.18))return false;
+    return this.line(e,p);
+  },
+  notice(e,g,dt){
+    const visible=this.sees(e,g),d=Math.hypot(g.player.x-e.x,g.player.y-e.y);
+    e.povNotice=visible?Math.min(1,(e.povNotice||0)+dt/(d<96?.08:.18)):0;
+    if(visible&&e.povNotice>=1){e.povMemory=2.5;return true;}
+    e.povMemory=Math.max(0,(e.povMemory||0)-dt);return false;
+  }
+};
+(()=>{
+  const hurt=Enemy.prototype.hurt;Enemy.prototype.hurt=function(d,a,g,...rest){const hp=this.hp,result=hurt.call(this,d,a,g,...rest);if(POVPerception.active(g)&&this.hp<hp&&!POVPerception.blind(this)){this.povMemory=2.5;this.face=Math.atan2(g.player.y-this.y,g.player.x-this.x);}return result;};
+})();
+
+</script>
+<script>
+// Rig de dos brazos y armas de perspectiva real. El golpe anima el brazo izquierdo existente.
+const POVViewmodel={
+  stats:{},faces:[],
+  state(g){
+    const p=g.player,s=g.story||{},choice=s.endgame?.choice,cured=choice==='cure',missing=cured||!!(s.armCut&&!s.armHealed),infected=!cured&&!!(s.armHealed||s.riutexUsed>0),terminal=!!choice&&!cured;
+    return {missing,infected,terminal,blade:!missing&&!cured&&(p.blade>0||p.predator>0||terminal),predator:!cured&&(p.predator>0||terminal),strike:!missing&&p.slash>0};
+  },
+  plan(g,time=0,aimY=325){
+    const p=g.player,state=this.state(g),id=state.predator?'':p.weapon?.id||'',heavy=['ak','shotgun','rifle','r98','flamethrower','gl6','launcher'].includes(id);
+    const progress=state.strike?Math.max(0,Math.min(1,1-p.slash/.15)):0,strike=state.strike?Math.sin(progress*Math.PI):0;
+    const moving=!!p.running||Object.entries(g.keys||{}).some(([k,v])=>v&&['KeyW','KeyA','KeyS','KeyD'].includes(k)),bob=MenuScene.motionReduced()?0:moving?Math.sin(p.walkT||time*6)*2.7:Math.sin(time*.8)*.7;
+    const reload=p.reloading>0?1:0,recoil=p.flash>0?Math.min(1,p.flash/.07):0;
+    this.rig={cx:610+bob+(p.running?9:0),cy:487+bob*.4+strike*78+reload*32+recoil*9,focal:500,depth:300,slopeX:-.22,slopeY:(487-aimY)/500,angle:reload?-.17:recoil*.018};
+    const right=id?this.point(14,-34,-28):[663,552],left=id?heavy?this.point(-9,-9,70):this.point(-13,-29,-15):[338,566];
+    const hands=[{side:1,x:right[0],y:right[1],angle:id?-.24:.12,scale:id?1.04:1.15,infected:state.terminal,veins:state.infected,grip:!!id}];
+    if(!state.missing)hands.push({side:-1,x:left[0]+(558-left[0])*strike,y:left[1]+(394-left[1])*strike,angle:state.strike?-.3+strike*.8:id?heavy?.55:.18:-.12,scale:1+strike*.18,infected:state.infected,veins:state.infected,grip:!!id&&!state.strike,attacking:state.strike});
+    return {...state,id,heavy,hands,strike,reload,recoil};
+  },
+  point(x,y,z){
+    const v=this.rig,k=v.focal/(v.depth+z),a=v.angle||0,px=(x+z*v.slopeX)*k,py=-(y+z*v.slopeY)*k;
+    return [v.cx+px*Math.cos(a)-py*Math.sin(a),v.cy+px*Math.sin(a)+py*Math.cos(a)];
+  },
+  face(vertices,color,light=0){this.faces.push({v:vertices,base:color,light,color:POVModels.tone(color,light),z:vertices.reduce((n,v)=>n+v[2],0)/vertices.length});},
+  stock(color){
+    // La culata va al hombro derecho, fuera del eje de la mira y de la mano de disparo.
+    const ring=(x,y,z)=>[[x-14,y-12,z],[x+14,y-12,z],[x+14,y+12,z],[x-14,y+12,z]],a=ring(58,-27,-132),b=ring(4,-6,-58);
+    this.face(a,'#202a33',-.1);for(const [i,j,n]of [[0,1,-.2],[1,2,-.12],[2,3,.17],[3,0,.02]])this.face([a[i],a[j],b[j],b[i]],color,n);
+  },
+  box(x,y,z,w,h,d,color){
+    if(Math.min(w,h,d)>=7){
+      const b=Math.min(2.5,w*.16,h*.16),ring=t=>[[x+b,y,z+t],[x+w-b,y,z+t],[x+w,y+b,z+t],[x+w,y+h-b,z+t],[x+w-b,y+h,z+t],[x+b,y+h,z+t],[x,y+h-b,z+t],[x,y+b,z+t]],a=ring(0),f=ring(d);
+      this.face(a,color,-.13);this.face(f,color,-.22);
+      for(let i=0;i<8;i++){const j=(i+1)%8;this.face([a[i],a[j],f[j],f[i]],color,[-.28,-.12,-.14,.05,.24,.15,.02,-.08][i]);}return;
+    }
+    const v=[[x,y,z],[x+w,y,z],[x+w,y+h,z],[x,y+h,z],[x,y,z+d],[x+w,y,z+d],[x+w,y+h,z+d],[x,y+h,z+d]];
+    for(const [ids,light]of [[[0,1,2,3],-.18],[[4,7,6,5],-.28],[[3,2,6,7],.22],[[0,4,5,1],-.34],[[1,5,6,2],-.12],[[0,3,7,4],.05]])this.face(ids.map(i=>v[i]),color,light);
+  },
+  tube(x,y,z,len,r,color){
+    const sides=12,ring=t=>Array.from({length:sides},(_,i)=>[x+Math.cos(i*Math.PI*2/sides)*r,y+Math.sin(i*Math.PI*2/sides)*r,z+t]);
+    const a=ring(0),b=ring(len);for(let i=0;i<sides;i++){const j=(i+1)%sides;this.face([a[i],a[j],b[j],b[i]],color,Math.sin(i*Math.PI*2/sides)*.2-.1);}
+    this.face(a,color,-.3);this.face(b,color,-.2);
+  },
+  gun(id){
+    this.faces=[];const metal='#52616b',steel='#8a979c',dark='#202a33',wood='#72513c',olive='#55685b';let muzzle=[0,22,100];
+    const grip=()=>{this.box(1,-58,-47,24,52,26,dark);this.box(-18,-25,-24,37,4,27,metal);this.box(-18,-24,-24,4,18,27,metal);this.box(-17,-10,-24,34,3,27,metal);this.box(9,-20,-14,3,17,8,steel);};
+    if(id==='pistol'){
+      grip();this.box(-15,-5,-47,30,24,67,dark);this.box(-16,18,-49,32,14,112,metal);this.tube(0,24,61,39,6,steel);
+      this.box(-13,32,-40,6,6,7,dark);this.box(7,32,-40,6,6,7,dark);this.box(-2,32,57,4,6,5,steel);
+      this.box(14,21,-15,3,7,20,dark);for(let i=0;i<5;i++)this.box(-17,19,-44+i*5,2,11,2,steel);
+    }else if(id==='viper'){
+      grip();this.box(-22,0,-51,44,39,121,metal);this.box(-18,39,-40,36,5,97,dark);this.tube(0,19,69,54,7,steel);this.tube(0,19,119,7,9,dark);
+      this.box(2,-93,-38,23,42,24,metal);this.box(-11,-4,-110,22,13,60,dark);this.box(-15,45,-36,5,8,6,steel);this.box(10,45,-36,5,8,6,steel);this.box(-2,43,63,4,9,6,steel);
+      for(let i=0;i<6;i++)this.box(-23,13,i*12,2,15,6,dark);muzzle=[0,19,127];
+    }else{
+      grip();this.box(-18,-7,-58,36,32,101,id==='flamethrower'?olive:metal);this.box(-13,25,-52,26,7,97,dark);
+      this.stock(id==='ak'?wood:dark);
+      if(id==='shotgun'){
+        this.tube(0,22,28,225,8,steel);this.tube(0,3,32,171,6,metal);this.box(-15,-8,46,30,29,67,wood);for(let i=0;i<7;i++)this.box(-16,-7,48+i*9,32,26,2,dark);
+        this.box(-4,31,228,8,6,8,steel);this.box(17,4,-25,2,15,30,dark);muzzle=[0,22,254];
+      }else if(id==='ak'){
+        this.box(-15,-3,39,30,29,78,wood);this.tube(0,14,112,93,6,steel);this.tube(0,30,74,115,4,metal);this.box(-7,32,171,14,20,7,dark);this.box(-3,52,173,6,4,4,steel);
+        this.box(-13,-45,0,26,38,26,dark);this.box(-13,-76,13,26,34,26,metal);this.box(-13,-94,32,26,23,25,dark);for(let i=0;i<4;i++)this.box(-14,-68+i*9,14+i*3,2,2,23,steel);muzzle=[0,14,207];
+      }else if(id==='flamethrower'){
+        this.tube(0,18,44,157,13,metal);this.tube(0,18,181,25,18,steel);this.tube(0,18,202,4,13,dark);this.tube(17,16,147,65,4,'#b19a68');
+        this.tube(-30,1,-30,83,16,olive);this.box(-47,-11,-18,34,6,11,dark);this.box(-47,-11,35,34,6,11,dark);this.box(17,6,-17,13,22,20,'#ac9e78');muzzle=[0,18,210];
+      }else if(id==='gl6'||id==='launcher'){
+        this.tube(0,15,-6,68,24,olive);this.tube(0,22,57,116,17,metal);this.tube(0,22,160,16,20,steel);this.tube(0,22,172,5,16,dark);this.box(18,-4,-10,7,37,61,steel);this.box(-3,43,93,6,19,7,dark);muzzle=[0,22,177];
+      }else{
+        this.box(-14,-6,37,28,23,77,dark);this.tube(0,17,87,182,6,steel);this.box(-9,28,-9,18,15,76,metal);this.tube(0,49,-12,112,12,dark);this.tube(0,49,-17,10,16,steel);this.tube(0,49,-18,2,12,'#1f383f');this.tube(0,49,94,12,15,steel);muzzle=[0,17,271];
+      }
+      this.box(18,8,-28,2,11,33,dark);for(let i=0;i<7;i++)this.box(-14,32,-47+i*12,28,2,4,steel);
+    }
+    return muzzle;
+  },
+  paintGun(c){
+    this.faces.sort((a,b)=>b.z-a.z);
+    for(const f of this.faces){
+      const points=f.v.map(v=>this.point(...v)),xs=points.map(v=>v[0]),ys=points.map(v=>v[1]),x=Math.min(...xs),y=Math.min(...ys),w=Math.max(...xs)-x,h=Math.max(...ys)-y;
+      const surface=c.createLinearGradient(x,y,x+Math.max(1,w),y+Math.max(1,h));surface.addColorStop(0,POVModels.tone(f.base,Math.min(.4,f.light+.07)));surface.addColorStop(.42,f.color);surface.addColorStop(1,POVModels.tone(f.base,Math.max(-.55,f.light-.1)));
+      POVArt.polygon(c,points,surface,'#192731');
+    }
+  },
+  arm(c,h,p){
+    const start=[h.side<0?255:862,744],wrist=[h.x+h.side*7,h.y+35],elbow=[start[0]*.58+wrist[0]*.42,648],skin=h.infected?'#6087a2':'#a28b78';
+    const cloth=c.createLinearGradient(...start,...elbow);cloth.addColorStop(0,'#111e28');cloth.addColorStop(.6,'#35444a');cloth.addColorStop(1,'#17262f');
+    POVArt.polygon(c,[[start[0]-58,start[1]],[start[0]+58,start[1]],[elbow[0]+32,elbow[1]-4],[elbow[0]-32,elbow[1]-4]],cloth,'#111b23');
+    const grad=c.createLinearGradient(elbow[0]-25,elbow[1],wrist[0]+20,wrist[1]);grad.addColorStop(0,h.infected?'#274258':'#665a50');grad.addColorStop(.48,skin);grad.addColorStop(.7,h.infected?'#83a4bb':'#bcaa94');grad.addColorStop(1,h.infected?'#314b68':'#72695e');
+    const dx=wrist[0]-elbow[0],dy=wrist[1]-elbow[1],len=Math.hypot(dx,dy)||1,nx=-dy/len,ny=dx/len,mx=(elbow[0]+wrist[0])/2,my=(elbow[1]+wrist[1])/2;
+    c.fillStyle=grad;c.strokeStyle='#192a35';c.lineWidth=1.5;c.beginPath();c.moveTo(elbow[0]-nx*35,elbow[1]-ny*35);c.quadraticCurveTo(mx-nx*37,my-ny*37,wrist[0]-nx*20,wrist[1]-ny*20);c.lineTo(wrist[0]+nx*20,wrist[1]+ny*20);c.quadraticCurveTo(mx+nx*33,my+ny*33,elbow[0]+nx*35,elbow[1]+ny*35);c.closePath();c.fill();c.stroke();
+    POVArt.line(c,[[elbow[0]-27,elbow[1]-2],[elbow[0]+27,elbow[1]-2]],'#4c6266',5);
+    if(h.veins){c.save();c.globalAlpha=h.infected?.7:.25;POVArt.line(c,[[elbow[0],elbow[1]-8],[wrist[0]-6,wrist[1]+29],[wrist[0]+6,wrist[1]+9]],'#60b6e8',2);POVArt.line(c,[[wrist[0]-6,wrist[1]+29],[wrist[0]-20,wrist[1]+41]],'#4285b5',1.3);c.restore();}
+    if(p.flash>0){c.save();c.globalAlpha=.12;POVArt.line(c,[[elbow[0]+13,elbow[1]-8],[wrist[0]+12,wrist[1]+4]],'#ffcb89',7);c.restore();}
+  },
+  palm(c,h){
+    c.save();c.translate(h.x,h.y);c.rotate(h.angle);c.scale(h.side*h.scale,h.scale);
+    const color=c.createLinearGradient(-25,-45,31,39);color.addColorStop(0,h.infected?'#a0b9c9':'#d1baa0');color.addColorStop(.4,h.infected?'#7297b3':'#ad9681');color.addColorStop(1,h.infected?'#334f6c':'#695c52');
+    c.fillStyle=color;c.strokeStyle='#28343a';c.lineWidth=1.6;c.beginPath();c.moveTo(-18,39);c.quadraticCurveTo(-35,3,-24,-28);c.quadraticCurveTo(-15,-51,8,-43);c.quadraticCurveTo(30,-39,30,-18);c.lineTo(25,21);c.lineTo(17,38);c.closePath();c.fill();c.stroke();
+    // Base del pulgar y nudillos: volumen y articulación, sin guantes duplicados.
+    POVArt.ellipse(c,-19,2,12,20,h.infected?'#638aaa':'#b49b81',-.3);
+    for(let i=0;i<4;i++){const x=-17+i*11;POVArt.ellipse(c,x,-31+Math.abs(1.5-i)*2,6.8,10,h.infected?'#89a9bf':'#c7b098');POVArt.line(c,[[x-4,-28],[x+3,-27]],h.infected?'#3d6789':'#786b5d',1);}
+    POVArt.line(c,[[-14,12],[-3,7],[15,13]],h.infected?'#375977':'#796d60',1.2);
+    if(h.veins){POVArt.line(c,[[-10,30],[-5,14],[6,-3],[1,-24]],'#5db8ed',1.7);POVArt.line(c,[[6,-3],[19,-12]],'#4998ce',1.2);}
+    c.restore();
+  },
+  fingers(c,h){
+    c.save();c.translate(h.x,h.y);c.rotate(h.angle);c.scale(h.side*h.scale,h.scale);
+    for(let i=0;i<4;i++){
+      const y=-23+i*10;c.strokeStyle='#283840';c.lineWidth=9;c.lineCap='round';c.beginPath();c.moveTo(-17,y);c.quadraticCurveTo(3,y+9,20,y+3);c.stroke();c.strokeStyle=h.infected?'#81a5bf':'#bfa98f';c.lineWidth=6;c.stroke();
+    }
+    POVArt.line(c,[[-23,-8],[-28,-25],[-13,-34]],h.infected?'#9bb8ca':'#d0b99b',8);c.restore();
+  },
+  claws(c,h){
+    c.save();c.translate(h.x,h.y);c.rotate(h.angle);c.scale(h.side*h.scale,h.scale);
+    for(let i=0;i<3;i++){const x=-13+i*14;POVArt.polygon(c,[[x-5,-32],[x-8,-75],[x+6,-126-i*9],[x+7,-72],[x+6,-31]],'#a6c4d3','#416c8d');POVArt.line(c,[[x+2,-41],[x+1,-80],[x+6,-119-i*9]],'#d5e8ec',1.3);}
+    c.restore();
+  },
+  draw(c,g,w,h,time=0){
+    if(!g.player)return;const p=g.player,base=Math.min(w/1000,h/650),plan=this.plan(g,time,650-h/(2*base));
+    this.stats={weapon:plan.id,hands:plan.hands.map(v=>v.side<0?'left':'right'),missingLeft:plan.missing,infected:plan.infected,terminal:plan.terminal,strike:plan.strike>0,meshFaces:0};
+    c.save();c.translate((w-1000*base)/2,h-650*base);c.scale(base,base);
+    for(const hand of plan.hands)this.arm(c,hand,p);
+    for(const hand of plan.hands)if(!hand.attacking)this.palm(c,hand);
+    if(plan.id){const muzzle=this.gun(plan.id);this.stats.meshFaces=this.faces.length;this.paintGun(c);
+      if(plan.id==='flamethrower'){const pts=[[-29,-12,-10],[-68,-32,18],[-40,-22,99],[5,7,135]].map(v=>this.point(...v));POVArt.line(c,pts,'#1d292d',9);POVArt.line(c,pts,'#877956',3);}
+      for(const hand of plan.hands)if(hand.grip)this.fingers(c,hand);
+      if(p.flash>0){const m=this.point(...muzzle);POVArt.muzzle(c,m[0],m[1],plan.id==='flamethrower'?52:35,p,plan.id==='flamethrower');}
+    }
+    for(const hand of plan.hands){if(hand.attacking)this.palm(c,hand);if(plan.blade&&(hand.side<0||plan.predator))this.claws(c,hand);}
+    if(plan.missing){POVArt.polygon(c,[[121,650],[183,650],[184,627],[155,615],[130,624]],'#605b55','#26343a');POVArt.line(c,[[130,630],[179,639]],'#b7b0a0',10);POVArt.line(c,[[145,627],[162,635]],'#6d3b40',5);}
+    c.restore();
+  }
+};
+
+</script>
+<script>
+// Sesión web persistente. Claves estables entre versiones y separadas de camillas/reintentos.
+const SessionSave = {
+  key: 'riutex2_session_v1', backupKey: 'riutex2_session_backup_v1',
+  interval: 10, elapsed: 0, loading: false, restoring: false, issue: false, warned: false,
+  clone(v) { return JSON.parse(JSON.stringify(v)); },
+  parse(text) {
+    if (typeof text !== 'string' || text.length > 5000000) return null;
+    try { return JSON.parse(text, (k,v) => ['__proto__','prototype','constructor'].includes(k) ? undefined : v); }
+    catch (e) { return null; }
+  },
+  valid(s) {
+    const d=s?.data, f=d && (d.lvl==='mansion'?MANSION:FLOORS[d.lvl]);
+    return !!(s?.format==='RIUTEX2-session' && s.schema===1 && Game.validSave(d) &&
+      isR2lvl(d.lvl) && f && d.hp>0 && d.x>=0 && d.y>=0 && d.x<f.W*TILE && d.y<f.H*TILE &&
+      d.xp>=0 && d.inv.cols>=1 && d.inv.cols<=20 && d.inv.rows>=1 && d.inv.rows<=20 &&
+      d.inv.items.every(i=>i && Object.hasOwn(ITEMS,i.type)) &&
+      d.inv.docs.every(id=>Object.hasOwn(DOCS,id)) &&
+      (!s.runtime || (typeof s.runtime==='object' && Array.isArray(s.runtime.actors) &&
+        s.runtime.player && [s.runtime.player.x,s.runtime.player.y,s.runtime.player.hp].every(Number.isFinite) &&
+        s.runtime.player.hp===d.hp && s.runtime.player.x===d.x && s.runtime.player.y===d.y)));
+  },
+  read() {
+    for (const key of [this.key,this.backupKey]) {
+      try { const s=SaveCodec.decode(localStorage.getItem(key)); if(this.valid(s))return s; }
+      catch (e) { this.issue=true; }
+    }
+    return null;
+  },
+  canCapture(g=Game) {
+    return !this.loading && !this.restoring && g.player?.hp>0 && isR2lvl(g.lvl) &&
+      !['menu','dead','cine'].includes(g.state) &&
+      (g.state!=='slots' || !['menu','dead'].includes(g.slotReturnState));
+  },
+  // Solo campos propios serializables: no se guardan prototipos, funciones ni definiciones.
+  fields(o, arrays=false) {
+    const d={};
+    for (const [k,v] of Object.entries(o||{})) {
+      if (['id','type','def','path','weapon','weapons','mods'].includes(k))continue;
+      if (v===null || typeof v==='boolean' || typeof v==='string' || (typeof v==='number' && Number.isFinite(v)))d[k]=v;
+      else if (arrays && Array.isArray(v) && k!=='path')d[k]=this.clone(v);
+    }
+    return d;
+  },
+  capture(g=Game) {
+    if (!this.canCapture(g))return null;
+    const data=g.save(null); // Reutiliza también todos los remember() de las cuatro fases.
+    if (!data)return null;
+    const runtime={player:this.fields(g.player),actors:g.enemies.map(e=>({id:e.id,type:e.type,state:this.fields(e,true)})),
+      squad:(g.squad||[]).map(e=>this.fields(e)),custodio:g.custodio&&this.clone(g.custodio),
+      hospital:{q:Hospital.q,seen:[...Hospital.seen],ft:Hospital.ft||0,hb:Hospital.hb,msgT:Hospital.msgT},
+      collapse:g.collapse&&this.clone(g.collapse),carnT:g.carnT||0,povPitch:FirstPerson.pitch,
+      doors:Level.doors.map(d=>({id:d.id,key:d.key||null,open:!!d.open}))};
+    if(g.state==='end')runtime.ending={title:UI.$('endH').textContent,subtitle:UI.$('endS').textContent,body:UI.$('endB').textContent};
+    return this.clone({format:'RIUTEX2-session',schema:1,savedAt:data.savedAt,data,runtime,retry:g.getSaveSlots()[3]});
+  },
+  persist(s) {
+    if(!this.valid(s))return false;
+    try {
+      const text=SaveCodec.encode(s);localStorage.setItem(this.key,text);
+      // Una copia permite recuperar una clave dañada; el éxito principal es suficiente.
+      try { localStorage.setItem(this.backupKey,text); } catch(e) {}
+      this.issue=false;this.warned=false;return true;
+    } catch(e) { this.failure();return false; }
+  },
+  failure() {
+    this.issue=true;
+    if(!this.warned){this.warned=true;UI.msg('El navegador bloqueó el guardado. En Pausa → Partidas y copias puedes descargar tu partida.',8000);}
+    this.status();
+  },
+  flush(g=Game) {
+    try { const s=this.capture(g);if(!s)return false;const ok=this.persist(s);this.elapsed=0;return ok; }
+    catch(e) { this.failure();return false; }
+  },
+  tick(g,dt) {
+    if(!this.canCapture(g)||SceneTransitions.active)return;
+    this.elapsed+=Math.max(0,Math.min(Number(dt)||0,1));
+    if(this.elapsed>=this.interval)this.flush(g);
+  },
+  applyFields(target,state) {
+    for(const [k,v] of Object.entries(state||{}))if(Object.hasOwn(target,k) && !['id','type','def','weapon','weapons','mods'].includes(k))target[k]=this.clone(v);
+  },
+  restore(g,s) {
+    const r=s.runtime;if(!r)return;
+    this.applyFields(g.player,r.player);
+    if(g.player.reloading>0&&g.player.weapon?.id==='flamethrower')g.player.flameReloadWeapon=g.player.weapon;
+    for(const row of r.actors) {
+      const e=g.enemies.find(e=>e.id===row.id && e.type===row.type);if(!e)continue;
+      this.applyFields(e,row.state);
+      if(!e.dead){e.path=null;e.grace=Math.max(e.grace||0,1);}
+    }
+    if(r.hospital){Hospital.q=this.clone(r.hospital.q||[]);Hospital.seen=new Set(r.hospital.seen||[]);for(const k of ['ft','hb','msgT'])Hospital[k]=Number(r.hospital[k])||0;}
+    if(g.squad)r.squad?.forEach((s,i)=>{if(g.squad[i])this.applyFields(g.squad[i],s);});
+    g.custodio=r.custodio&&this.clone(r.custodio);g.collapse=r.collapse&&this.clone(r.collapse);g.carnT=r.carnT||0;
+    for(const row of r.doors||[]){const d=Level.doors.find(d=>d.id===row.id);if(!d)continue;d.key=typeof row.key==='string'?row.key:null;if(row.open)Level.openDoor(d);else Level.closeDoor(d,true);}
+    if(g.lvl==='mansion'&&g.story.finale)Level.lamps=[];
+    // Los proyectiles transitorios se limpian al reconstruir; las reservas y heridas no.
+    // No reanudamos un golpe invisible: cada jefe vuelve a un aviso o recuperación.
+    for(const e of g.enemies)if(!e.dead&&e.mode&&['wind','rush','charge','attack','leap'].includes(e.mode)){
+      if(typeof e.recover==='function')e.recover(1);else {e.mode='recover';e.clock=1;}
+    }
+    if(r.ending){g.state='end';UI.$('endH').textContent=r.ending.title;UI.$('endS').textContent=r.ending.subtitle;UI.$('endB').textContent=r.ending.body;UI.screen('end');}
+    g.keys={};g.mouse.down=g.mouse.clicked=g.mouse.rclick=false;
+    if(FirstPerson.enabled){FirstPerson.pitch=Math.max(-FirstPerson.maxPitch,Math.min(FirstPerson.maxPitch,Number(r.povPitch)||0));FirstPerson.sync(g);}
+  },
+  resume(s=this.read()) {
+    if(!this.valid(s))return UI.msg('No hay una sesión válida para continuar.');
+    this.restoring=true;
+    try{Game.start(false,s.data);this.restore(Game,s);}finally{this.restoring=false;}
+    if(Game.validSave(s.retry)){
+      try{const slots=Game.getSaveSlots();slots[3]=s.retry;localStorage.setItem(SAVE_SLOTS_KEY,SaveCodec.encode(slots));}catch(e){this.failure();}
+    }
+    this.flush(Game);
+  },
+  died(g) {
+    const retry=g.getSaveSlots()[3];
+    if(Game.validSave(retry)&&retry.hp>0)this.persist({format:'RIUTEX2-session',schema:1,savedAt:new Date().toISOString(),data:retry,retry,runtime:null});
+  },
+  status() {
+    const e=UI.$('sessionSaveStatus');
+    e.textContent=this.issue?'El navegador no permite guardar. Descarga una copia para conservar tu partida.':'La sesión se guarda automáticamente en este navegador. Las copias permiten trasladarla o recuperarla.';
+    e.classList.toggle('save-error',this.issue);
+  },
+  render(g,mode) {
+    const s=this.read(),b=UI.$('bResumeSession');
+    b.classList.toggle('hidden',mode!=='load'||!s);
+    b.textContent=s?'CONTINUAR SESIÓN · '+(SceneTransitions.names[s.data.lvl]||s.data.lvl)+' · '+new Date(s.savedAt).toLocaleString():'';
+    b.onclick=()=>this.resume();UI.$('bExportSession').disabled=!this.canCapture(g)&&!s;this.status();
+  },
+  export() {
+    const s=this.capture()||this.read();if(!this.valid(s))return UI.msg('No hay partida para descargar.');
+    const blob=new Blob([JSON.stringify(s)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download='RIUTEX2-partida-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  },
+  import(text) {
+    const s=this.parse(text);if(!this.valid(s))return UI.msg('Esta copia de partida no es válida. Tu progreso se conserva.',5000);
+    // Los nombres del plano son los del juego; los archivos nunca aportan HTML.
+    s.data.levelName=SceneTransitions.names[s.data.lvl]||s.data.lvl;
+    const previous=this.capture()||this.read();
+    try{this.resume(s);return true;}
+    catch(e){if(previous)this.resume(previous);UI.msg('No se pudo recuperar esta copia. Tu partida anterior se conserva.',5000);return false;}
+  },
+  init(g) {
+    UI.$('bSessionSlots').onclick=()=>g.openSaveSlots('load');
+    UI.$('bExportSession').onclick=()=>this.export();
+    UI.$('bImportSession').onclick=()=>UI.$('sessionImportFile').click();
+    UI.$('sessionImportFile').onchange=async e=>{
+      const f=e.target.files?.[0];if(!f)return;
+      try { if(f.size>5000000)throw new Error('size');this.import(await f.text()); }
+      catch(e){UI.msg('No se pudo leer la copia. La partida actual se conserva.');}
+      finally {UI.$('sessionImportFile').value='';}
+    };
+    window.addEventListener('pagehide',()=>this.flush(g));
+    document.addEventListener?.('visibilitychange',()=>{if(document.hidden)this.flush(g);});
+    // Ningún diálogo al salir: escritura síncrona, también dentro del iframe de itch.io.
+    window.addEventListener('beforeunload',()=>this.flush(g));
+  }
+};
+(()=>{
+  const init=Game.init;Game.init=function(){init.call(this);SessionSave.init(this);};
+  const start=Game.start;Game.start=function(...args){SessionSave.loading=true;try{return start.apply(this,args);}finally{SessionSave.loading=false;SessionSave.elapsed=0;SessionSave.flush(this);}};
+  const update=Game.update;Game.update=function(dt){const result=update.call(this,dt);SessionSave.tick(this,dt);return result;};
+  const menu=Game.toMenu;Game.toMenu=function(...args){SessionSave.flush(this);return menu.apply(this,args);};
+  const pause=Game.pause;Game.pause=function(...args){const result=pause.apply(this,args);SessionSave.flush(this);return result;};
+  const die=Game.die;Game.die=function(...args){const result=die.apply(this,args);SessionSave.died(this);return result;};
+  const save=Game.save;Game.save=function(slot=0){const result=save.call(this,slot);if(slot!==null&&result===true)SessionSave.flush(this);return result;};
+  for(const method of ['take','buySkill','injectSample','craftAmmo']){
+    const original=Game[method];Game[method]=function(...args){const result=original.apply(this,args);SessionSave.flush(this);return result;};
+  }
+  const has=Game.hasSave;Game.hasSave=function(){return !!SessionSave.read()||has.call(this);};
+  const render=UI.renderSaveSlots;UI.renderSaveSlots=function(g,mode){render.call(this,g,mode);SessionSave.render(g,mode);};
+  const close=Game.closeSaveSlots;Game.closeSaveSlots=function(){if(this.slotReturnState==='pause'){this.pause();return;}return close.call(this);};
 })();
 
 </script>

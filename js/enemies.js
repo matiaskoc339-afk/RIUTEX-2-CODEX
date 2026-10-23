@@ -47,8 +47,9 @@ class Enemy {
     if (this.frozen > 0) { this.frozen -= dt; return; }
     if (this.stagger > 0) { this.stagger -= dt; return; }
     this.cd -= dt;
-    if (this.def.latent && !this.alert && d < this.def.detect) { this.alert = true; this.stagger = .7; Sound.play('attack'); return; } // el Latente despierta
-    if (d < this.def.detect && Level.los(this.x, this.y, p.x, p.y)) this.alert = true; else if (d > this.def.detect * 2.2) this.alert = false;
+    const pov=typeof POVPerception!=='undefined'&&POVPerception.active(g),seen=pov?POVPerception.notice(this,g,dt):d<this.def.detect&&Level.los(this.x,this.y,p.x,p.y);
+    if (this.def.latent && !this.alert && (pov?seen:d<this.def.detect)) { this.alert = true; this.stagger = .7; Sound.play('attack'); return; } // el Latente despierta
+    if (seen) this.alert = true; else if (pov?!(this.povMemory>0):d>this.def.detect*2.2) this.alert = false;
     if (!this.alert) return;
     if (this.def.howler) { this.shriek = (this.shriek || 3) - dt; if (this.shriek <= 0) { this.shriek = 7; g.ring(this.x, this.y, 300, '#c04040'); Sound.play('attack'); for (const o of g.enemies) if (!o.dead && !o.isBoss && Math.hypot(o.x - this.x, o.y - this.y) < 420) o.alert = true; UI.msg('¡Un aullido atrae a los demás!', 2200); } } // el Aullador llama a los vecinos
     this.face = Math.atan2(dy, dx);

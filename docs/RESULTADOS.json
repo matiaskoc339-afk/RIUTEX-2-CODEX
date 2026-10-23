@@ -1,8 +1,8 @@
 {
-  "version": "0.18.1",
+  "version": "0.19.0",
   "date": "2026-10-23",
   "scope": "RIUTEX 2 completo: mansión, hospital, fábrica, castillo, laboratorio UMBRAL, Wren/ORIGEN y dos epílogos",
-  "system_tests": 277,
+  "system_tests": 305,
   "system_failures": 0,
   "integration_checks": 103,
   "map_validations": 15,
@@ -76,12 +76,15 @@
     "endings": 2
   },
   "browser_groups": {
-    "experience-browser-results.json": 34,
-    "browser-blue-results.json": 24,
-    "standalone-blue-results.json": 17
+    "persistence-browser-results.json": 26,
+    "pov-combat-browser-results.json": 16,
+    "pov-browser-results.json": 83,
+    "standalone-blue-results.json": 17,
+    "survival-browser-results.json": 38,
+    "experience-browser-results.json": 34
   },
-  "browser_checks_total": 75,
-  "standalone_headless_fps": 49.7,
+  "browser_checks_total": 214,
+  "standalone_headless_fps": 59.4,
   "file_access": {
     "attempted": true,
     "status": "blocked_by_environment",
@@ -397,7 +400,7 @@
     "weapon": "r98",
     "reserve": 11
   },
-  "notes": "v0.18.1 limita los ingresos de XP a bajas, documentos nuevos (2) y muestras consumidas (15). Salas, puzles, armas, traje, maletín de oleadas, campanas, ingredientes y primera inyección dan cero. Se conservan las bajas pequeñas de v0.18.0, los objetos de recompensa y el progreso guardado. Presupuesto colocado de ocho mapas: 670 XP; se comprueban por separado rutas avanzadas humana de 310 y mutante de 348 con requisitos reales. v0.18.0 sustituye la bonificación ×2,5 por bajas pequeñas y predecibles, crecientes por zona y peligrosidad. Conserva premios superiores para minijefes y jefes, XP de exploración y progreso guardado. Los cadáveres no vuelven a conceder XP ni botín por daño repetido. v0.17.2 amplía cinco veces el recorrido vertical de cámara en POV para ratón y flechas, manteniendo velocidad, sensibilidad y retícula centrada. v0.17.1 añade sensibilidad del ratón 25–250 %, sincronizada entre Opciones y Pausa, aplicada a ambos ejes y guardada sin alterar la preferencia POV ni las partidas. v0.17.0 diferencia las criaturas y objetos de primera persona, separa Carnicero/Vacío y C-17/Camillero antes de la caché, recorta el margen transparente de objetos sueltos y centra la mira al inclinar la cámara. v0.16.2 añade el botón Bloquear ratón, visible solo en POV sin captura y durante la partida; Esc libera y pausa. v0.16.1 corrige el sentido vertical de ratón/flechas y elimina únicamente en POV la máscara de salas sin visitar, manteniendo oclusión física, descubrimiento del plano y oscuridad clásica. v0.16 añade la opción Primera Persona POV en ajustes y pausa, con vista clásica predeterminada, materiales, enemigos frontales, armas y avisos proyectados. v0.15.1 renueva exclusivamente la presentación del menú; se elimina la figura humana y se intensifican disparos, material de sangre, entorno y botones. v0.15 conserva balance porcentual, opciones persistentes y fundidos. Rutas, mecanismos y finales con movimiento, puertas y botones reales; enemigos retirados solo para aislar geometría. Combates independientes con IA y recursos preparados finitos. El controlador conoce posiciones y avisos y no representa una primera partida humana ni valida los recursos de la campaña íntegra. UMBRAL se recorre en sus 26 espacios; sus tres cámaras no permiten eludir cierres. Wren atraviesa tres mutaciones sin saltos. El GL-6 tiene identidad independiente de la migración LG-4/FL-4, granadas fabricables, explosión y cuatro mejoras. La decisión del antídoto se guarda, elimina poderes mutantes y el brazo reconstruido al curarse, o conserva la transformación. Ambos finales caminan por la calle y muestran el helicóptero antes del resultado. Capturas preparadas de formas no se cuentan como combates. La inyección de vida máxima sustituye al rifle del hospital. HTML integrado probado por HTTP sin recursos externos; Chromium administrado bloquea file://, intento que no se cuenta como superado.",
+  "notes": "v0.19.0 añade sesión periódica y al salir, tres huecos y Reintentar independientes, copias JSON y almacenamiento comprimido compatible con JSON previo. Se prueba reabrir el mismo perfil de Chromium con el HTML integrado en un iframe de otro origen local. Toda la cartografía preparada de 53.114 casillas cabe con los huecos y respaldos en aproximadamente 1,4 MB, frente a unos 8 MB sin comprimir, bajo una cuota simulada de 5 MiB. El POV adquiere enemigos visibles por puertas abiertas sin descubrir salas; respeta distancia, ciegos, refugios y ocultación. El rig reutiliza los dos brazos, muestra infección azul y ambos desenlaces, con siete armas distintas. v0.18.1 limita los ingresos de XP a bajas, documentos nuevos (2) y muestras consumidas (15). Salas, puzles, armas, traje, maletín de oleadas, campanas, ingredientes y primera inyección dan cero. Se conservan las bajas pequeñas de v0.18.0, los objetos de recompensa y el progreso guardado. Presupuesto colocado de ocho mapas: 670 XP; se comprueban por separado rutas avanzadas humana de 310 y mutante de 348 con requisitos reales. v0.18.0 sustituye la bonificación ×2,5 por bajas pequeñas y predecibles, crecientes por zona y peligrosidad. Conserva premios superiores para minijefes y jefes, XP de exploración y progreso guardado. Los cadáveres no vuelven a conceder XP ni botín por daño repetido. v0.17.2 amplía cinco veces el recorrido vertical de cámara en POV para ratón y flechas, manteniendo velocidad, sensibilidad y retícula centrada. v0.17.1 añade sensibilidad del ratón 25–250 %, sincronizada entre Opciones y Pausa, aplicada a ambos ejes y guardada sin alterar la preferencia POV ni las partidas. v0.17.0 diferencia las criaturas y objetos de primera persona, separa Carnicero/Vacío y C-17/Camillero antes de la caché, recorta el margen transparente de objetos sueltos y centra la mira al inclinar la cámara. v0.16.2 añade el botón Bloquear ratón, visible solo en POV sin captura y durante la partida; Esc libera y pausa. v0.16.1 corrige el sentido vertical de ratón/flechas y elimina únicamente en POV la máscara de salas sin visitar, manteniendo oclusión física, descubrimiento del plano y oscuridad clásica. v0.16 añade la opción Primera Persona POV en ajustes y pausa, con vista clásica predeterminada, materiales, enemigos frontales, armas y avisos proyectados. v0.15.1 renueva exclusivamente la presentación del menú; se elimina la figura humana y se intensifican disparos, material de sangre, entorno y botones. v0.15 conserva balance porcentual, opciones persistentes y fundidos. Rutas, mecanismos y finales con movimiento, puertas y botones reales; enemigos retirados solo para aislar geometría. Combates independientes con IA y recursos preparados finitos. El controlador conoce posiciones y avisos y no representa una primera partida humana ni valida los recursos de la campaña íntegra. UMBRAL se recorre en sus 26 espacios; sus tres cámaras no permiten eludir cierres. Wren atraviesa tres mutaciones sin saltos. El GL-6 tiene identidad independiente de la migración LG-4/FL-4, granadas fabricables, explosión y cuatro mejoras. La decisión del antídoto se guarda, elimina poderes mutantes y el brazo reconstruido al curarse, o conserva la transformación. Ambos finales caminan por la calle y muestran el helicóptero antes del resultado. Capturas preparadas de formas no se cuentan como combates. La inyección de vida máxima sustituye al rifle del hospital. HTML integrado probado por HTTP sin recursos externos; Chromium administrado bloquea file://, intento que no se cuenta como superado.",
   "origin_combat": {
     "won": true,
     "state": "play",
@@ -450,13 +453,13 @@
     "previous_browser_suites": "Los escenarios de lógica y recorrido aíslan la presentación; polish-browser verifica los fundidos con requestAnimationFrame real."
   },
   "regression_baseline": {
-    "version": "0.18.0",
-    "system_tests": 273,
+    "version": "0.18.1",
+    "system_tests": 277,
     "integration_checks": 103,
     "map_validations": 15,
-    "browser_checks_total": 77
+    "browser_checks_total": 75
   },
-  "validation_scope": "Motor: 277 pruebas, 103 comprobaciones de integración y 15 mapas. Catorce pruebas específicas de XP y aserciones de cero XP en los puzles existentes de todas las fases. Navegador: XP, documentos y absorción por controles en ambas perspectivas; prólogo y hospital con movimiento; HTML integrado. Los otros grupos conservan resultados históricos y no se repiten sus combates.",
+  "validation_scope": "305 pruebas de motor, 103 comprobaciones de integración y 15 mapas. 17 pruebas específicas de persistencia/compresión y 11 de visión/cuerpo POV. Navegador: 214 comprobaciones en seis grupos (sesión en iframe y perfil reabierto, armas/visión, regresión POV, HTML integrado, supervivencia/camillas y XP). Los otros resultados de campaña se conservan como historial.",
   "pov": {
     "optional": true,
     "default_enabled": false,
@@ -464,10 +467,10 @@
       "menuFirstPerson",
       "pauseFirstPerson"
     ],
-    "renderer": "Proyección en primera persona con profundidad por píxel, materiales y siluetas frontales; misma simulación y colisiones.",
+    "renderer": "Proyección con profundidad por píxel, modelos de criaturas y objetos, y rig de dos brazos con armas de perspectiva.",
     "camera_relative_movement": true,
     "pointer_lock_fallback": true,
-    "saves_unchanged": true,
+    "saves_unchanged": false,
     "coverage": "Prólogo y primera huida con movimiento real; siete armas, quince mapas, doce formas de jefes preparadas; avisos, poderes, caída y dos epílogos preparados con comparación de píxeles.",
     "normal_vertical_look": true,
     "unvisited_rooms_visible_through_open_doors": true,
@@ -497,10 +500,30 @@
       "previous_limit": 0.28,
       "range_multiplier": 5,
       "mouse_and_arrows": true
+    },
+    "legacy_save_compatibility": true,
+    "perception": {
+      "range_normal_px": [
+        260,
+        360
+      ],
+      "close_awareness_px": 96,
+      "walls_and_closed_doors_occlude": true,
+      "low_furniture_can_be_seen_over": true,
+      "blind_enemies_unchanged": true,
+      "topdown_rules_unchanged": true
+    },
+    "viewmodel": {
+      "weapons": 7,
+      "max_hands": 2,
+      "melee_uses_existing_left_arm": true,
+      "blue_regrown_arm": true,
+      "cure_removes_regrown_arm_and_mutation": true,
+      "terminal_mutation_uses_existing_arms": true
     }
   },
   "kill_xp_balance": {
-    "version": "0.18.1",
+    "version": "0.19.0",
     "floors": {
       "mansion": {
         "count": 7,
@@ -712,5 +735,31 @@
     "arena_case": 0,
     "antidote_ingredients": 0,
     "old_save_xp_preserved": true
+  },
+  "persistence": {
+    "session_schema": 1,
+    "interval_seconds": 10,
+    "events": [
+      "pagehide",
+      "visibilitychange",
+      "beforeunload",
+      "pause",
+      "menu",
+      "critical_actions"
+    ],
+    "separate_from_manual_slots": true,
+    "separate_from_retry": true,
+    "compressed": true,
+    "legacy_json_supported": true,
+    "download_import_backup": true,
+    "iframe_test": "Dos orígenes HTTP locales con puertos distintos, iframe sandbox, mismo perfil de Chromium cerrado y reabierto. No publica en un dominio real de itch.io.",
+    "storage_budget": {
+      "tiles": 53114,
+      "maps": 15,
+      "raw_estimated_bytes": 7986038,
+      "compressed_peak_bytes": 1413496,
+      "quota_bytes": 5242880,
+      "scope": "Todos los suelos descubiertos, tres huecos, punto Reintentar, legado y sesión con respaldo. Límite simulado de 5 MiB contando UTF-16; datos preparados, no una partida humana."
+    }
   }
 }

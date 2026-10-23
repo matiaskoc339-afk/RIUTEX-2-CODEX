@@ -4,7 +4,7 @@ const root = process.env.R2ROOT || process.argv[2] || require('path').join(__dir
 const mkEl = () => { const e = { style: {setProperty(k,v){this[k]=v;}}, dataset:{}, classList: { toggle() {}, add() {}, remove() {} }, children: [], setAttribute() {}, appendChild() {}, querySelector() { return mkEl(); }, querySelectorAll(){ return [mkEl(),mkEl(),mkEl()]; }, addEventListener() {}, getContext: () => ctx2d, set innerHTML(v) {}, get innerHTML() { return ''; }, textContent: '', width: 800, height: 600, remove() {} }; return e; };
 const ctx2d = new Proxy({}, { get: (t, k) => k === 'createRadialGradient' || k === 'createLinearGradient' ? () => ({ addColorStop() {} }) : (() => {}), set: () => true });
 const store = {};
-const sandbox = { console, Math, JSON, Set, Map, Array, Object, Number, String, Date, performance: { now: () => 0 }, setTimeout: (f) => 0, clearTimeout() {}, requestAnimationFrame() {}, innerWidth: 800, innerHeight: 600,
+const sandbox = { console, Math, JSON, Set, Map, Array, Object, Number, String, Date, TextEncoder, TextDecoder, performance: { now: () => 0 }, setTimeout: (f) => 0, clearTimeout() {}, requestAnimationFrame() {}, innerWidth: 800, innerHeight: 600,
   localStorage: { getItem: k => store[k] ?? null, setItem: (k, v) => store[k] = v }, addEventListener() {},
   document: { body: mkEl(), getElementById: () => mkEl(), createElement: () => mkEl() }, Audio: function () {}, AudioContext: function () {} };
 sandbox.window = sandbox; vm.createContext(sandbox);

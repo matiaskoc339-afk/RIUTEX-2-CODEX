@@ -283,7 +283,7 @@ const Hospital = {
   const _build = G.buildLevel; G.buildLevel = function (lvl, sv) { if (isR2lvl(lvl)) return Hospital.buildLevel(this, lvl, sv); return _build.call(this, lvl, sv); };
   const _start = G.start; G.start = function (load, sv) {
     let lvl; if (sv) lvl = sv.lvl; else if (load) { const sl = this.getSaveSlots().find(Boolean); lvl = sl ? sl.lvl : this.startLvl; } else lvl = this.startLvl; lvl = lvl || 'asylum'; Trees.use(isR2lvl(lvl) ? 'r2' : 'r1');
-    if (!sv && !load) { try { const sl = this.getSaveSlots(); sl[3] = null; localStorage.setItem(SAVE_SLOTS_KEY, JSON.stringify(sl)); } catch (e) {} }
+    if (!sv && !load) { try { const sl = this.getSaveSlots(); sl[3] = null; localStorage.setItem(SAVE_SLOTS_KEY, SaveCodec.encode(sl)); } catch (e) {} }
     this.carnT = 0; _start.call(this, load, sv); if (isR2()) { Hospital.q = []; if (this.lvl === 'mansion' && !this.story.intro) { this.story.intro = true; Hospital.introMansion(this); } } };
   const _upd = G.update; G.update = function (dt) { _upd.call(this, dt); if (isR2()) { Hospital.tick(this, dt); const p = this.player, m = Trees.count(this.mut, 'mut'); p.evo = Math.min(1, m / 10 + (this.story.armHealed ? .25 : 0)); } };
   const _obj = G.objective; G.objective = function () { return isR2() ? Hospital.objective(this) : _obj.call(this); };

@@ -30,7 +30,7 @@ class WorksEnemy extends Enemy {
     const was=this.memory<=0;this.target=[noise.x,noise.y];this.memory=5.5;
     if(was){this.clock=Math.max(this.clock,.45);Sound.tone(155,.22,.14,'sawtooth');}
    }
-  } else if(!p.hidden&&!Specializations.concealed(p)&&d<(this.isBoss?950:this.def.detect)&&Level.los(this.x,this.y,p.x,p.y)) {this.target=[p.x,p.y];this.memory=5;}
+  } else if(typeof POVPerception!=='undefined'&&POVPerception.active(g)&&!this.isBoss?POVPerception.notice(this,g,dt):!p.hidden&&!Specializations.concealed(p)&&d<(this.isBoss?950:this.def.detect)&&Level.los(this.x,this.y,p.x,p.y)) {this.target=[p.x,p.y];this.memory=5;}
   this.memory=Math.max(0,this.memory-dt);
   if(this.memory<=0)this.target=null;
  }

@@ -1,3 +1,18 @@
+# Validación de v0.19.0 · Guardado web y cuerpo POV
+
+- **305 pruebas de motor**, **103 comprobaciones de integración** y **15 mapas**, sin fallos.
+- **17 pruebas de persistencia**: espacios y Reintentar separados, recursos sin curación, estados de quince mapas, fase y salud de los cuatro jefes, prólogo y persecución, documentos y bajas sin duplicar, recarga del FL-4, cuota agotada, almacenamiento bloqueado, copias, Unicode, compresión y JSON antiguo.
+- **11 pruebas de visión y cuerpo POV**: puerta cerrada/abierta sin visitar sala, alcance y frente, proximidad, muebles y paredes, reacción y pérdida visual, ciegos, camuflaje, dos brazos, golpe e historia de infección/cura.
+- **214 comprobaciones de navegador en seis grupos**: persistencia 26, visión/armas 16, regresión POV 83, HTML integrado 17, supervivencia/camillas 38 y XP 34. Sin errores JavaScript.
+- El HTML integrado se ejecuta dentro de un iframe real con sandbox desde otro origen local. Se cierra normalmente la pestaña y el proceso de Chromium y se vuelve a abrir el mismo perfil. Se conservan posición, recursos, documento, arma y enemigo herido en topdown y POV. El escenario bloqueado descarga e importa una copia mediante los controles reales.
+- Presupuesto preparado de **53.114 casillas exploradas** en quince mapas, tres espacios, Reintentar, legado y dos copias de sesión: aproximadamente **1,4 MB comprimidos**, frente a **8 MB** sin comprimir, bajo una cuota simulada de **5 MiB** contando UTF-16. Se mantiene la lectura del JSON anterior.
+- Se revisa una galería de siete armas, el golpe, el brazo perdido y ambos desenlaces. No se añade una mano al golpear; la paleta azul corresponde con la infección.
+- ZIP de itch.io: un `index.html` integrado en la raíz, idéntico al HTML probado. El paquete de fuentes incluye registros y se coteja byte a byte.
+
+Las pruebas de mapas, combate y presupuesto preparan estados para aislar cada comportamiento. No son una campaña humana completa ni una garantía de dificultad o rendimiento en cualquier equipo. El iframe usa dos puertos locales diferentes: no se publica ni se prueba un dominio real de itch.io. La persistencia se verifica para un cierre normal, no para un cierre forzado del sistema. Los datos pertenecen al mismo navegador y origen; las copias descargables permiten conservarlos fuera del almacenamiento del sitio. El HTML se prueba por HTTP porque el Chromium administrado bloquea file://.
+
+---
+
 # Validación de v0.18.1 · Tres fuentes de XP
 
 Solo conceden XP las bajas, los documentos nuevos (2) y las muestras consumidas (15). Se retiran los premios de salas, puzles, equipo, campanas, maletín de la arena, ingredientes y primera inyección obligatoria. Los mecanismos y sus recompensas materiales siguen funcionando.
