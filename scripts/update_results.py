@@ -10,13 +10,15 @@ pov_capture='--pov-capture' in sys.argv
 pov_models='--pov-models' in sys.argv
 pov_sensitivity='--pov-sensitivity' in sys.argv
 pov_pitch='--pov-pitch' in sys.argv
-files.extend(['pov-patch-browser-results.json','pov-capture-browser-results.json','pov-models-browser-results.json','pov-sensitivity-browser-results.json','pov-pitch-browser-results.json'])
+experience='--experience' in sys.argv
+files.extend(['pov-patch-browser-results.json','pov-capture-browser-results.json','pov-models-browser-results.json','pov-sensitivity-browser-results.json','pov-pitch-browser-results.json','experience-browser-results.json'])
 if presentation_only:files=['standalone-blue-results.json','polish-browser-results.json']
 if pov_patch:files=['pov-patch-browser-results.json','pov-browser-results.json','pov-effects-browser-results.json','horror-browser-results.json','standalone-blue-results.json']
 if pov_capture:files=['pov-capture-browser-results.json','pov-patch-browser-results.json','pov-browser-results.json','standalone-blue-results.json']
 if pov_models:files=['pov-models-browser-results.json','pov-browser-results.json','pov-effects-browser-results.json','horror-browser-results.json','pov-patch-browser-results.json','pov-capture-browser-results.json','standalone-blue-results.json']
 if pov_sensitivity:files=['pov-sensitivity-browser-results.json','pov-capture-browser-results.json','polish-browser-results.json','standalone-blue-results.json']
 if pov_pitch:files=['pov-pitch-browser-results.json','pov-patch-browser-results.json','pov-sensitivity-browser-results.json','pov-capture-browser-results.json','standalone-blue-results.json']
+if experience:files=['experience-browser-results.json','survival-browser-results.json','standalone-blue-results.json']
 data={n:json.loads((r/'artifacts'/n).read_text()) for n in files}
 if presentation_only:
  for n,d in data.items():assert d.get('version')==version,(n,'Vuelve a ejecutar la prueba de esta versión.')
@@ -31,10 +33,12 @@ if pov_sensitivity:
  for n,d in data.items():assert d.get('version')==version,(n,'Vuelve a ejecutar la prueba de esta versión.')
 if pov_pitch:
  for n,d in data.items():assert d.get('version')==version,(n,'Vuelve a ejecutar la prueba de esta versión.')
+if experience:
+ for n in ['experience-browser-results.json','standalone-blue-results.json']:assert data[n].get('version')==version,(n,'Vuelve a ejecutar la prueba de esta versión.')
 groups={n:len(d.get('passed',d.get('checks',[]))) for n,d in data.items()}
 log=(r/('artifacts/all-tests-v'+version.replace('.','')+'.txt')).read_text();assert 'ℹ fail 0' in log
 result=json.loads((r/'docs/RESULTADOS.json').read_text());result.pop('patch',None)
-if (presentation_only or pov_patch or pov_capture or pov_models or pov_sensitivity or pov_pitch) and result['version']!=version:
+if (presentation_only or pov_patch or pov_capture or pov_models or pov_sensitivity or pov_pitch or experience) and result['version']!=version:
  result['regression_baseline']={k:result[k] for k in ['version','system_tests','integration_checks','map_validations','browser_groups','browser_checks_total']}
 result['validation_scope']='Menú, fundidos y HTML integrado; motor y mapas comprobados de nuevo. El resto del navegador se conserva como historial de la versión anterior.' if presentation_only else 'Suite completa del motor y navegador.'
 if pov_patch:result['validation_scope']='Motor, integración y mapas completos; navegador enfocado en visibilidad POV, mirada vertical, controles, efectos/epílogos, oscuridad clásica y HTML integrado. El resto de la campaña conserva su historial v0.16.0.'
@@ -42,6 +46,7 @@ if pov_capture:result['validation_scope']='Motor, integración y mapas completos
 if pov_models:result['validation_scope']='Motor, integración y mapas completos; siete grupos de navegador: modelos/objetos/retícula, controles y recorrido POV, efectos/epílogos, oscuridad clásica, mirada/visibilidad, captura del ratón y HTML integrado. Los combates completos de campaña conservan sus validaciones anteriores.'
 if pov_sensitivity:result['validation_scope']='Motor, integración y mapas completos; navegador enfocado en sensibilidad del ratón, preferencias, captura, presentación/fundidos y HTML integrado. Los otros grupos conservan su validación anterior.'
 if pov_pitch:result['validation_scope']='Motor, integración y mapas completos; navegador enfocado en recorrido vertical ampliado, quince mapas en ambos extremos, retícula, mirada/visibilidad, sensibilidad, captura y HTML integrado. Los otros grupos conservan su validación anterior.'
+if experience:result['validation_scope']='Motor, integración y mapas completos; diez pruebas específicas de XP y presupuesto de ocho mapas. Navegador: bajas/HUD en ambas perspectivas, premios de ocho jefes/minijefes, compras/guardado, supervivencia/armero/C-17 y HTML integrado. Los otros grupos conservan su validación anterior.'
 result.update(version=version,date='2026-10-23',scope='RIUTEX 2 completo: mansión, hospital, fábrica, castillo, laboratorio UMBRAL, Wren/ORIGEN y dos epílogos',system_tests=int(re.search(r'ℹ tests (\d+)',log)[1]),system_failures=0,integration_checks=len(re.findall(r'^PASS ',log,re.M)),map_validations=len(re.findall(r'^  OK$',log,re.M)),browser_groups=groups,browser_checks_total=sum(groups.values()),standalone_headless_fps=data['standalone-blue-results.json']['headless_fps'],file_access=data['standalone-blue-results.json'].get('file_access'))
 result['new_map'].update(laboratory_dimensions=[156,128],laboratory_rooms=26,laboratory_doors=40,laboratory_enemies=35,antidote_ingredients=3,laboratory_puzzles=12,laboratory_optional_modules=5,origin_dimensions=[60,56],origin_rooms=3,origin_phases=3,street_dimensions=[66,62],street_rooms=4,endings=2)
 for key,group,field in [('arena_combat','works-browser-results.json','combat'),('carnicero_combat','finale-browser-results.json','combat'),('suit_custodian_combat','depths-browser-results.json','guard_combat'),('matriarch_combat','depths-browser-results.json','boss_combat'),('castle_m9_combats','castle-combat-results.json','combats'),('castle_r98_combat','castle-browser-results.json','royal_r98_combat'),('origin_combat','endgame-browser-results.json','combat')]:
@@ -60,5 +65,8 @@ result['notes']='v0.16.2 añade el botón Bloquear ratón, visible solo en POV s
 result['notes']='v0.17.0 diferencia las criaturas y objetos de primera persona, separa Carnicero/Vacío y C-17/Camillero antes de la caché, recorta el margen transparente de objetos sueltos y centra la mira al inclinar la cámara. '+result['notes']
 result['notes']='v0.17.1 añade sensibilidad del ratón 25–250 %, sincronizada entre Opciones y Pausa, aplicada a ambos ejes y guardada sin alterar la preferencia POV ni las partidas. '+result['notes']
 result['notes']='v0.17.2 amplía cinco veces el recorrido vertical de cámara en POV para ratón y flechas, manteniendo velocidad, sensibilidad y retícula centrada. '+result['notes']
+if experience:
+ result['kill_xp_balance']=json.loads((r/'artifacts/xp-balance-results.json').read_text());assert result['kill_xp_balance']['version']==version
+result['notes']='v0.18.0 sustituye la bonificación ×2,5 por bajas pequeñas y predecibles, crecientes por zona y peligrosidad. Conserva premios superiores para minijefes y jefes, XP de exploración y progreso guardado. Los cadáveres no vuelven a conceder XP ni botín por daño repetido. '+result['notes']
 (r/'docs/RESULTADOS.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
 print(json.dumps({k:result[k] for k in ['system_tests','integration_checks','map_validations','browser_checks_total']},ensure_ascii=False))

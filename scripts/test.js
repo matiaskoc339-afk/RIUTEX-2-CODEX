@@ -17,6 +17,7 @@ for (const args of [
     "tests/endgame.test.js",
     "tests/polish.test.js",
     "tests/pov.test.js",
+    "tests/experience.test.js",
   ],
   ["tests/t3.js"],
   ["tests/t4.js"],

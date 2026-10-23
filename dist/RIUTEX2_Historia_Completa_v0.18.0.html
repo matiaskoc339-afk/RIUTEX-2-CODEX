@@ -5443,11 +5443,13 @@ class Enemy {
     Object.assign(this, { type, def: ENEMY_TYPES[type], id, x, y, r: ENEMY_TYPES[type].r || 11, hp: ENEMY_TYPES[type].hp, mhp: ENEMY_TYPES[type].hp, lastHit: 9, alert: false, dead: false, stagger: 0, frozen: 0, cd: 0, windup: 0, face: Math.random() * 6.28, t: Math.random() * 10, hitFlash: 0 });
   }
   hurt(dmg, angle, g) {
+    if (this.dead) return;
     this.hp -= dmg * (1 - (this.def.armor || 0)); this.stagger = .18; this.lastHit = 0; this.alert = true; this.windup = 0; this.hitFlash = .1;
     if (!(this.def.rng && this.def.rng.fixed)) Level.move(this, Math.cos(angle) * 9, Math.sin(angle) * 9); g.sparks(this.x, this.y, 7, '#7a0a14'); Sound.play('enemyhit');
     if (this.hp <= 0) this.die(g);
   }
   die(g) {
+    if (this.dead) return;
     this.dead = true; g.player.xp += mutationXPReward(this.def, !!this.isBoss, g.mut); g.player.onKill(g); g.killed.add(this.id); if (!this.isBoss && g.dropCraftingMaterial) g.dropCraftingMaterial(this); Sound.play('enemydie');
     Level.decals.push({ x: this.x, y: this.y, r: 17, c: 'rgba(90,10,16,.6)' }); g.sparks(this.x, this.y, 18, '#6a0810'); g.bodies.push({ x: this.x, y: this.y, a: this.face }); if (this.def.cloud) g.pools.push({ x: this.x, y: this.y, r: this.def.cloud, life: 6 });
   }
@@ -8264,8 +8266,18 @@ const Hospital = {
   const _ed = Enemy.prototype.draw; Enemy.prototype.draw = function (ctx) {
     _ed.call(this, ctx); const t = this.type; if (!['enfermera', 'camillero', 'hinchado', 'cirujano', 'sonambulo', 'rastrero'].includes(t) || this.dead || (this.def.latent && !this.alert)) return;
     ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.face); if (t === 'enfermera') { ctx.fillStyle = '#f0f0f0'; ctx.fillRect(-1, -6, 6, 12); ctx.fillStyle = '#c02030'; ctx.fillRect(1, -1, 2, 2); } else if (t === 'camillero') { ctx.fillStyle = '#9aa4ac'; ctx.fillRect(10, -13, 18, 26); ctx.fillStyle = '#6a7078'; ctx.fillRect(12, -11, 14, 22); } else if (t === 'hinchado') { ctx.fillStyle = 'rgba(190,170,70,.75)'; ctx.beginPath(); ctx.arc(-2, 0, 15, 0, 6.283); ctx.fill(); ctx.fillStyle = '#6a5a20'; ctx.beginPath(); ctx.arc(-6, -5, 4, 0, 6.283); ctx.fill(); } else if (t === 'cirujano') { ctx.fillStyle = '#3a6a5a'; ctx.fillRect(2, -7, 8, 14); ctx.fillStyle = '#d0e0e0'; ctx.fillRect(10, -8, 10, 2); } else if (t === 'sonambulo') { ctx.fillStyle = '#dcd4c8'; ctx.fillRect(-6, -9, 8, 18); } ctx.restore(); };
-  // XP más generosa en R2 (los poderes se compran con EXP)
-  const _xp = mutationXPReward; mutationXPReward = function (d, b, m) { const v = _xp(d, b, m); return isR2() ? Math.round(v * 2.5) : v; };
+  // Las bajas complementan explorar; sin multiplicador ni premios aleatorios enormes.
+  // def.xp también identifica élites para el botín: sus valores originales se conservan.
+  const _xp = mutationXPReward; mutationXPReward = function (d, b, m) {
+    if (!isR2()) return _xp(d, b, m);
+    const weight = Math.max(1, Number(d?.xp) || 10), lvl = Game.lvl,
+      stage = /^(hospitalumbra|hospitalorigin|hospitalstreet)$/.test(lvl) ? 3
+        : /^(hospitalcells|hospitalcastle|hospitalcastle1|hospitalroyal)$/.test(lvl) ? 2
+        : /^(hospitalworks|hospitalpit|hospitalnest)$/.test(lvl) ? 1 : 0;
+    const reward = b ? Math.max(6, Math.round(weight * .045))
+      : weight <= 12 ? 1 : Math.max(1, Math.round(weight / 45 + stage * .65));
+    return Math.max(1, Math.round(reward * (1 + ((m && m.mod('xp')) || 0))));
+  };
   // medicina de campaña (humanidad): las inyecciones verdes curan 50 % más
   const _iu = Inventory.prototype.use; Inventory.prototype.use = function (g) { let ix = this.sel; if (ix < 0) ix = this.items.findIndex(o => ITEMS[o.type].use); const it = this.items[ix], t = it && it.type, hp0 = g.player.hp; _iu.call(this, g); if (t === 'inj_green' && g.mut.has('medico') && g.player.hp > hp0) g.player.hp = Math.min(g.player.maxHp, g.player.hp + (g.player.hp - hp0) * SkillBalance.value(g,'medico',.5)); };
   window.addEventListener('load', () => { const h = document.getElementById('hud'); if (h && !document.getElementById('tension')) { const t = document.createElement('div'); t.id = 'tension'; h.appendChild(t); } });
@@ -18694,7 +18706,7 @@ const MenuScene = {
     menu.querySelector('h1').innerHTML='<span>RIUTEX</span><em>2</em>';menu.querySelector('h1').setAttribute('aria-label','RIUTEX 2');
     menu.querySelector('h2').textContent='EL CUSTODIO';
     UI.$('bNew').querySelectorAll('span')[1].textContent='Nueva partida';
-    menu.querySelector('.menu-footer').innerHTML='<span>HISTORIA COMPLETA / v0.17.2</span><span>EL SILENCIO NO TE SALVARÁ.</span><span>CUATRO FASES</span>';menu.appendChild(menu.querySelector('.menu-footer'));
+    menu.querySelector('.menu-footer').innerHTML='<span>HISTORIA COMPLETA / v0.18.0</span><span>EL SILENCIO NO TE SALVARÁ.</span><span>CUATRO FASES</span>';menu.appendChild(menu.querySelector('.menu-footer'));
     const opt=document.createElement('button');opt.id='bMenuOptions';opt.innerHTML='<span class="button-index">03</span><span>Opciones</span><span class="button-arrow">↗</span>';menu.querySelector('.menu-actions').appendChild(opt);
     const panel=document.createElement('section');panel.id='menuOptions';panel.className='screen hidden';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-labelledby','presentationOptionsTitle');
     panel.innerHTML='<div class="presentation-options"><span class="eyebrow">RIUTEX 2 / CONFIGURACIÓN</span><h2 id="presentationOptionsTitle">OPCIONES</h2><label for="menuVolume">Volumen <output id="menuVolumeValue"></output><input id="menuVolume" type="range" min="0" max="100" step="1"></label><label for="menuReduceMotion">Reducir movimiento y destellos<input id="menuReduceMotion" type="checkbox"></label><p>WASD · moverte &nbsp; / &nbsp; Ratón · apuntar y disparar<br>Shift · correr &nbsp; / &nbsp; E · interactuar &nbsp; / &nbsp; R · recargar<br>Tab · maletín &nbsp; / &nbsp; J · documentos &nbsp; / &nbsp; M · mapa<br>K · habilidades &nbsp; / &nbsp; Esc · pausa</p><button id="bMenuOptionsClose">Volver al menú</button></div>';

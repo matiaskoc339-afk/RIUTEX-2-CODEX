@@ -24,11 +24,13 @@ class Enemy {
     Object.assign(this, { type, def: ENEMY_TYPES[type], id, x, y, r: ENEMY_TYPES[type].r || 11, hp: ENEMY_TYPES[type].hp, mhp: ENEMY_TYPES[type].hp, lastHit: 9, alert: false, dead: false, stagger: 0, frozen: 0, cd: 0, windup: 0, face: Math.random() * 6.28, t: Math.random() * 10, hitFlash: 0 });
   }
   hurt(dmg, angle, g) {
+    if (this.dead) return;
     this.hp -= dmg * (1 - (this.def.armor || 0)); this.stagger = .18; this.lastHit = 0; this.alert = true; this.windup = 0; this.hitFlash = .1;
     if (!(this.def.rng && this.def.rng.fixed)) Level.move(this, Math.cos(angle) * 9, Math.sin(angle) * 9); g.sparks(this.x, this.y, 7, '#7a0a14'); Sound.play('enemyhit');
     if (this.hp <= 0) this.die(g);
   }
   die(g) {
+    if (this.dead) return;
     this.dead = true; g.player.xp += mutationXPReward(this.def, !!this.isBoss, g.mut); g.player.onKill(g); g.killed.add(this.id); if (!this.isBoss && g.dropCraftingMaterial) g.dropCraftingMaterial(this); Sound.play('enemydie');
     Level.decals.push({ x: this.x, y: this.y, r: 17, c: 'rgba(90,10,16,.6)' }); g.sparks(this.x, this.y, 18, '#6a0810'); g.bodies.push({ x: this.x, y: this.y, a: this.face }); if (this.def.cloud) g.pools.push({ x: this.x, y: this.y, r: this.def.cloud, life: 6 });
   }

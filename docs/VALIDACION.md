@@ -1,3 +1,17 @@
+# Validación de v0.18.0 · Progresión de XP
+
+Las nuevas bajas de RIUTEX 2 dan cantidades pequeñas y predecibles según peligrosidad, zona y condición de jefe. Se elimina el multiplicador ×2,5. Cada muerte de un enemigo común solo procesa sus recompensas una vez, aunque vuelva a recibir daño.
+
+- Motor repetido: **273 pruebas**, **103 comprobaciones de integración** y **15 mapas**, sin fallos.
+- Diez pruebas específicas de XP cubren presupuestos de ocho mapas, jerarquía de encuentros, bajas reales en ambas perspectivas, duplicación, tres fases del Carnicero, compras, guardado, exploración, crías y cálculo clásico de RIUTEX 1.
+- Navegador repetido: **77 comprobaciones en 3 grupos**: XP/HUD/encuentros preparados/compra y guardado 22, supervivencia y armero 38, HTML integrado 17. Sin errores JavaScript.
+- Las primeras plantas reducen la XP de sus enemigos colocados un 83–84 % frente a la media anterior; los mapas avanzados un 63–78 %. Se conservan los premios de explorar, documentos, muestras, puzles y misiones, además de los costes del árbol y el progreso existente.
+- Presupuesto numérico: `PROGRESION_XP.md`, `RESULTADOS.json` y los registros incluidos en el ZIP. El paquete se coteja byte a byte con las fuentes y el HTML.
+
+Los escenarios de recompensa de jefes preparan la muerte para aislar el premio y no equivalen a victorias adicionales. No se volvió a recorrer toda la campaña con una única provisión natural de recursos ni se midió dificultad humana. Las validaciones anteriores se conservan debajo como historial.
+
+---
+
 # Validación de v0.17.2 · Recorrido vertical ampliado
 
 El límite vertical pasa de ±0,28 a ±1,4 en el desplazamiento visual del renderer: cinco veces más recorrido para mirar techo y suelo, mediante ratón o flechas. La sensibilidad y velocidad anteriores se conservan. No son grados de rotación; la representación mantiene la proyección del motor POV existente.

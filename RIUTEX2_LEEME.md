@@ -1,4 +1,9 @@
-# RIUTEX 2 · Historia completa · v0.17.2
+# RIUTEX 2 · Historia completa · v0.18.0
+
+v0.18.0 · XP POR BAJAS REDUCIDA
+
+Enemigos normales: 1–2 XP en hospital/cloacas, 2–3 en castillo y 3–4 en laboratorio. Minijefes: 6–10. Jefes finales: 11, 14, 18 y 29. Las bajas iniciales aportan aproximadamente un 83–84 % menos en conjunto. Cada muerte paga una sola vez. Explorar, leer y resolver puzles sigue dando su XP; las partidas existentes conservan lo ya ganado.
+
 
 NUEVO · PRIMERA PERSONA POV
 
@@ -12,9 +17,9 @@ Pulsa **Bloquear ratón** en la ayuda inferior para capturar el cursor en primer
 
 W/S avanza y retrocede; A/D se desplaza de lado. Haz clic para controlar la mirada; el primer clic no dispara. Esc libera el ratón y pausa. Si no se puede capturar, arrastra con clic derecho o usa flechas para mirar; clic derecho breve golpea. Las ventanas usan sus controles habituales y liberan el cursor.
 
-v0.17.2: mirada vertical normal (arriba mira arriba, abajo mira abajo). Solo en POV se ven salas aún no visitadas por puertas abiertas; paredes y puertas cerradas siguen tapando la vista. El mapa y la vista clásica mantienen su exploración habitual.
+v0.18.0: mirada vertical normal (arriba mira arriba, abajo mira abajo). Solo en POV se ven salas aún no visitadas por puertas abiertas; paredes y puertas cerradas siguen tapando la vista. El mapa y la vista clásica mantienen su exploración habitual.
 
-v0.17.2: treinta identidades visuales, incluyendo Carnicero y C-17 sin confundirlos con enemigos comunes; mutaciones de los cuatro jefes, objetos sueltos reconocibles y mira centrada al mirar arriba/abajo.
+v0.18.0: treinta identidades visuales, incluyendo Carnicero y C-17 sin confundirlos con enemigos comunes; mutaciones de los cuatro jefes, objetos sueltos reconocibles y mira centrada al mirar arriba/abajo.
 
 Paredes, puertas, enemigos, armas, objetos, poderes y señales de ataque están adaptados. El motor, sus recursos y el progreso se comparten entre ambas vistas.
 
@@ -44,7 +49,7 @@ El R-98 y los cinco módulos para armas son opcionales. Lee los expedientes para
 
 El Regente tiene tres formas: espada y escudo, carne pesada al romper la armadura y furia final. Cada corte de una cadena tiene su propio aviso. La puerta de la galería se abre al vencerlo; cruzarla desciende al laboratorio final. Puedes seguir desde guardados anteriores con la Matriarca vencida.
 
-Usa el HTML `RIUTEX2_Historia_Completa_v0.17.2.html` para la versión autocontenida, o `index.html` para el proyecto fuente. Empieza con «Nueva partida».
+Usa el HTML `RIUTEX2_Historia_Completa_v0.18.0.html` para la versión autocontenida, o `index.html` para el proyecto fuente. Empieza con «Nueva partida».
 
 La base de esta ampliación es tu ZIP v0.2.2. La mansión conduce al hospital en una introducción jugable. Tras la persiana del vestíbulo, el hospital queda abierto para explorar sus tres plantas, sus nuevas salas y los recorridos alternativos.
 

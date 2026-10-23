@@ -318,8 +318,18 @@ const Hospital = {
   const _ed = Enemy.prototype.draw; Enemy.prototype.draw = function (ctx) {
     _ed.call(this, ctx); const t = this.type; if (!['enfermera', 'camillero', 'hinchado', 'cirujano', 'sonambulo', 'rastrero'].includes(t) || this.dead || (this.def.latent && !this.alert)) return;
     ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.face); if (t === 'enfermera') { ctx.fillStyle = '#f0f0f0'; ctx.fillRect(-1, -6, 6, 12); ctx.fillStyle = '#c02030'; ctx.fillRect(1, -1, 2, 2); } else if (t === 'camillero') { ctx.fillStyle = '#9aa4ac'; ctx.fillRect(10, -13, 18, 26); ctx.fillStyle = '#6a7078'; ctx.fillRect(12, -11, 14, 22); } else if (t === 'hinchado') { ctx.fillStyle = 'rgba(190,170,70,.75)'; ctx.beginPath(); ctx.arc(-2, 0, 15, 0, 6.283); ctx.fill(); ctx.fillStyle = '#6a5a20'; ctx.beginPath(); ctx.arc(-6, -5, 4, 0, 6.283); ctx.fill(); } else if (t === 'cirujano') { ctx.fillStyle = '#3a6a5a'; ctx.fillRect(2, -7, 8, 14); ctx.fillStyle = '#d0e0e0'; ctx.fillRect(10, -8, 10, 2); } else if (t === 'sonambulo') { ctx.fillStyle = '#dcd4c8'; ctx.fillRect(-6, -9, 8, 18); } ctx.restore(); };
-  // XP más generosa en R2 (los poderes se compran con EXP)
-  const _xp = mutationXPReward; mutationXPReward = function (d, b, m) { const v = _xp(d, b, m); return isR2() ? Math.round(v * 2.5) : v; };
+  // Las bajas complementan explorar; sin multiplicador ni premios aleatorios enormes.
+  // def.xp también identifica élites para el botín: sus valores originales se conservan.
+  const _xp = mutationXPReward; mutationXPReward = function (d, b, m) {
+    if (!isR2()) return _xp(d, b, m);
+    const weight = Math.max(1, Number(d?.xp) || 10), lvl = Game.lvl,
+      stage = /^(hospitalumbra|hospitalorigin|hospitalstreet)$/.test(lvl) ? 3
+        : /^(hospitalcells|hospitalcastle|hospitalcastle1|hospitalroyal)$/.test(lvl) ? 2
+        : /^(hospitalworks|hospitalpit|hospitalnest)$/.test(lvl) ? 1 : 0;
+    const reward = b ? Math.max(6, Math.round(weight * .045))
+      : weight <= 12 ? 1 : Math.max(1, Math.round(weight / 45 + stage * .65));
+    return Math.max(1, Math.round(reward * (1 + ((m && m.mod('xp')) || 0))));
+  };
   // medicina de campaña (humanidad): las inyecciones verdes curan 50 % más
   const _iu = Inventory.prototype.use; Inventory.prototype.use = function (g) { let ix = this.sel; if (ix < 0) ix = this.items.findIndex(o => ITEMS[o.type].use); const it = this.items[ix], t = it && it.type, hp0 = g.player.hp; _iu.call(this, g); if (t === 'inj_green' && g.mut.has('medico') && g.player.hp > hp0) g.player.hp = Math.min(g.player.maxHp, g.player.hp + (g.player.hp - hp0) * SkillBalance.value(g,'medico',.5)); };
   window.addEventListener('load', () => { const h = document.getElementById('hud'); if (h && !document.getElementById('tension')) { const t = document.createElement('div'); t.id = 'tension'; h.appendChild(t); } });

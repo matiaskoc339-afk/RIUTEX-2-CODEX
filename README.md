@@ -1,14 +1,20 @@
-# RIUTEX 2 · El Custodio · Historia completa · v0.17.2
+# RIUTEX 2 · El Custodio · Historia completa · v0.18.0
 
 Esta versión amplía **RIUTEX2_fase1_v0.2.2.zip**, la base que aportaste. Conserva su motor, historia, protagonistas y persecución. El contenido jugable comprende la mansión, el hospital las cloacas y fábrica de San Gabriel y el museo-fortaleza de Valcárcel y el laboratorio UMBRAL con sus dos desenlaces.
 
 ## Jugar
 
-La entrega incluye [RIUTEX2_Historia_Completa_v0.17.2.html](dist/RIUTEX2_Historia_Completa_v0.17.2.html), con gráficos, estilos y código integrados y sin descargas externas. Ábrelo en un navegador de escritorio con teclado y ratón. El sonido comienza con la primera interacción.
+La entrega incluye [RIUTEX2_Historia_Completa_v0.18.0.html](dist/RIUTEX2_Historia_Completa_v0.18.0.html), con gráficos, estilos y código integrados y sin descargas externas. Ábrelo en un navegador de escritorio con teclado y ratón. El sonido comienza con la primera interacción.
 
 Para ejecutar el proyecto fuente: `npm start` (o `python3 -m http.server 8000`). No hay dependencias de npm que instalar. Los guardados se almacenan en el navegador y dependen de la ubicación desde la que abras el juego. Esta edición utiliza guardados propios; conserva los de v0.2.2 sin importarlos a mapas que han cambiado.
 
-## Primera Persona POV · v0.17.2
+## Progresión de XP · v0.18.0
+
+Las bajas dan mucha menos XP: 1–2 por enemigo del hospital y 3–4 en el laboratorio. Los minijefes dan 6–10 y los cuatro jefes finales 11, 14, 18 y 29. Se elimina el multiplicador ×2,5 y se impide volver a cobrar por un cadáver. La reducción ronda el 83–84 % en los mapas iniciales y el 63–78 % en los avanzados, comparando la XP de sus enemigos colocados con la media anterior.
+
+Exploración, documentos, puzles y costes del árbol conservan sus recompensas y reglas. La XP y las habilidades ya guardadas se conservan. [Tabla y validación del reparto](docs/PROGRESION_XP.md).
+
+## Primera Persona POV · v0.18.0
 
 En **Opciones**, activa **Primera Persona POV**. También puedes cambiarla desde **Esc → Pausa** durante la partida. Empieza desactivada: la vista clásica sigue disponible. El ajuste se recuerda en el navegador y puedes cambiarlo sin reiniciar ni perder progreso.
 

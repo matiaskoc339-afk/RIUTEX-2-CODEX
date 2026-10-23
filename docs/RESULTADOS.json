@@ -1,8 +1,8 @@
 {
-  "version": "0.17.2",
+  "version": "0.18.0",
   "date": "2026-10-23",
   "scope": "RIUTEX 2 completo: mansión, hospital, fábrica, castillo, laboratorio UMBRAL, Wren/ORIGEN y dos epílogos",
-  "system_tests": 263,
+  "system_tests": 273,
   "system_failures": 0,
   "integration_checks": 103,
   "map_validations": 15,
@@ -76,14 +76,12 @@
     "endings": 2
   },
   "browser_groups": {
-    "pov-pitch-browser-results.json": 42,
-    "pov-patch-browser-results.json": 14,
-    "pov-sensitivity-browser-results.json": 14,
-    "pov-capture-browser-results.json": 15,
+    "experience-browser-results.json": 22,
+    "survival-browser-results.json": 38,
     "standalone-blue-results.json": 17
   },
-  "browser_checks_total": 102,
-  "standalone_headless_fps": 60.5,
+  "browser_checks_total": 77,
+  "standalone_headless_fps": 48.9,
   "file_access": {
     "attempted": true,
     "status": "blocked_by_environment",
@@ -399,7 +397,7 @@
     "weapon": "r98",
     "reserve": 11
   },
-  "notes": "v0.17.2 amplía cinco veces el recorrido vertical de cámara en POV para ratón y flechas, manteniendo velocidad, sensibilidad y retícula centrada. v0.17.1 añade sensibilidad del ratón 25–250 %, sincronizada entre Opciones y Pausa, aplicada a ambos ejes y guardada sin alterar la preferencia POV ni las partidas. v0.17.0 diferencia las criaturas y objetos de primera persona, separa Carnicero/Vacío y C-17/Camillero antes de la caché, recorta el margen transparente de objetos sueltos y centra la mira al inclinar la cámara. v0.16.2 añade el botón Bloquear ratón, visible solo en POV sin captura y durante la partida; Esc libera y pausa. v0.16.1 corrige el sentido vertical de ratón/flechas y elimina únicamente en POV la máscara de salas sin visitar, manteniendo oclusión física, descubrimiento del plano y oscuridad clásica. v0.16 añade la opción Primera Persona POV en ajustes y pausa, con vista clásica predeterminada, materiales, enemigos frontales, armas y avisos proyectados. v0.15.1 renueva exclusivamente la presentación del menú; se elimina la figura humana y se intensifican disparos, material de sangre, entorno y botones. v0.15 conserva balance porcentual, opciones persistentes y fundidos. Rutas, mecanismos y finales con movimiento, puertas y botones reales; enemigos retirados solo para aislar geometría. Combates independientes con IA y recursos preparados finitos. El controlador conoce posiciones y avisos y no representa una primera partida humana ni valida los recursos de la campaña íntegra. UMBRAL se recorre en sus 26 espacios; sus tres cámaras no permiten eludir cierres. Wren atraviesa tres mutaciones sin saltos. El GL-6 tiene identidad independiente de la migración LG-4/FL-4, granadas fabricables, explosión y cuatro mejoras. La decisión del antídoto se guarda, elimina poderes mutantes y el brazo reconstruido al curarse, o conserva la transformación. Ambos finales caminan por la calle y muestran el helicóptero antes del resultado. Capturas preparadas de formas no se cuentan como combates. La inyección de vida máxima sustituye al rifle del hospital. HTML integrado probado por HTTP sin recursos externos; Chromium administrado bloquea file://, intento que no se cuenta como superado.",
+  "notes": "v0.18.0 sustituye la bonificación ×2,5 por bajas pequeñas y predecibles, crecientes por zona y peligrosidad. Conserva premios superiores para minijefes y jefes, XP de exploración y progreso guardado. Los cadáveres no vuelven a conceder XP ni botín por daño repetido. v0.17.2 amplía cinco veces el recorrido vertical de cámara en POV para ratón y flechas, manteniendo velocidad, sensibilidad y retícula centrada. v0.17.1 añade sensibilidad del ratón 25–250 %, sincronizada entre Opciones y Pausa, aplicada a ambos ejes y guardada sin alterar la preferencia POV ni las partidas. v0.17.0 diferencia las criaturas y objetos de primera persona, separa Carnicero/Vacío y C-17/Camillero antes de la caché, recorta el margen transparente de objetos sueltos y centra la mira al inclinar la cámara. v0.16.2 añade el botón Bloquear ratón, visible solo en POV sin captura y durante la partida; Esc libera y pausa. v0.16.1 corrige el sentido vertical de ratón/flechas y elimina únicamente en POV la máscara de salas sin visitar, manteniendo oclusión física, descubrimiento del plano y oscuridad clásica. v0.16 añade la opción Primera Persona POV en ajustes y pausa, con vista clásica predeterminada, materiales, enemigos frontales, armas y avisos proyectados. v0.15.1 renueva exclusivamente la presentación del menú; se elimina la figura humana y se intensifican disparos, material de sangre, entorno y botones. v0.15 conserva balance porcentual, opciones persistentes y fundidos. Rutas, mecanismos y finales con movimiento, puertas y botones reales; enemigos retirados solo para aislar geometría. Combates independientes con IA y recursos preparados finitos. El controlador conoce posiciones y avisos y no representa una primera partida humana ni valida los recursos de la campaña íntegra. UMBRAL se recorre en sus 26 espacios; sus tres cámaras no permiten eludir cierres. Wren atraviesa tres mutaciones sin saltos. El GL-6 tiene identidad independiente de la migración LG-4/FL-4, granadas fabricables, explosión y cuatro mejoras. La decisión del antídoto se guarda, elimina poderes mutantes y el brazo reconstruido al curarse, o conserva la transformación. Ambos finales caminan por la calle y muestran el helicóptero antes del resultado. Capturas preparadas de formas no se cuentan como combates. La inyección de vida máxima sustituye al rifle del hospital. HTML integrado probado por HTTP sin recursos externos; Chromium administrado bloquea file://, intento que no se cuenta como superado.",
   "origin_combat": {
     "won": true,
     "state": "play",
@@ -452,19 +450,20 @@
     "previous_browser_suites": "Los escenarios de lógica y recorrido aíslan la presentación; polish-browser verifica los fundidos con requestAnimationFrame real."
   },
   "regression_baseline": {
-    "version": "0.17.1",
+    "version": "0.17.2",
     "system_tests": 263,
     "integration_checks": 103,
     "map_validations": 15,
     "browser_groups": {
+      "pov-pitch-browser-results.json": 42,
+      "pov-patch-browser-results.json": 14,
       "pov-sensitivity-browser-results.json": 14,
       "pov-capture-browser-results.json": 15,
-      "polish-browser-results.json": 41,
       "standalone-blue-results.json": 17
     },
-    "browser_checks_total": 87
+    "browser_checks_total": 102
   },
-  "validation_scope": "Motor, integración y mapas completos; navegador enfocado en recorrido vertical ampliado, quince mapas en ambos extremos, retícula, mirada/visibilidad, sensibilidad, captura y HTML integrado. Los otros grupos conservan su validación anterior.",
+  "validation_scope": "Motor, integración y mapas completos; diez pruebas específicas de XP y presupuesto de ocho mapas. Navegador: bajas/HUD en ambas perspectivas, premios de ocho jefes/minijefes, compras/guardado, supervivencia/armero/C-17 y HTML integrado. Los otros grupos conservan su validación anterior.",
   "pov": {
     "optional": true,
     "default_enabled": false,
@@ -506,5 +505,125 @@
       "range_multiplier": 5,
       "mouse_and_arrows": true
     }
+  },
+  "kill_xp_balance": {
+    "version": "0.18.0",
+    "floors": {
+      "mansion": {
+        "count": 7,
+        "before_mean": 40.99999999999999,
+        "total": 7,
+        "min": 1,
+        "max": 1,
+        "reduction_pct": 83
+      },
+      "hospital": {
+        "count": 38,
+        "before_mean": 238.8095238095239,
+        "total": 38,
+        "min": 1,
+        "max": 1,
+        "reduction_pct": 84
+      },
+      "hospital1": {
+        "count": 31,
+        "before_mean": 203.71428571428578,
+        "total": 35,
+        "min": 1,
+        "max": 2,
+        "reduction_pct": 83
+      },
+      "hospitalb": {
+        "count": 19,
+        "before_mean": 129,
+        "total": 22,
+        "min": 1,
+        "max": 2,
+        "reduction_pct": 83
+      },
+      "hospitalworks": {
+        "count": 42,
+        "before_mean": 272.5714285714286,
+        "total": 60,
+        "min": 1,
+        "max": 2,
+        "reduction_pct": 78
+      },
+      "hospitalcastle": {
+        "count": 18,
+        "before_mean": 149.33333333333331,
+        "total": 48,
+        "min": 2,
+        "max": 3,
+        "reduction_pct": 68
+      },
+      "hospitalcastle1": {
+        "count": 19,
+        "before_mean": 161,
+        "total": 52,
+        "min": 2,
+        "max": 3,
+        "reduction_pct": 68
+      },
+      "hospitalumbra": {
+        "count": 35,
+        "before_mean": 334.66666666666663,
+        "total": 123,
+        "min": 3,
+        "max": 4,
+        "reduction_pct": 63
+      }
+    },
+    "bosses": [
+      {
+        "id": "c17",
+        "level": "hospital",
+        "before_mean": 41.833333333333336,
+        "after": 6
+      },
+      {
+        "id": "carnicero",
+        "level": "hospitalchem",
+        "before_mean": 41.833333333333336,
+        "after": 11
+      },
+      {
+        "id": "keeper",
+        "level": "hospitalpit",
+        "before_mean": 41.833333333333336,
+        "after": 10
+      },
+      {
+        "id": "suit_guard",
+        "level": "hospitalworks",
+        "before_mean": 41.833333333333336,
+        "after": 6
+      },
+      {
+        "id": "matriarch",
+        "level": "hospitalnest",
+        "before_mean": 41.833333333333336,
+        "after": 14
+      },
+      {
+        "id": "blind",
+        "level": "hospitalcells",
+        "before_mean": 41.833333333333336,
+        "after": 8
+      },
+      {
+        "id": "regent",
+        "level": "hospitalroyal",
+        "before_mean": 41.833333333333336,
+        "after": 18
+      },
+      {
+        "id": "wren",
+        "level": "hospitalorigin",
+        "before_mean": 41.833333333333336,
+        "after": 29
+      }
+    ],
+    "scope": "Presupuesto exacto de los enemigos colocados en ocho mapas, frente a la media del cálculo anterior. No incluye XP de exploración, documentos, muestras, puzles ni misiones; tampoco es una medida de dificultad humana."
   }
 }
