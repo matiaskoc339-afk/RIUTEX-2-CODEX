@@ -2,7 +2,7 @@
 // La simulación, las colisiones, los costes y el apuntado horizontal siguen siendo los mismos.
 const FirstPerson = {
   key:'riutex_pov_v016', enabled:false, ready:false, armed:false, fallback:false,
-  dragging:false, dragMoved:false, dragDistance:0, pitch:0, turnKeys:{},
+  dragging:false, dragMoved:false, dragDistance:0, pitch:0, maxPitch:1.4, turnKeys:{},
   sensitivity:.00235, sensitivityPercent:100, ignoreUnlock:false, ignoreEscapeUntil:0,
   saveSettings(){
     try{localStorage.setItem(this.key,JSON.stringify({enabled:this.enabled,sensitivityPercent:this.sensitivityPercent}));}catch(e){}
@@ -26,7 +26,7 @@ const FirstPerson = {
     if(!this.active(g))return;
     const p=g.player,a=(p.angle||0)+Math.max(-200,Math.min(200,Number(dx)||0))*this.sensitivity;
     p.angle=Math.atan2(Math.sin(a),Math.cos(a));
-    this.pitch=Math.max(-.28,Math.min(.28,this.pitch+(Number(dy)||0)*this.sensitivity*.7));
+    this.pitch=Math.max(-this.maxPitch,Math.min(this.maxPitch,this.pitch+(Number(dy)||0)*this.sensitivity*.7));
     this.sync(g);
   },
   sync(g=Game){
@@ -106,7 +106,7 @@ const FirstPerson = {
       tilt=(this.turnKeys.ArrowDown?1:0)-(this.turnKeys.ArrowUp?1:0);
     if(turn||tilt){
       const p=g.player,a=p.angle+turn*speed;p.angle=Math.atan2(Math.sin(a),Math.cos(a));
-      this.pitch=Math.max(-.28,Math.min(.28,this.pitch+tilt*speed*.45));
+      this.pitch=Math.max(-this.maxPitch,Math.min(this.maxPitch,this.pitch+tilt*speed*.45));
     }
     this.sync(g);this.refreshUI(g);
   },

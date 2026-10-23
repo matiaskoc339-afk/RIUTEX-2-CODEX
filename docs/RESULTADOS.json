@@ -1,5 +1,5 @@
 {
-  "version": "0.17.1",
+  "version": "0.17.2",
   "date": "2026-10-23",
   "scope": "RIUTEX 2 completo: mansión, hospital, fábrica, castillo, laboratorio UMBRAL, Wren/ORIGEN y dos epílogos",
   "system_tests": 263,
@@ -76,13 +76,14 @@
     "endings": 2
   },
   "browser_groups": {
+    "pov-pitch-browser-results.json": 42,
+    "pov-patch-browser-results.json": 14,
     "pov-sensitivity-browser-results.json": 14,
     "pov-capture-browser-results.json": 15,
-    "polish-browser-results.json": 41,
     "standalone-blue-results.json": 17
   },
-  "browser_checks_total": 87,
-  "standalone_headless_fps": 58.9,
+  "browser_checks_total": 102,
+  "standalone_headless_fps": 60.5,
   "file_access": {
     "attempted": true,
     "status": "blocked_by_environment",
@@ -398,7 +399,7 @@
     "weapon": "r98",
     "reserve": 11
   },
-  "notes": "v0.17.1 añade sensibilidad del ratón 25–250 %, sincronizada entre Opciones y Pausa, aplicada a ambos ejes y guardada sin alterar la preferencia POV ni las partidas. v0.17.0 diferencia las criaturas y objetos de primera persona, separa Carnicero/Vacío y C-17/Camillero antes de la caché, recorta el margen transparente de objetos sueltos y centra la mira al inclinar la cámara. v0.16.2 añade el botón Bloquear ratón, visible solo en POV sin captura y durante la partida; Esc libera y pausa. v0.16.1 corrige el sentido vertical de ratón/flechas y elimina únicamente en POV la máscara de salas sin visitar, manteniendo oclusión física, descubrimiento del plano y oscuridad clásica. v0.16 añade la opción Primera Persona POV en ajustes y pausa, con vista clásica predeterminada, materiales, enemigos frontales, armas y avisos proyectados. v0.15.1 renueva exclusivamente la presentación del menú; se elimina la figura humana y se intensifican disparos, material de sangre, entorno y botones. v0.15 conserva balance porcentual, opciones persistentes y fundidos. Rutas, mecanismos y finales con movimiento, puertas y botones reales; enemigos retirados solo para aislar geometría. Combates independientes con IA y recursos preparados finitos. El controlador conoce posiciones y avisos y no representa una primera partida humana ni valida los recursos de la campaña íntegra. UMBRAL se recorre en sus 26 espacios; sus tres cámaras no permiten eludir cierres. Wren atraviesa tres mutaciones sin saltos. El GL-6 tiene identidad independiente de la migración LG-4/FL-4, granadas fabricables, explosión y cuatro mejoras. La decisión del antídoto se guarda, elimina poderes mutantes y el brazo reconstruido al curarse, o conserva la transformación. Ambos finales caminan por la calle y muestran el helicóptero antes del resultado. Capturas preparadas de formas no se cuentan como combates. La inyección de vida máxima sustituye al rifle del hospital. HTML integrado probado por HTTP sin recursos externos; Chromium administrado bloquea file://, intento que no se cuenta como superado.",
+  "notes": "v0.17.2 amplía cinco veces el recorrido vertical de cámara en POV para ratón y flechas, manteniendo velocidad, sensibilidad y retícula centrada. v0.17.1 añade sensibilidad del ratón 25–250 %, sincronizada entre Opciones y Pausa, aplicada a ambos ejes y guardada sin alterar la preferencia POV ni las partidas. v0.17.0 diferencia las criaturas y objetos de primera persona, separa Carnicero/Vacío y C-17/Camillero antes de la caché, recorta el margen transparente de objetos sueltos y centra la mira al inclinar la cámara. v0.16.2 añade el botón Bloquear ratón, visible solo en POV sin captura y durante la partida; Esc libera y pausa. v0.16.1 corrige el sentido vertical de ratón/flechas y elimina únicamente en POV la máscara de salas sin visitar, manteniendo oclusión física, descubrimiento del plano y oscuridad clásica. v0.16 añade la opción Primera Persona POV en ajustes y pausa, con vista clásica predeterminada, materiales, enemigos frontales, armas y avisos proyectados. v0.15.1 renueva exclusivamente la presentación del menú; se elimina la figura humana y se intensifican disparos, material de sangre, entorno y botones. v0.15 conserva balance porcentual, opciones persistentes y fundidos. Rutas, mecanismos y finales con movimiento, puertas y botones reales; enemigos retirados solo para aislar geometría. Combates independientes con IA y recursos preparados finitos. El controlador conoce posiciones y avisos y no representa una primera partida humana ni valida los recursos de la campaña íntegra. UMBRAL se recorre en sus 26 espacios; sus tres cámaras no permiten eludir cierres. Wren atraviesa tres mutaciones sin saltos. El GL-6 tiene identidad independiente de la migración LG-4/FL-4, granadas fabricables, explosión y cuatro mejoras. La decisión del antídoto se guarda, elimina poderes mutantes y el brazo reconstruido al curarse, o conserva la transformación. Ambos finales caminan por la calle y muestran el helicóptero antes del resultado. Capturas preparadas de formas no se cuentan como combates. La inyección de vida máxima sustituye al rifle del hospital. HTML integrado probado por HTTP sin recursos externos; Chromium administrado bloquea file://, intento que no se cuenta como superado.",
   "origin_combat": {
     "won": true,
     "state": "play",
@@ -451,22 +452,19 @@
     "previous_browser_suites": "Los escenarios de lógica y recorrido aíslan la presentación; polish-browser verifica los fundidos con requestAnimationFrame real."
   },
   "regression_baseline": {
-    "version": "0.17.0",
+    "version": "0.17.1",
     "system_tests": 263,
     "integration_checks": 103,
     "map_validations": 15,
     "browser_groups": {
-      "pov-models-browser-results.json": 52,
-      "pov-browser-results.json": 83,
-      "pov-effects-browser-results.json": 33,
-      "horror-browser-results.json": 18,
-      "pov-patch-browser-results.json": 14,
+      "pov-sensitivity-browser-results.json": 14,
       "pov-capture-browser-results.json": 15,
+      "polish-browser-results.json": 41,
       "standalone-blue-results.json": 17
     },
-    "browser_checks_total": 232
+    "browser_checks_total": 87
   },
-  "validation_scope": "Motor, integración y mapas completos; navegador enfocado en sensibilidad del ratón, preferencias, captura, presentación/fundidos y HTML integrado. Los otros grupos conservan su validación anterior.",
+  "validation_scope": "Motor, integración y mapas completos; navegador enfocado en recorrido vertical ampliado, quince mapas en ambos extremos, retícula, mirada/visibilidad, sensibilidad, captura y HTML integrado. Los otros grupos conservan su validación anterior.",
   "pov": {
     "optional": true,
     "default_enabled": false,
@@ -500,6 +498,13 @@
         "menuFirstPersonSensitivity",
         "pauseFirstPersonSensitivity"
       ]
+    },
+    "pitch_range": {
+      "min": -1.4,
+      "max": 1.4,
+      "previous_limit": 0.28,
+      "range_multiplier": 5,
+      "mouse_and_arrows": true
     }
   }
 }

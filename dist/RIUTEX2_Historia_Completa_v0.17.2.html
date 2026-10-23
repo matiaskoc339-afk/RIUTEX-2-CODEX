@@ -18694,7 +18694,7 @@ const MenuScene = {
     menu.querySelector('h1').innerHTML='<span>RIUTEX</span><em>2</em>';menu.querySelector('h1').setAttribute('aria-label','RIUTEX 2');
     menu.querySelector('h2').textContent='EL CUSTODIO';
     UI.$('bNew').querySelectorAll('span')[1].textContent='Nueva partida';
-    menu.querySelector('.menu-footer').innerHTML='<span>HISTORIA COMPLETA / v0.17.1</span><span>EL SILENCIO NO TE SALVARÁ.</span><span>CUATRO FASES</span>';menu.appendChild(menu.querySelector('.menu-footer'));
+    menu.querySelector('.menu-footer').innerHTML='<span>HISTORIA COMPLETA / v0.17.2</span><span>EL SILENCIO NO TE SALVARÁ.</span><span>CUATRO FASES</span>';menu.appendChild(menu.querySelector('.menu-footer'));
     const opt=document.createElement('button');opt.id='bMenuOptions';opt.innerHTML='<span class="button-index">03</span><span>Opciones</span><span class="button-arrow">↗</span>';menu.querySelector('.menu-actions').appendChild(opt);
     const panel=document.createElement('section');panel.id='menuOptions';panel.className='screen hidden';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-labelledby','presentationOptionsTitle');
     panel.innerHTML='<div class="presentation-options"><span class="eyebrow">RIUTEX 2 / CONFIGURACIÓN</span><h2 id="presentationOptionsTitle">OPCIONES</h2><label for="menuVolume">Volumen <output id="menuVolumeValue"></output><input id="menuVolume" type="range" min="0" max="100" step="1"></label><label for="menuReduceMotion">Reducir movimiento y destellos<input id="menuReduceMotion" type="checkbox"></label><p>WASD · moverte &nbsp; / &nbsp; Ratón · apuntar y disparar<br>Shift · correr &nbsp; / &nbsp; E · interactuar &nbsp; / &nbsp; R · recargar<br>Tab · maletín &nbsp; / &nbsp; J · documentos &nbsp; / &nbsp; M · mapa<br>K · habilidades &nbsp; / &nbsp; Esc · pausa</p><button id="bMenuOptionsClose">Volver al menú</button></div>';
@@ -19574,7 +19574,7 @@ const POVModels = {
 // La simulación, las colisiones, los costes y el apuntado horizontal siguen siendo los mismos.
 const FirstPerson = {
   key:'riutex_pov_v016', enabled:false, ready:false, armed:false, fallback:false,
-  dragging:false, dragMoved:false, dragDistance:0, pitch:0, turnKeys:{},
+  dragging:false, dragMoved:false, dragDistance:0, pitch:0, maxPitch:1.4, turnKeys:{},
   sensitivity:.00235, sensitivityPercent:100, ignoreUnlock:false, ignoreEscapeUntil:0,
   saveSettings(){
     try{localStorage.setItem(this.key,JSON.stringify({enabled:this.enabled,sensitivityPercent:this.sensitivityPercent}));}catch(e){}
@@ -19598,7 +19598,7 @@ const FirstPerson = {
     if(!this.active(g))return;
     const p=g.player,a=(p.angle||0)+Math.max(-200,Math.min(200,Number(dx)||0))*this.sensitivity;
     p.angle=Math.atan2(Math.sin(a),Math.cos(a));
-    this.pitch=Math.max(-.28,Math.min(.28,this.pitch+(Number(dy)||0)*this.sensitivity*.7));
+    this.pitch=Math.max(-this.maxPitch,Math.min(this.maxPitch,this.pitch+(Number(dy)||0)*this.sensitivity*.7));
     this.sync(g);
   },
   sync(g=Game){
@@ -19678,7 +19678,7 @@ const FirstPerson = {
       tilt=(this.turnKeys.ArrowDown?1:0)-(this.turnKeys.ArrowUp?1:0);
     if(turn||tilt){
       const p=g.player,a=p.angle+turn*speed;p.angle=Math.atan2(Math.sin(a),Math.cos(a));
-      this.pitch=Math.max(-.28,Math.min(.28,this.pitch+tilt*speed*.45));
+      this.pitch=Math.max(-this.maxPitch,Math.min(this.maxPitch,this.pitch+tilt*speed*.45));
     }
     this.sync(g);this.refreshUI(g);
   },

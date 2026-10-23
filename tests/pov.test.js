@@ -69,5 +69,9 @@ test('Mirar arriba y abajo no cambia la dirección ni el plano de combate',()=>{
  const landmark=[p.x+Math.cos(p.angle)*100,p.y+Math.sin(p.angle)*100,24],screenY=()=>{renderer.setup(g);return renderer.project(...landmark).y;},center=screenY();
  fp().look(0,-100,g);assert.ok(screenY()>center,'Mirar arriba baja el punto fijo en pantalla');near(p.angle,.71);
  fp().pitch=0;fp().look(0,100,g);assert.ok(screenY()<center,'Mirar abajo sube el punto fijo en pantalla');near(p.angle,.71);
- assert.ok(Number.isFinite(fp().pitch)&&Math.abs(fp().pitch)<=.35);fp().sync(g);near(Math.atan2(g.mouse.y+g.cam.y-p.y,g.mouse.x+g.cam.x-p.x),.71);
+ assert.ok(Number.isFinite(fp().pitch)&&Math.abs(fp().pitch)<=fp().maxPitch);
+ fp().look(0,-100000,g);assert.ok(fp().pitch<=-1.2);assert.ok(screenY()>renderer.H,'La cámara permite mirar el techo mucho más allá del límite anterior');
+ fp().look(0,100000,g);assert.ok(fp().pitch>=1.2);assert.ok(screenY()<0,'La cámara permite mirar hacia el suelo mucho más allá del límite anterior');
+ const limit=fp().pitch;fp().look(0,-1,g);assert.ok(fp().pitch<limit,'Invertir la mirada responde al instante al llegar al límite');
+ fp().sync(g);near(Math.atan2(g.mouse.y+g.cam.y-p.y,g.mouse.x+g.cam.x-p.x),.71);
 });

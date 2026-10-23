@@ -1,8 +1,10 @@
-# Primera Persona POV · v0.17.1
+# Primera Persona POV · v0.17.2
 
 ## Uso
 
 La casilla «Primera Persona POV» está en Opciones y en Pausa. Arranca desactivada y se guarda como preferencia del navegador, separada del progreso de la campaña. Puedes volver a topdown en el mismo lugar y con los mismos recursos.
+
+En v0.17.2 puedes mirar mucho más arriba y abajo: el recorrido vertical es cinco veces mayor, con ratón o flechas. La sensibilidad elegida conserva su velocidad y la retícula permanece centrada.
 
 La barra **Sensibilidad del ratón** está en Opciones y Pausa: de **25 % a 250 %**, con **100 %** como valor normal. Se aplica al instante a la mirada horizontal y vertical y se recuerda al volver a abrir el juego.
 

@@ -1,3 +1,14 @@
+# Validación de v0.17.2 · Recorrido vertical ampliado
+
+El límite vertical pasa de ±0,28 a ±1,4 en el desplazamiento visual del renderer: cinco veces más recorrido para mirar techo y suelo, mediante ratón o flechas. La sensibilidad y velocidad anteriores se conservan. No son grados de rotación; la representación mantiene la proyección del motor POV existente.
+
+- Motor repetido: **263 pruebas**, **103 comprobaciones de integración** y **15 mapas**, sin fallos.
+- Navegador repetido: **102 comprobaciones en 5 grupos**: recorrido vertical 42, mirada/visibilidad 14, sensibilidad 14, captura 15 y HTML integrado 17.
+- El arrastre real supera el límite anterior y alcanza ambos extremos. La dirección contraria responde inmediatamente; flechas y sensibilidades 25/250 % conservan todo el recorrido. Se verifican retícula centrada, recursos intactos y los quince mapas en ambos extremos sin errores JavaScript.
+- Las otras validaciones se conservan debajo como historial; no se repitieron todos los combates de campaña para este ajuste de cámara.
+
+---
+
 # Validación de v0.17.1 · Sensibilidad del ratón
 
 La barra nativa de Opciones y Pausa controla ambos ejes del ratón en POV de 25 % a 250 %, en pasos de 5 %. El valor predeterminado de 100 % conserva el ajuste anterior. Se guarda por navegador y las dos ventanas se sincronizan. Los ajustes antiguos reciben el valor normal; valores guardados inválidos se normalizan.
