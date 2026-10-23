@@ -1,0 +1,399 @@
+/* Arma y munición: una imagen por modelo, arco del cargador y reserva aparte. */
+#ammo {
+  display: none;
+}
+#weaponHUD {
+  position: absolute;
+  right: 28px;
+  bottom: 21px;
+  width: 250px;
+  text-align: center;
+  color: #cbd6d2;
+  font-family: var(--ui-font);
+  filter: drop-shadow(0 3px 9px #0009);
+}
+.weapon-dial {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin: 0 auto;
+  background: radial-gradient(ellipse, #0a1418a8, transparent 67%);
+}
+.ammo-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-118deg);
+}
+.ammo-ring circle {
+  fill: none;
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+.ammo-track {
+  stroke: #77898740;
+  stroke-dasharray: 453.4 99.5;
+}
+#ammoArc {
+  stroke: #bfd1b5;
+  transition:
+    stroke-dasharray 0.12s,
+    stroke 0.2s;
+}
+#weaponIllustration {
+  position: absolute;
+  left: 32px;
+  right: 32px;
+  top: 67px;
+  height: 104px;
+  transform: rotate(-13deg);
+}
+#weaponIllustration svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 3px 3px #0007);
+}
+.weapon-count {
+  position: absolute;
+  top: 16px;
+  right: 32px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  background: #071015bd;
+  padding: 0 7px;
+  border-radius: 5px;
+  font-weight: 500;
+  line-height: 1;
+}
+.weapon-count b {
+  font-size: 35px;
+  font-weight: 600;
+}
+.weapon-count > span {
+  font-size: 20px;
+  color: #97aaa6;
+}
+#weaponReload {
+  position: absolute;
+  bottom: 36px;
+  left: 0;
+  right: 0;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  color: #d8b67e;
+}
+.weapon-caption {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: -14px;
+}
+.weapon-caption strong {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0.075em;
+}
+.weapon-caption span {
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  color: #9bacaa;
+}
+#equipmentHints {
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-line;
+  color: #8ea6aa;
+  margin-top: 17px;
+  margin-left: -75px;
+  width: 325px;
+  text-align: right;
+}
+#weaponHUD.reloading #ammoArc {
+  stroke: #e2bd83;
+  animation: reload-breathe 0.75s ease-in-out infinite alternate;
+}
+#weaponHUD.empty #ammoArc {
+  stroke: #c47865;
+}
+#weaponHUD.empty .weapon-count b {
+  color: #e1a18b;
+}
+@keyframes reload-breathe {
+  to {
+    opacity: 0.4;
+  }
+}
+/* La misión sugiere un sector; los objetos y las soluciones se descubren jugando. */
+#obj {
+  pointer-events: auto;
+  width: 290px;
+  max-width: 33vw;
+  padding: 16px 18px;
+  text-align: left;
+  border: 1px solid #54605b88;
+  border-right: 2px solid #9eab90;
+  border-radius: 3px;
+  background: linear-gradient(125deg, #111c20ed, #091116e8);
+  text-shadow: none;
+  color: #acb8b5;
+}
+.objective-kicker {
+  display: block;
+  font: 600 11px var(--ui-font);
+  letter-spacing: 0.17em;
+  color: #869d9c;
+  margin-bottom: 7px;
+}
+#obj > strong {
+  font: 500 21px var(--ui-font);
+  letter-spacing: 0.02em;
+  color: #d8dfd3;
+}
+#obj > p {
+  font:
+    12px/1.65 "Segoe UI",
+    sans-serif;
+  margin: 8px 0 13px;
+  color: #9eafaf;
+}
+#obj button {
+  font: 600 14px var(--ui-font);
+  letter-spacing: 0.04em;
+  min-height: 31px;
+  padding: 6px 10px;
+  width: 100%;
+  background: #23342f;
+  border-color: #536a5b;
+  color: #c5d5bc;
+}
+#mapGuidance {
+  font: 500 15px/1.55 var(--ui-font);
+  white-space: pre-line;
+  color: #d0c5a6;
+  background: #22271e99;
+  border-left: 2px solid #bdac77;
+  padding: 10px 14px;
+  margin: 7px 0 12px;
+}
+.map-panel {
+  max-height: 95vh;
+  overflow: auto;
+}
+#mapDrawing {
+  max-height: 57vh;
+}
+.main-search-area {
+  pointer-events: none;
+}
+.main-search-area text {
+  font-family: Rajdhani, sans-serif;
+  letter-spacing: 0.04em;
+}
+/* Traba de correderas: piezas físicas, selección y controles accesibles. */
+.rack-board {
+  position: relative;
+  aspect-ratio: 1;
+  width: min(420px, 48vh);
+  margin: 18px auto;
+  background:
+    linear-gradient(#182a3166, #101e24),
+    repeating-linear-gradient(90deg, transparent 0 16%, #779a9b20 16% 16.6%);
+  border: 9px solid #354950;
+  border-radius: 5px;
+  box-shadow: inset 0 0 0 1px #8b9b8e44;
+}
+.rack-board::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(#8ea3a017 1px, transparent 1px),
+    linear-gradient(90deg, #8ea3a017 1px, transparent 1px);
+  background-size: 16.666% 16.666%;
+}
+.puzzle-panel .rack-board button.rack-piece {
+  position: absolute;
+  min-height: 0;
+  min-width: 0;
+  padding: 0;
+  border: 1px solid #ffffff44;
+  border-top: 3px solid #ffffff44;
+  background: linear-gradient(140deg, var(--piece), #17252d);
+  color: #e0e2d2;
+  border-radius: 4px;
+  font: 600 18px var(--ui-font);
+  box-shadow: 2px 3px 5px #0006;
+  letter-spacing: 0.03em;
+  overflow: hidden;
+}
+.puzzle-panel .rack-board button.rack-piece:hover:not(:disabled) {
+  background: var(--piece);
+  border-color: #d7e0c7;
+  box-shadow: inset 0 0 0 2px #d5dcc355;
+}
+.puzzle-panel .rack-board button.rack-piece.selected {
+  outline: 2px solid #e6d8ae;
+  outline-offset: 2px;
+  z-index: 1;
+}
+.rack-exit {
+  position: absolute;
+  right: -26px;
+  top: 34%;
+  height: 16%;
+  display: grid;
+  align-items: center;
+  font-size: 25px;
+  color: #d8b98a;
+}
+.rack-tools {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  font: 500 17px var(--ui-font);
+  color: #b9c9c6;
+}
+.rack-tools span {
+  min-width: 150px;
+}
+.rack-tools button {
+  font-size: 24px;
+  min-width: 50px;
+  padding: 7px;
+}
+.optics-board {
+  position: relative;
+  aspect-ratio: 1;
+  width: min(440px, 51vh);
+  margin: 8px auto;
+  border: 1px solid #405c64;
+  border-radius: 5px;
+  background: radial-gradient(#203540, #0d1c23);
+  box-shadow: inset 0 0 30px #0004;
+}
+.optics-board > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.puzzle-panel .optics-board button.optic-mirror {
+  position: absolute;
+  width: 10.7%;
+  height: 10.7%;
+  min-height: 0;
+  min-width: 0;
+  padding: 3px;
+  border: 1px solid #7f9b9e;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(#58757f, #203843);
+  box-shadow: 0 3px 7px #0005;
+}
+.puzzle-panel .optics-board button.optic-mirror:hover:not(:disabled) {
+  transform: translate(-50%, -50%);
+  background: #647f85;
+  box-shadow: 0 0 10px #a3c9bf33;
+}
+.optic-mirror svg {
+  width: 100%;
+  height: 100%;
+  stroke: #d0e4dc;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.optics-readout {
+  text-align: center;
+  font: 600 15px var(--ui-font);
+  letter-spacing: 0.1em;
+  color: #c3d4bd;
+  margin: 4px 0 15px;
+}
+@media (max-height: 760px) {
+  #weaponHUD {
+    width: 205px;
+    right: 22px;
+    bottom: 17px;
+  }
+  .weapon-dial {
+    width: 180px;
+    height: 180px;
+  }
+  .weapon-count {
+    right: 20px;
+    top: 10px;
+  }
+  .weapon-count b {
+    font-size: 30px;
+  }
+  #weaponIllustration {
+    left: 29px;
+    right: 29px;
+    top: 54px;
+    height: 84px;
+  }
+  #weaponReload {
+    bottom: 29px;
+    font-size: 11px;
+  }
+  .weapon-caption strong {
+    font-size: 18px;
+  }
+  #equipmentHints {
+    font-size: 12px;
+    width: 290px;
+    margin-left: -85px;
+    margin-top: 12px;
+  }
+  #obj {
+    padding: 12px 15px;
+    width: 270px;
+  }
+  .objective-kicker {
+    font-size: 10px;
+  }
+  #obj > strong {
+    font-size: 19px;
+  }
+  #obj > p {
+    font-size: 11px;
+    margin: 5px 0 8px;
+  }
+  .rack-board {
+    width: min(350px, 44vh);
+    margin: 12px auto;
+  }
+  .rack-tools {
+    font-size: 15px;
+  }
+  .rack-tools button {
+    min-height: 35px;
+    font-size: 22px;
+  }
+  #mapGuidance {
+    font-size: 13px;
+    line-height: 1.4;
+    padding: 7px 12px;
+  }
+  .optics-board {
+    width: min(370px, 45vh);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #weaponHUD.reloading #ammoArc {
+    animation: none;
+  }
+  #ammoArc {
+    transition: none;
+  }
+}
+
+.puzzle-panel:has(.rack-board),
+.puzzle-panel:has(.optics-board) {
+  max-height: 94vh;
+  overflow: auto;
+}

@@ -1,0 +1,505 @@
+/* Acentos fríos sobre materiales oscuros; la luz clínica se reserva a las zonas iluminadas. */
+#menu::before {
+  filter: saturate(0.65) brightness(0.72);
+}
+#menu::after {
+  background: linear-gradient(0deg, #04090e, transparent 40%, #04090e44);
+}
+.menu-content h2,
+.menu-kicker {
+  color: #95a9b5;
+}
+.menu-actions button:first-child {
+  background: #bac8cd;
+  border-color: #bac8cd;
+}
+#obj {
+  background: #090e14d9;
+  border-right-color: #7d8c91;
+  color: #b1b8b9;
+}
+#phaseBadge {
+  color: #929c9d;
+}
+#location {
+  font-family: Georgia, serif;
+  font-size: 25px;
+  letter-spacing: 0.03em;
+}
+#zoneName {
+  font-size: 17px;
+  color: #d2d7d5;
+}
+#msg {
+  background: #0b1016ed;
+  border-left-color: #8e9a9c;
+}
+.bar.en i {
+  background: #608ca7;
+}
+#hint {
+  color: #9aabb0;
+}
+#controlsHint {
+  color: #899398;
+}
+#prompt {
+  background: #0a0e12ed;
+  border-color: #777d78;
+  color: #d4d1c2;
+}
+#ammo {
+  color: #bec6c7;
+}
+#tree {
+  grid-template-columns: minmax(0, 1fr) 275px;
+  background: #070c10;
+}
+#treeBox {
+  display: flex;
+  flex-direction: column;
+  padding: 25px 22px 15px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 60% 40%, #162028, #090e13 75%);
+}
+#treePanel {
+  width: 275px;
+  background: #080d12;
+  padding: 28px 23px;
+  border-left-color: #30383d;
+}
+#treePanel h2 {
+  font-size: 15px;
+  color: #c3c9c9;
+}
+#treeHead {
+  font-size: 11px;
+  color: #87969b;
+}
+#treeInfo {
+  font-size: 13px;
+  line-height: 1.8;
+  color: #c2c8c7;
+  min-height: 210px;
+}
+#treePanel #bBuy {
+  background: #b5c1c3;
+  border-color: #b5c1c3;
+  color: #172027;
+}
+.network-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding: 0 6px 15px;
+  border-bottom: 1px solid #2a333a;
+}
+.network-header h2 {
+  font:
+    28px Georgia,
+    serif;
+  font-weight: 400;
+  margin: 10px 0;
+  color: #d8dcd6;
+}
+.network-header .eyebrow {
+  color: #889da7;
+  font-size: 9px;
+}
+.network-header p {
+  font-size: 11px;
+  color: #8e9a9e;
+  margin: 0;
+}
+.network-header p b {
+  font-weight: 500;
+  color: #c3cdc9;
+}
+.network-tools {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.network-tools button {
+  padding: 9px 12px;
+  font-size: 10px;
+  background: #142029;
+  border-color: #3c4a53;
+  color: #b9c5c9;
+}
+.network-tools button:nth-child(-n + 2) {
+  font-size: 17px;
+  padding: 5px 12px;
+}
+.network-viewport {
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+  touch-action: none;
+  cursor: grab;
+  background:
+    radial-gradient(ellipse at 30% 25%, #20261e35, transparent 50%),
+    radial-gradient(ellipse at 60% 85%, #152c3b33, transparent 60%);
+}
+.network-viewport:active {
+  cursor: grabbing;
+}
+.network-graph {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+}
+.network-graph > svg {
+  position: absolute;
+  inset: 0;
+}
+.network-branch {
+  position: absolute;
+  left: 465px;
+  display: flex;
+  align-items: baseline;
+  gap: 25px;
+  pointer-events: none;
+}
+.network-branch strong {
+  font:
+    28px Georgia,
+    serif;
+  letter-spacing: 0.18em;
+  color: #b3b89f;
+}
+.network-branch span {
+  font-size: 17px;
+  letter-spacing: 0.05em;
+  color: #737c77;
+}
+.network-branch.mut strong {
+  color: #92a9b6;
+}
+.network-branch.mut span {
+  color: #6f8490;
+}
+.network-node {
+  position: absolute;
+  width: 47px;
+  height: 47px;
+  padding: 0;
+  transform: translate(-50%, -50%);
+  border: 2px solid #56626a;
+  border-radius: 50%;
+  background: #161f25;
+  color: #919b9c;
+  overflow: visible;
+  font-size: 20px;
+  box-shadow: inset 0 0 10px #ffffff04;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+.network-node.minor {
+  width: 30px;
+  height: 30px;
+  font-size: 16px;
+}
+.network-node:hover:not(:disabled) {
+  transform: translate(-50%, -50%);
+  background: #303c41;
+  border-color: #d4dddb;
+}
+.network-node.hum.available {
+  border-color: #acb397;
+  color: #cbd2b3;
+  box-shadow: 0 0 15px #b9ca7a2a;
+}
+.network-node.mut.available {
+  border-color: #9ab5c5;
+  color: #b0d2e3;
+  box-shadow: 0 0 16px #719fc426;
+}
+.network-node.owned {
+  color: #e0e5cc;
+  background: #535c45;
+  border-color: #c5cda5;
+  box-shadow: 0 0 11px #bdca7536;
+}
+.network-node.mut.owned {
+  background: #365264;
+  border-color: #9abdcf;
+  color: #c5dce8;
+  box-shadow: 0 0 14px #759bbe36;
+}
+.network-node.locked {
+  border-color: #475156;
+  background: #11191e;
+  color: #69777d;
+  opacity: 0.8;
+}
+.network-node.selected {
+  outline: 3px solid #ede2b8;
+  outline-offset: 5px;
+}
+.network-node small {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 118px;
+  font-size: 13px;
+  line-height: 1.25;
+  color: #a3adae;
+  font-weight: 400;
+  pointer-events: none;
+}
+.network-caption {
+  margin: 0;
+  font-size: 9px;
+  line-height: 1.8;
+  color: #71828c;
+  text-align: center;
+  padding-top: 10px;
+  border-top: 1px solid #293139;
+}
+#escapeGuide {
+  position: absolute;
+  left: 50%;
+  top: 105px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: 460px;
+  padding: 13px 18px;
+  background: #10120feb;
+  border: 1px solid #78735a;
+  box-shadow: 0 4px 24px #0006;
+  border-radius: 4px;
+  text-align: center;
+}
+#escapeGuide strong {
+  font: 11px Arial;
+  letter-spacing: 0.12em;
+  color: #ddd4b4;
+}
+#escapeGuide span {
+  font: 12px/1.6 Arial;
+  color: #bdbbad;
+}
+#escapeGuide.urgent {
+  top: 31vh;
+  padding: 20px 27px;
+  border-color: #bb866b;
+  background: #21120eeb;
+}
+#escapeGuide.urgent strong {
+  font-size: 16px;
+  color: #f0c0a4;
+}
+#escapeGuide.urgent span {
+  font-size: 14px;
+  color: #f1d4ba;
+}
+/* Expedientes: papel legible, jerarquía editorial y resaltado de las pistas. */
+#doc {
+  background: #060a0ff5;
+  padding: 30px;
+  gap: 20px;
+}
+#jBook {
+  width: min(1130px, 94vw);
+  max-height: 82vh;
+  gap: 30px;
+}
+#jList {
+  width: 270px;
+  flex-shrink: 0;
+}
+#jHead {
+  font:
+    23px Georgia,
+    serif;
+  color: #cbd2cf;
+  letter-spacing: 0;
+  margin: 3px 0 15px;
+}
+#jTabs {
+  gap: 5px;
+}
+#jTabs button {
+  font-size: 10px;
+  background: #111c24;
+  border-color: #34434c;
+  padding: 8px 13px;
+}
+#jTabs button.on {
+  background: #2b3c45;
+  border-color: #6a7e87;
+}
+.jit {
+  background: #0d171e;
+  border: 1px solid #2a3943;
+  color: #a4b4bc;
+  padding: 13px 12px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.jit.sel {
+  background: #22333c;
+  border-color: #7c919a;
+  color: #d1d9d9;
+}
+.jit i {
+  color: #b7ac8c;
+  font-size: 8px;
+}
+.nw {
+  color: #b5bda4;
+}
+#jPaper.document-sheet {
+  position: relative;
+  width: 710px;
+  max-height: 82vh;
+  min-height: 470px;
+  padding: 67px 68px 55px;
+  background: #d5d3c5;
+  background-image:
+    linear-gradient(90deg, #b9bbab 0 7px, transparent 7px),
+    linear-gradient(#ffffff22, transparent);
+  color: #303a3b;
+  border: 1px solid #9b9e92;
+  border-radius: 2px;
+  box-shadow: 0 20px 80px #0009;
+  overflow: auto;
+  font-family: Georgia, "Times New Roman", serif;
+}
+#jPaper.document-sheet::after {
+  content: "ARCHIVO SAN GABRIEL · COPIA INTERNA";
+  display: block;
+  margin-top: 38px;
+  padding-top: 14px;
+  border-top: 1px solid #919b9299;
+  color: #6e7871;
+  font: 8px Arial;
+  letter-spacing: 0.18em;
+}
+#jPaper.document-sheet h3 {
+  font:
+    29px/1.2 Georgia,
+    serif;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  color: #273537;
+  border-bottom: 1px solid #a5afa5;
+  padding-bottom: 23px;
+  margin-bottom: 26px;
+  max-width: none;
+}
+#jPaper.document-sheet #jStamp {
+  top: 24px;
+  left: 68px;
+  right: auto;
+  border: none;
+  padding: 0;
+  transform: none;
+  font: 8px Arial;
+  letter-spacing: 0.16em;
+  color: #627371;
+}
+#jPaper.document-sheet #docB {
+  font:
+    16px/1.95 Georgia,
+    "Times New Roman",
+    serif;
+  letter-spacing: 0.005em;
+  color: #3c4641;
+  white-space: normal;
+  overflow: visible;
+}
+#docB p {
+  margin: 0 0 22px;
+}
+#docB p.document-lead {
+  font: 11px/1.8 Arial;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #65736b;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #9ba89d66;
+}
+#docB mark {
+  background: #b5b18a66;
+  padding: 1px 3px;
+  border-bottom: 1px solid #928b61;
+  color: #303b35;
+}
+#bDocClose {
+  min-width: 210px;
+  background: #1b272e;
+  border-color: #566973;
+  font-size: 12px;
+}
+@media (max-width: 1100px) {
+  #tree {
+    grid-template-columns: minmax(0, 1fr) 245px;
+  }
+  #treePanel {
+    width: 245px;
+    padding: 22px 18px;
+  }
+  #treeBox {
+    padding: 20px 15px 12px;
+  }
+  .network-header h2 {
+    font-size: 23px;
+  }
+  .network-tools button {
+    padding: 7px 9px;
+  }
+  #jPaper.document-sheet {
+    padding: 60px 42px 35px;
+    width: 600px;
+  }
+  #jPaper.document-sheet #jStamp {
+    left: 42px;
+  }
+  #jList {
+    width: 235px;
+  }
+  #jBook {
+    gap: 20px;
+  }
+  #escapeGuide {
+    top: 105px;
+    max-width: 400px;
+  }
+}
+@media (max-height: 750px) {
+  #escapeGuide {
+    top: 95px;
+    padding: 9px 14px;
+  }
+  #escapeGuide strong {
+    font-size: 10px;
+  }
+  #escapeGuide span {
+    font-size: 11px;
+  }
+  .network-header h2 {
+    font-size: 23px;
+    margin: 8px 0;
+  }
+  #treePanel {
+    gap: 13px;
+  }
+  #treeInfo {
+    min-height: 160px;
+    font-size: 12px;
+  }
+  #jPaper.document-sheet #docB {
+    font-size: 15px;
+  }
+}

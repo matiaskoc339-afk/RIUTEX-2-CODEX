@@ -1,0 +1,4 @@
+#finalCue{position:absolute;left:50%;bottom:115px;transform:translateX(-50%);max-width:min(620px,85vw);padding:9px 22px;border:1px solid #8b7155;background:linear-gradient(90deg,#141716ed,#292720e8,#141716ed);color:#ecd4b1;font:600 17px 'Rajdhani',sans-serif;letter-spacing:2px;text-align:center;box-shadow:0 5px 25px #0009;pointer-events:none}
+#finalCue[data-mode=recover]{color:#c8dcbb;border-color:#647f68}
+#finalCue[data-mode=mutate]{color:#e4b6da;border-color:#987a9f}
+@media(max-height:760px){#finalCue{bottom:88px;font-size:14px;padding:6px 15px}}

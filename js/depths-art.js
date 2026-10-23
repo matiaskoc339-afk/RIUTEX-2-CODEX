@@ -1,0 +1,35 @@
+// Seda húmeda, roca y quitina. Sin filtros retro ni luz azul que lave la oscuridad.
+const ArachnidArt={
+ draw(c,e,boss){if(e.dead)return;c.save();c.translate(e.x,e.y);c.fillStyle='rgba(0,0,0,.55)';c.beginPath();c.ellipse(3,8,boss?74:15,boss?48:10,0,0,6.283);c.fill();c.rotate(e.face||0);const phase=boss?e.phase:1,sc=boss?(phase===3?3.7:phase===2?3.3:3):.6;c.scale(sc,sc);if(e.mode==='air')c.scale(1.12,1.12);if(e.mode==='mutate'){const k=1+Math.sin(e.t*24)*.05;c.scale(k,k);}const flash=e.hitFlash>0,col=flash?'#eee0be':phase===3?'#a27671':phase===2?'#9b8174':'#7b8061';
+  // Ocho patas de tres segmentos, desfasadas por pareja; puntas de hueso y articulaciones.
+  for(let i=0;i<4;i++)for(const sign of [-1,1]){const x=-10+i*7,sw=Math.sin(e.t*(boss?8:14)+i*1.7+sign)*3,kx=x+(i<2?-12:10),ky=sign*(18+i%2*4),tx=x+(i<2?-21:19)+sw,ty=sign*(30+i%2*6);c.strokeStyle='#211e1c';c.lineWidth=5;c.beginPath();c.moveTo(x,sign*6);c.lineTo(kx,ky);c.lineTo(tx,ty);c.stroke();c.strokeStyle=col;c.lineWidth=2.6;c.beginPath();c.moveTo(x,sign*6);c.lineTo(kx,ky);c.lineTo(tx,ty);c.stroke();c.fillStyle='#d4c7a4';c.beginPath();c.arc(kx,ky,2,0,6.283);c.fill();c.strokeStyle='#bdb294';c.lineWidth=1.2;c.beginPath();c.moveTo(tx,ty);c.lineTo(tx+5,ty-sign*4);c.stroke();}
+  const sac=c.createRadialGradient(-12,-4,1,-11,0,23);sac.addColorStop(0,flash?'#fff2dc':phase===3?'#b38c75':'#a0a67d');sac.addColorStop(.5,col);sac.addColorStop(1,'#353631');c.fillStyle=sac;c.beginPath();c.ellipse(-13,0,phase===1?20:24,phase===1?16:19,0,0,6.283);c.fill();c.strokeStyle='#393f35';c.lineWidth=1.5;c.stroke();
+  c.strokeStyle=phase===3?'#e1b5a2':'#c0c29b';c.lineWidth=.8;for(let i=0;i<5;i++){c.beginPath();c.moveTo(-28+i*6,-9);c.quadraticCurveTo(-23+i*6,0,-28+i*6,9);c.stroke();}
+  c.fillStyle=flash?'#e7d8c5':'#5a594c';c.beginPath();c.ellipse(10,0,12,13,0,0,6.283);c.fill();c.strokeStyle='#aca68d';c.lineWidth=1.5;c.stroke();c.fillStyle='#28282a';c.beginPath();c.ellipse(17,0,6,9,0,0,6.283);c.fill();
+  c.fillStyle=e.mode==='wind'&&e.attack==='venom'?'#e1ef9c':phase===3?'#e8a98e':'#c2cb90';for(const [x,y]of [[16,-5],[19,-2],[19,2],[16,5]]){c.beginPath();c.arc(x,y,1.4,0,6.283);c.fill();}c.strokeStyle='#d6ceb1';c.lineWidth=2;for(const sign of [-1,1]){c.beginPath();c.moveTo(19,sign*7);c.quadraticCurveTo(34,sign*12,28,sign*2);c.stroke();}
+  if(boss){c.fillStyle=e.mode==='wind'&&e.attack==='venom'?'#c8d18f':'#647251';for(const y of [-7,7]){c.beginPath();c.ellipse(-10,y,8,4,0,0,6.283);c.fill();}if(phase>1){c.strokeStyle=phase===3?'#da998d':'#c3b19b';c.lineWidth=3;for(let j=0;j<5;j++){c.beginPath();c.moveTo(-27+j*7,-12);c.lineTo(-31+j*7,-23-(phase===3?j%2*7:0));c.stroke();}c.fillStyle='#723e51';c.beginPath();c.ellipse(-17,0,14,phase===3?8:5,0,0,6.283);c.fill();c.strokeStyle='#d0ab9d';c.lineWidth=1;for(let j=0;j<5;j++){c.beginPath();c.moveTo(-29+j*6,-5);c.lineTo(-26+j*6,5);c.stroke();}}}
+  c.restore();
+ },
+ web(c,x,y,r,seed=0){c.save();c.translate(x,y);c.strokeStyle='rgba(177,182,162,.17)';c.lineWidth=1;for(let i=0;i<10;i++){const a=i*Math.PI/5+seed;c.beginPath();c.moveTo(0,0);c.lineTo(Math.cos(a)*r,Math.sin(a)*r);c.stroke();}for(let j=1;j<5;j++){c.beginPath();for(let i=0;i<=10;i++){const a=i*Math.PI/5+seed,rr=r*j/5;const x=Math.cos(a)*rr,y=Math.sin(a)*rr;i?c.lineTo(x,y):c.moveTo(x,y);}c.stroke();}c.restore();}
+};
+(() => {
+ const build=Level.buildR2;Level.buildR2=function(id){build.call(this,id);if(id!==DepthsMap.id)return;for(let y=4;y<36;y++)for(let x=10;x<52;x++){if(((x-31)/20.5)**2+((y-20)/15.5)**2>1)this.grid[y][x]=1;else this.surface[y][x]='#666d60';}};
+ const draw=Level.draw;Level.draw=function(c,...args){draw.call(this,c,...args);if(!DepthsMap.is())return;c.save();
+  // La cueva reemplaza el suelo de baldosas por roca sedimentaria, sin cambiar colisiones.
+  for(let y=4;y<36;y++)for(let x=10;x<52;x++){
+   if(Level.grid[y][x]!==0)continue;
+   const hash=((x*73856093)^(y*19349663))>>>0,tone=hash%13;
+   c.fillStyle='rgb('+(62+tone)+','+(67+tone)+','+(57+tone)+')';c.fillRect(x*32,y*32,32,32);
+   c.strokeStyle='rgba(30,36,29,.24)';c.lineWidth=1;c.beginPath();c.moveTo(x*32,y*32+hash%26);c.lineTo(x*32+13,y*32+14);c.lineTo(x*32+24,y*32+32);c.stroke();
+   if(hash%3===0){c.fillStyle='rgba(132,133,105,.12)';c.beginPath();c.ellipse(x*32+15,y*32+16,12,3,hash%6,0,6.283);c.fill();}
+   if([[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>Level.grid[y+dy]?.[x+dx]===1)){c.fillStyle='#353d32';c.beginPath();c.moveTo(x*32,y*32);c.lineTo(x*32+32,y*32+3);c.lineTo(x*32+25,y*32+20);c.lineTo(x*32+7,y*32+29);c.closePath();c.fill();c.strokeStyle='#69705d';c.stroke();}
+  }
+  for(let j=0;j<40;j++){const a=j*2.399,x=31.5*32+Math.cos(a)*(440+(j%3)*35),y=20.5*32+Math.sin(a)*(320+j%4*18);ArachnidArt.web(c,x,y,65+j%5*12,a);c.fillStyle='#596052';c.beginPath();c.ellipse(x,y,12+j%3*3,20+j%4*3,a,0,6.283);c.fill();c.strokeStyle='#929782';c.lineWidth=1;c.stroke();}
+  // Riachuelo antiguo al fondo; no rodea al jugador ni oculta las señales de combate.
+  c.strokeStyle='rgba(105,123,69,.18)';c.lineWidth=28;c.beginPath();c.moveTo(14*32,12*32);c.bezierCurveTo(24*32,25*32,36*32,9*32,48*32,26*32);c.stroke();c.fillStyle='#c1b697';c.font='600 15px Rajdhani, sans-serif';c.fillText('ÚLTIMA ESTACIÓN / RETORNO AL REFUGIO',19*32,45*32);c.restore();};
+ const item=Game.drawItem;Game.drawItem=function(c,it){if(!it.type.startsWith('ds_'))return item.call(this,c,it);c.save();c.translate(it.x,it.y);c.fillStyle=it.type==='ds_suit_case'?'#666951':'#404f46';c.fillRect(-17,-12,34,24);c.strokeStyle='#c6b795';c.lineWidth=2;c.strokeRect(-17,-12,34,24);c.fillStyle='#c4cbb0';c.fillRect(-4,-5,8,10);if(it.type==='ds_sterilizer'){c.fillStyle='#233c33';c.fillRect(-13,-8,26,9);for(let j=0;j<3;j++){c.fillStyle='#a8b784';c.fillRect(-11+j*9,5,4,3);}}
+  if(it.type==='ds_suit_case'){c.strokeStyle='#d6d2b4';c.beginPath();c.moveTo(-9,-4);c.lineTo(-4,-9);c.lineTo(4,-9);c.lineTo(9,-4);c.moveTo(-4,-7);c.lineTo(-4,8);c.lineTo(4,8);c.lineTo(4,-7);c.stroke();}
+  c.restore();if(Math.hypot(Game.player.x-it.x,Game.player.y-it.y)<135&&Level.los(Game.player.x,Game.player.y,it.x,it.y)){c.save();c.font='600 11px Rajdhani, sans-serif';c.fillStyle='#e5d6b0';c.textAlign='center';c.fillText('[E] '+Depths.label(it),it.x,it.y-28);c.restore();}};
+ const render=Game.render;Game.render=function(){render.call(this);if(!DepthsMap.is(this)||!this.boss||!HorrorVision.polygon.length)return;const c=this.ctx;c.save();c.beginPath();c.moveTo(HorrorVision.polygon[0][0]-this.cam.x,HorrorVision.polygon[0][1]-this.cam.y);for(const [x,y]of HorrorVision.polygon)c.lineTo(x-this.cam.x,y-this.cam.y);c.closePath();c.clip();c.translate(-this.cam.x,-this.cam.y);if(!this.boss.dead)this.boss.drawCue(c);c.restore();};
+ const icon=DeskIcons.svg;DeskIcons.svg=function(t){if(t==='ds_suit')return ProtectionSuit.icon();if(t.startsWith('ds_'))return '<svg class="item-glyph" viewBox="0 0 64 64"><path d="M13 18h38v30H13z" fill="#526658" stroke="#c6cbb1" stroke-width="3"/><path d="M22 25h20v16H22Z" fill="#263a32"/><path d="M32 27v12M26 33h12" stroke="#d4b779" stroke-width="3"/></svg>';return icon.call(this,t);};
+})();

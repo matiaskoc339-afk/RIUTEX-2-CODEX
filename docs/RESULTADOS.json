@@ -1,0 +1,514 @@
+{
+  "version": "0.16.0",
+  "date": "2026-10-23",
+  "scope": "RIUTEX 2 completo: mansión, hospital, fábrica, castillo, laboratorio UMBRAL, Wren/ORIGEN y dos epílogos",
+  "system_tests": 263,
+  "system_failures": 0,
+  "integration_checks": 103,
+  "map_validations": 15,
+  "new_map": {
+    "factory_dimensions": [
+      148,
+      110
+    ],
+    "factory_rooms": 30,
+    "factory_doors": 33,
+    "ambient_enemies": 42,
+    "spider_packs": 4,
+    "ambient_spiders": 14,
+    "arena_rooms": 3,
+    "arena_waves": 8,
+    "arena_enemies": 22,
+    "nest_dimensions": [
+      64,
+      53
+    ],
+    "nest_rooms": 4,
+    "nest_doors": 2,
+    "matriarch_phases": 3,
+    "castle_cells_dimensions": [
+      65,
+      50
+    ],
+    "castle_cells_rooms": 7,
+    "castle_lower_dimensions": [
+      132,
+      100
+    ],
+    "castle_lower_rooms": 24,
+    "castle_upper_dimensions": [
+      132,
+      91
+    ],
+    "castle_upper_rooms": 20,
+    "castle_stair_pairs": 3,
+    "castle_ambient_enemies": 37,
+    "castle_bell_routes": 2,
+    "castle_puzzles": 12,
+    "castle_optional_modules": 5,
+    "royal_dimensions": [
+      49,
+      43
+    ],
+    "royal_rooms": 3,
+    "royal_phases": 3,
+    "laboratory_dimensions": [
+      156,
+      128
+    ],
+    "laboratory_rooms": 26,
+    "laboratory_doors": 40,
+    "laboratory_enemies": 35,
+    "antidote_ingredients": 3,
+    "laboratory_puzzles": 12,
+    "laboratory_optional_modules": 5,
+    "origin_dimensions": [
+      60,
+      56
+    ],
+    "origin_rooms": 3,
+    "origin_phases": 3,
+    "street_dimensions": [
+      66,
+      62
+    ],
+    "street_rooms": 4,
+    "endings": 2
+  },
+  "browser_groups": {
+    "browser-blue-results.json": 24,
+    "horror-browser-results.json": 18,
+    "revision-browser-results.json": 14,
+    "presentation-browser-results.json": 18,
+    "adventure-browser-results.json": 29,
+    "fielddesk-browser-results.json": 42,
+    "survival-browser-results.json": 38,
+    "gold-browser-results.json": 11,
+    "finale-browser-results.json": 38,
+    "works-browser-results.json": 61,
+    "depths-browser-results.json": 29,
+    "depths-visual-results.json": 7,
+    "flamethrower-browser-results.json": 16,
+    "castle-combat-results.json": 4,
+    "castle-browser-results.json": 76,
+    "castle-visual-results.json": 17,
+    "endgame-browser-results.json": 63,
+    "endgame-visual-results.json": 12,
+    "standalone-blue-results.json": 17,
+    "polish-browser-results.json": 41,
+    "pov-browser-results.json": 83,
+    "pov-effects-browser-results.json": 33
+  },
+  "browser_checks_total": 691,
+  "standalone_headless_fps": 60.4,
+  "file_access": {
+    "attempted": true,
+    "status": "blocked_by_environment",
+    "reason": "Chromium administrado bloquea file:// con ERR_BLOCKED_BY_ADMINISTRATOR. HTML validado por HTTP, sin recursos externos."
+  },
+  "arena_combat": {
+    "won": true,
+    "hp": 100,
+    "wave": 8,
+    "shots": 179,
+    "heals": 0,
+    "keeper": true,
+    "kills": 22,
+    "seconds": 262.96666666666664,
+    "reserve": 84,
+    "history": [
+      {
+        "cleared": 0,
+        "wave": 0,
+        "hp": 100,
+        "reserve": 180
+      },
+      {
+        "cleared": 1,
+        "wave": 1,
+        "hp": 100,
+        "reserve": 192
+      },
+      {
+        "cleared": 2,
+        "wave": 2,
+        "hp": 100,
+        "reserve": 180
+      },
+      {
+        "cleared": 3,
+        "wave": 3,
+        "hp": 100,
+        "reserve": 180
+      },
+      {
+        "cleared": 4,
+        "wave": 4,
+        "hp": 100,
+        "reserve": 168
+      },
+      {
+        "cleared": 5,
+        "wave": 5,
+        "hp": 100,
+        "reserve": 156
+      },
+      {
+        "cleared": 6,
+        "wave": 6,
+        "hp": 100,
+        "reserve": 144
+      },
+      {
+        "cleared": 7,
+        "wave": 7,
+        "hp": 100,
+        "reserve": 120
+      },
+      {
+        "cleared": 8,
+        "wave": 8,
+        "hp": 100,
+        "reserve": 84
+      }
+    ],
+    "state": "play"
+  },
+  "carnicero_combat": {
+    "dead": true,
+    "hp": 100,
+    "bhp": 0,
+    "shots": 51,
+    "phases": [
+      1,
+      2,
+      3
+    ],
+    "attacks": [
+      "charge",
+      "hook",
+      "leap",
+      "vents"
+    ],
+    "recoveries": 16,
+    "history": [
+      {
+        "t": 0,
+        "hp": 100,
+        "bhp": 1500,
+        "mode": "intro",
+        "p": [
+          307,
+          781
+        ]
+      },
+      {
+        "t": 10,
+        "hp": 100,
+        "bhp": 1300,
+        "mode": "stalk",
+        "p": [
+          518,
+          272
+        ]
+      },
+      {
+        "t": 20,
+        "hp": 100,
+        "bhp": 1075,
+        "mode": "recover",
+        "p": [
+          805,
+          465
+        ]
+      },
+      {
+        "t": 30,
+        "hp": 100,
+        "bhp": 850,
+        "mode": "stalk",
+        "p": [
+          401,
+          408
+        ]
+      },
+      {
+        "t": 40,
+        "hp": 100,
+        "bhp": 500,
+        "mode": "mutate",
+        "p": [
+          444,
+          559
+        ]
+      },
+      {
+        "t": 50,
+        "hp": 100,
+        "bhp": 356.25,
+        "mode": "recover",
+        "p": [
+          1031,
+          262
+        ]
+      },
+      {
+        "t": 60,
+        "hp": 100,
+        "bhp": 118.75,
+        "mode": "recover",
+        "p": [
+          876,
+          638
+        ]
+      }
+    ],
+    "state": "play",
+    "reserve": 32
+  },
+  "suit_custodian_combat": {
+    "won": true,
+    "state": "play",
+    "hp": 81.1666666666671,
+    "armor": 0,
+    "shots": 21,
+    "shotsOpen": 18,
+    "heals": 0,
+    "seconds": 20.8,
+    "phases": [],
+    "attacks": [],
+    "history": [],
+    "reserve": 168,
+    "seed": 369
+  },
+  "matriarch_combat": {
+    "won": true,
+    "state": "play",
+    "hp": 100,
+    "armor": 90,
+    "shots": 137,
+    "shotsOpen": 59,
+    "heals": 0,
+    "seconds": 170.46666666666667,
+    "phases": [
+      1,
+      2,
+      3
+    ],
+    "attacks": [
+      "venom",
+      "rush",
+      "pounce",
+      "claw"
+    ],
+    "history": [
+      {
+        "phase": 1,
+        "hp": 100,
+        "armor": 90,
+        "reserve": 180
+      },
+      {
+        "phase": 2,
+        "hp": 100,
+        "armor": 90,
+        "reserve": 156
+      },
+      {
+        "phase": 3,
+        "hp": 100,
+        "armor": 90,
+        "reserve": 96
+      }
+    ],
+    "reserve": 36,
+    "seed": 369
+  },
+  "castle_m9_combats": {
+    "hospitalcells": {
+      "won": true,
+      "state": "play",
+      "hp": 100,
+      "bhp": -2.5,
+      "shots": 32,
+      "heals": 0,
+      "seconds": 41.3,
+      "phases": [],
+      "attacks": [],
+      "history": [],
+      "weapon": "pistol",
+      "reserve": 156
+    },
+    "hospitalroyal": {
+      "won": true,
+      "state": "play",
+      "hp": 100,
+      "bhp": 0,
+      "shots": 80,
+      "heals": 0,
+      "seconds": 103.03333333333333,
+      "phases": [
+        1,
+        2,
+        3
+      ],
+      "attacks": [
+        "charge",
+        "quake",
+        "leap"
+      ],
+      "history": [
+        {
+          "phase": 1,
+          "hp": 100,
+          "ammo": 180
+        },
+        {
+          "phase": 2,
+          "hp": 100,
+          "ammo": 156
+        },
+        {
+          "phase": 3,
+          "hp": 100,
+          "ammo": 132
+        }
+      ],
+      "weapon": "pistol",
+      "reserve": 96
+    }
+  },
+  "castle_r98_combat": {
+    "won": true,
+    "state": "play",
+    "hp": 100,
+    "bhp": 0,
+    "shots": 18,
+    "heals": 0,
+    "seconds": 54.233333333333334,
+    "phases": [
+      1,
+      2,
+      3
+    ],
+    "attacks": [
+      "charge",
+      "quake",
+      "leap"
+    ],
+    "history": [
+      {
+        "phase": 1,
+        "hp": 100,
+        "ammo": 26
+      },
+      {
+        "phase": 2,
+        "hp": 100,
+        "ammo": 21
+      },
+      {
+        "phase": 3,
+        "hp": 100,
+        "ammo": 16
+      }
+    ],
+    "weapon": "r98",
+    "reserve": 11
+  },
+  "notes": "v0.16 añade la opción Primera Persona POV en ajustes y pausa, con vista clásica predeterminada, materiales, enemigos frontales, armas y avisos proyectados. v0.15.1 renueva exclusivamente la presentación del menú; se elimina la figura humana y se intensifican disparos, material de sangre, entorno y botones. v0.15 conserva balance porcentual, opciones persistentes y fundidos. Rutas, mecanismos y finales con movimiento, puertas y botones reales; enemigos retirados solo para aislar geometría. Combates independientes con IA y recursos preparados finitos. El controlador conoce posiciones y avisos y no representa una primera partida humana ni valida los recursos de la campaña íntegra. UMBRAL se recorre en sus 26 espacios; sus tres cámaras no permiten eludir cierres. Wren atraviesa tres mutaciones sin saltos. El GL-6 tiene identidad independiente de la migración LG-4/FL-4, granadas fabricables, explosión y cuatro mejoras. La decisión del antídoto se guarda, elimina poderes mutantes y el brazo reconstruido al curarse, o conserva la transformación. Ambos finales caminan por la calle y muestran el helicóptero antes del resultado. Capturas preparadas de formas no se cuentan como combates. La inyección de vida máxima sustituye al rifle del hospital. HTML integrado probado por HTTP sin recursos externos; Chromium administrado bloquea file://, intento que no se cuenta como superado.",
+  "origin_combat": {
+    "won": true,
+    "state": "play",
+    "hp": 100,
+    "bhp": 0,
+    "shots": 30,
+    "heals": 0,
+    "seconds": 99.36666666666666,
+    "phases": [
+      1,
+      2,
+      3
+    ],
+    "attacks": [
+      "needles",
+      "charge",
+      "marks",
+      "wave",
+      "leap"
+    ],
+    "history": [
+      {
+        "phase": 1,
+        "hp": 100,
+        "ammo": 40
+      },
+      {
+        "phase": 2,
+        "hp": 100,
+        "ammo": 32
+      },
+      {
+        "phase": 3,
+        "hp": 100,
+        "ammo": 24
+      }
+    ],
+    "weapon": "r98",
+    "reserve": 12
+  },
+  "presentation": {
+    "skill_stats_updated": 62,
+    "fractional_stats_updated": 50,
+    "small_riutex_reserves_updated": 12,
+    "transition_ms": 680,
+    "reduced_transition_ms": 160,
+    "skill_nodes": 153,
+    "golden_pairs": 4,
+    "menu_revision": "v0.15.1: sin figuras humanas, sangre con textura, disparos reflejados más intensos, logo y botones renovados",
+    "previous_browser_suites": "Los escenarios de lógica y recorrido aíslan la presentación; polish-browser verifica los fundidos con requestAnimationFrame real."
+  },
+  "regression_baseline": {
+    "version": "0.15.0",
+    "system_tests": 245,
+    "integration_checks": 103,
+    "map_validations": 15,
+    "browser_groups": {
+      "browser-blue-results.json": 24,
+      "horror-browser-results.json": 18,
+      "revision-browser-results.json": 14,
+      "presentation-browser-results.json": 18,
+      "adventure-browser-results.json": 29,
+      "fielddesk-browser-results.json": 42,
+      "survival-browser-results.json": 38,
+      "gold-browser-results.json": 11,
+      "finale-browser-results.json": 38,
+      "works-browser-results.json": 61,
+      "depths-browser-results.json": 29,
+      "depths-visual-results.json": 7,
+      "flamethrower-browser-results.json": 16,
+      "castle-combat-results.json": 4,
+      "castle-browser-results.json": 76,
+      "castle-visual-results.json": 17,
+      "endgame-browser-results.json": 63,
+      "endgame-visual-results.json": 12,
+      "standalone-blue-results.json": 15,
+      "polish-browser-results.json": 40
+    },
+    "browser_checks_total": 572
+  },
+  "validation_scope": "Suite completa del motor y navegador.",
+  "pov": {
+    "optional": true,
+    "default_enabled": false,
+    "settings": [
+      "menuFirstPerson",
+      "pauseFirstPerson"
+    ],
+    "renderer": "Proyección en primera persona con profundidad por píxel, materiales y siluetas frontales; misma simulación y colisiones.",
+    "camera_relative_movement": true,
+    "pointer_lock_fallback": true,
+    "saves_unchanged": true,
+    "coverage": "Prólogo y primera huida con movimiento real; siete armas, quince mapas, doce formas de jefes preparadas; avisos, poderes, caída y dos epílogos preparados con comparación de píxeles."
+  }
+}

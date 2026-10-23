@@ -1,0 +1,62 @@
+"""Escenarios controlados de interfaz v0.6 en Chromium real."""
+from pathlib import Path
+import json
+from playwright.sync_api import sync_playwright
+from browser_server import local_server
+root=Path(__file__).resolve().parents[1]
+passed=[]
+def check(name,ok):
+ assert ok,name
+ passed.append(name)
+ print('PASS',name,flush=True)
+with local_server(root) as url,sync_playwright() as p:
+ browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
+ page=browser.new_page(viewport={'width':1440,'height':900});errors=[]
+ page.on('pageerror',lambda e:errors.append(str(e)))
+ page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);page.evaluate('SceneTransitions.enabled=false;SceneTransitions.finish()');page.evaluate('document.fonts.ready');page.screenshot(path=str(root/'artifacts/menu-v060.png'))
+ check('Fuente local y botones legibles en todas las pantallas',page.evaluate("document.fonts.check('600 18px Rajdhani')&&['bNew','bRes','bUse','puzzleConfirm','bBuy'].every(id=>{let s=getComputedStyle(document.getElementById(id));return s.fontFamily.includes('Rajdhani')&&parseFloat(s.fontSize)>=16})"))
+ page.click('#bNew')
+ page.evaluate("Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Hospital.lobbyReached(Game);Game.player.x=38.5*32;Game.player.y=28.5*32;Game.enemies=[];Game.items=[];Game.mouse.x=Game.cv.width/2-150;Game.mouse.y=Game.cv.height/2;Game.cam.x=Game.player.x-Game.cv.width/2;Game.cam.y=Game.player.y-Game.cv.height/2")
+ page.wait_for_timeout(350)
+ check('ECG, estamina vertical y fluido Riutex presentes',page.locator('.pulse-track polyline').count()==2 and page.locator('#en>b').count()==5 and page.locator('#vitalStatus').inner_text()=='ESTABLE')
+ check('El pulso y las burbujas tienen animaciones propias',page.locator('.pulse-track').evaluate("e=>getComputedStyle(e).animationName==='ecg-drift'") and page.locator('#en>b').first.evaluate("e=>getComputedStyle(e).animationName==='hud-fluid'"))
+ green=page.locator('#vitalMonitor').evaluate('e=>getComputedStyle(e).color')
+ check('La hoja de una puerta cerrada queda visible sin revelar la sala contigua',page.evaluate("(()=>{let d=Level.doors.find(d=>d.id==='lob_w'),q=ReadableDoors.geometry(d),c=Array.from(Game.ctx.getImageData(Math.floor(q.x-Game.cam.x),Math.floor(q.y-Game.cam.y),1,1).data);return !d.open&&c[0]+c[1]+c[2]>50&&!Game.story.visited['hospital:Ala oeste']})()"))
+ page.screenshot(path=str(root/'artifacts/door-closed-v060.png'))
+ page.keyboard.press('e');check('La puerta dibujada conserva su interacción y colisión',page.evaluate("Level.doors.find(d=>d.id==='lob_w').open&&Level.grid[28][37]===0"))
+ page.screenshot(path=str(root/'artifacts/hud-v060.png'))
+ page.evaluate('Game.player.hp=18;Game.player.stamina=35;Game.player.energy=50;UI.hud(Game.player,Game.inv,Game.mut)')
+ check('Salud baja cambia el pulso a rojo y señala CRÍTICO',page.locator('#vitalStatus').inner_text()=='CRÍTICO' and page.locator('#vitalMonitor').evaluate('e=>getComputedStyle(e).color')!=green)
+ check('La reserva naranja cae en altura y Riutex cae en anchura',page.evaluate("parseFloat(UI.$('st').style.height)<40&&UI.$('st').style.width==='100%'&&parseFloat(UI.$('en').style.width)<45"))
+ page.screenshot(path=str(root/'artifacts/hud-low-v060.png'))
+ page.keyboard.press('k');page.wait_for_timeout(250)
+ page.evaluate("window.savedReactor=document.querySelector('.riutex-reactor');window.savedAnimation=savedReactor.querySelector('i').getAnimations()[0];window.fluidTime=savedAnimation.currentTime")
+ page.locator('[data-skill="vigor"]').click();page.click('#bBuy');page.wait_for_timeout(100)
+ check('Seleccionar y comprar conservan el fondo y su fase de animación',page.evaluate("document.querySelector('.riutex-reactor')===savedReactor&&savedReactor.querySelector('i').getAnimations()[0]===savedAnimation&&savedAnimation.currentTime>fluidTime"))
+ page.locator('[data-skill="camuflaje"]').hover()
+ check('Nombre inmediato al pasar el ratón, con texto sin escalar',page.locator('#skillTooltip').is_visible() and 'Camuflaje en penumbra' in page.locator('#skillTooltip').inner_text() and page.locator('#skillTooltip').evaluate('e=>parseFloat(getComputedStyle(e).fontSize)>=16'))
+ page.mouse.move(20,20)
+ check('Colores humanos azules y mutantes morados en nodos y conexiones',page.evaluate("(()=>{let h=getComputedStyle(document.querySelector('.network-node.hum')).borderColor,m=getComputedStyle(document.querySelector('.network-node.mut')).borderColor;return h!==m&&document.querySelector('.network-graph svg').innerHTML.includes('#376b94')&&document.querySelector('.network-graph svg').innerHTML.includes('#78519b')})()"))
+ page.screenshot(path=str(root/'artifacts/tree-v060.png'))
+ page.evaluate("for(const[id,s]of Object.entries(SKILLS))if(!s.gold)Game.mut.owned.add(id);Game.player.xp=1000;UI.renderTree(Game)")
+ page.locator('[data-skill="gold_reload"]').click()
+ check('Comparación de dos doctrinas humanas en su pareja propia',page.locator('[data-choice]').count()==2 and page.locator('[data-choice="gold_triage"]').count()==1)
+ page.click('#bBuy');page.locator('[data-skill="gold_triage"]').click()
+ check('Aprender una dorada humana cierra solo su alternativa',page.locator('#bBuy').is_disabled() and 'Elección sellada' in page.locator('#treeInfo').inner_text())
+ page.locator('[data-skill="gold_catalyst"]').click()
+ check('La pareja mutante sigue abierta y ofrece otras dos opciones',not page.locator('#bBuy').is_disabled() and page.locator('[data-choice="gold_leech"]').count()==1)
+ page.screenshot(path=str(root/'artifacts/gold-v060.png'))
+ page.click('#bBuy');page.keyboard.press('k');page.evaluate('Game.save(0)');page.reload();page.evaluate('SceneTransitions.enabled=false;SceneTransitions.finish()');page.click('#bCont');page.locator('.save-slot').first.click()
+ check('El guardado conserva una dorada humana y una mutante',page.evaluate("Game.mut.has('gold_reload')&&Game.mut.has('gold_catalyst')&&!Game.mut.has('gold_triage')&&!Game.mut.has('gold_leech')"))
+ page.set_viewport_size({'width':1280,'height':720});page.keyboard.press('k');page.locator('[data-skill="gold_triage"]').click()
+ check('Las dos opciones doradas y el botón de compra caben en 720p',page.locator('#bBuy').evaluate('e=>e.getBoundingClientRect().bottom<innerHeight') and page.locator('[data-choice]').nth(1).evaluate('e=>e.getBoundingClientRect().bottom<innerHeight'))
+ page.screenshot(path=str(root/'artifacts/gold-small-v060.png'))
+ page.keyboard.press('k');page.set_viewport_size({'width':1440,'height':900})
+ page.evaluate("Game.player.x=44.5*32;Game.player.y=28.5*32;Game.player.hp=Game.player.maxHp;Game.player.energy=Game.player.maxEnergy;Game.mut.bindings.suspension='KeyV';Game.mut.bindings.forma_acechador='KeyB';Game.mut.cd={};Game.enemies=[new Enemy('vacio',Game.player.x+64,Game.player.y,9400)]")
+ page.keyboard.press('v');check('Suspensión se activa con la tecla asignada',page.evaluate('!!Game.temporalField&&Game.mut.cd.suspension>0'))
+ page.screenshot(path=str(root/'artifacts/time-v060.png'))
+ page.keyboard.press('b');check('La transformación se activa y muestra su duración',page.evaluate('Game.player.predator>0&&Game.player.blade>0'))
+ page.wait_for_timeout(100);page.screenshot(path=str(root/'artifacts/transformation-v060.png'))
+ check('Sin errores de navegador',not errors)
+ (root/'artifacts/presentation-browser-results.json').write_text(json.dumps({'passed':passed,'errors':errors,'scope':'Interfaz en escenarios controlados: HUD, puertas, fase del fluido, fuentes, colores, tooltips y doradas.'},ensure_ascii=False,indent=2))
+ browser.close()

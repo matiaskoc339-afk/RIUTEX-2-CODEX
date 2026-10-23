@@ -1,0 +1,6 @@
+artifacts/*
+!artifacts/.gitkeep
+dist/
+__pycache__/
+*.pyc
+release/

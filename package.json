@@ -1,0 +1,13 @@
+{
+  "name": "riutex2-historia-completa",
+  "version": "0.16.0",
+  "private": true,
+  "description": "RIUTEX 2: cuatro fases, laboratorio UMBRAL y dos finales",
+  "scripts": {
+    "start": "python3 -m http.server 8000 --bind 0.0.0.0",
+    "test": "node scripts/test.js",
+    "test:browser": "python3 scripts/browser-checks.py",
+    "build": "python3 scripts/build.py",
+    "maps": "python3 scripts/maps.py"
+  }
+}

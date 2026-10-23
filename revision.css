@@ -1,0 +1,279 @@
+/* Fluido Riutex contenido detrás de la red: animación lenta, sin teñir el hospital. */
+#treeBox {
+  isolation: isolate;
+  background: #0b110d;
+}
+#treeBox > .network-header,
+#treeBox > .network-viewport,
+#treeBox > .network-caption {
+  z-index: 1;
+}
+.riutex-reactor {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 20% 80%, #6d793320, transparent 60%),
+    linear-gradient(110deg, #090e0b, #17201455, #0c110d);
+}
+.riutex-reactor i {
+  position: absolute;
+  bottom: -25%;
+  left: var(--left);
+  width: var(--size);
+  height: calc(var(--size) * 1.25);
+  border-radius: 47% 53% 59% 41%;
+  background: radial-gradient(
+    ellipse at 30% 24%,
+    #c2c99440,
+    #778a4735 45%,
+    #536a2720
+  );
+  box-shadow:
+    inset -15px -20px 35px #101c0b88,
+    inset 10px 9px 25px #c4c89020;
+  filter: blur(12px);
+  opacity: 0.65;
+  animation: riutex-lava calc(27s + var(--n) * 2s) var(--delay) infinite
+    alternate ease-in-out;
+  transform: translateY(0);
+}
+@keyframes riutex-lava {
+  0% {
+    transform: translate(0, 10vh) rotate(-12deg) scale(0.85);
+  }
+  50% {
+    border-radius: 58% 42% 37% 63%;
+    transform: translate(35px, -45vh) rotate(10deg);
+  }
+  100% {
+    transform: translate(-25px, -105vh) rotate(-5deg) scale(1.1);
+  }
+}
+.reactor-scale {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 15px;
+  border-right: 1px solid #82936625;
+  background: repeating-linear-gradient(
+    transparent 0 28px,
+    #a0b57920 28px 29px,
+    transparent 29px 30px
+  );
+  opacity: 0.4;
+}
+.network-viewport {
+  background: transparent;
+}
+.network-node.neu {
+  border-color: #8b9b82;
+}
+.network-node.gold {
+  width: 56px;
+  height: 56px;
+  border: 3px double #b79855;
+  color: #d2b36b;
+  background: radial-gradient(#645127, #202116);
+  box-shadow: 0 0 20px #bba14a20;
+  font-size: 25px;
+}
+.network-node.gold.available {
+  border-color: #eed58b;
+  color: #f6df9a;
+  box-shadow: 0 0 24px #c6a64d50;
+}
+.network-node.gold.owned {
+  background: radial-gradient(#ad8e45, #504021);
+  border-color: #ffdfa0;
+  box-shadow: 0 0 26px #d7b26355;
+}
+.network-node.gold.locked {
+  background: #202119;
+  border-color: #72663d;
+  color: #8a7b4b;
+  opacity: 0.6;
+}
+.network-node.selected {
+  outline-color: #e7d4a4;
+}
+#treePanel {
+  background: #0a100ced;
+  border-color: #35402f;
+}
+#treePanel #bBuy {
+  background: #c3c99f;
+  border-color: #c3c99f;
+  color: #222b1e;
+}
+#treeHead {
+  color: #a1b096;
+}
+.network-tools button {
+  background: #192218;
+  border-color: #43513e;
+}
+.network-caption {
+  border-color: #384332;
+  color: #9cab91;
+}
+#tutorial {
+  z-index: 85;
+  background: #050b10ef;
+  backdrop-filter: blur(7px);
+  padding: 24px;
+}
+.survival-manual {
+  width: min(1030px, 95vw);
+  max-height: 92vh;
+  overflow: auto;
+  border: 1px solid #596a6c;
+  background: linear-gradient(135deg, #17272d, #0a161d 70%);
+  box-shadow: 0 25px 100px #0009;
+  padding: 32px 38px;
+  border-radius: 9px;
+}
+.manual-heading h2 {
+  font:
+    32px Georgia,
+    serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: #e1e2d1;
+  margin: 11px 0;
+}
+.manual-heading > p {
+  font-size: 13px;
+  line-height: 1.8;
+  color: #aebfc0;
+  max-width: 740px;
+}
+.manual-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 13px;
+  margin: 25px 0;
+}
+.manual-cards article {
+  padding: 20px 17px;
+  background: #132129a6;
+  border: 1px solid #354b54;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+.manual-cards svg {
+  width: 41px;
+  height: 41px;
+  fill: none;
+  stroke: #9eb8ba;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.manual-cards h3 {
+  font-size: 14px;
+  font-weight: 500;
+  color: #d4ded9;
+  margin: 0 0 12px;
+}
+.manual-cards p {
+  font-size: 11px;
+  line-height: 1.8;
+  color: #91aaae;
+  margin: 7px 0;
+}
+.manual-cards p.manual-keys {
+  color: #bdcdcb;
+}
+kbd {
+  display: inline-block;
+  min-width: 19px;
+  padding: 1px 4px;
+  margin-right: 3px;
+  border: 1px solid #758c90;
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  font: 10px Arial;
+  color: #dde4db;
+  background: #253a43;
+  white-space: nowrap;
+}
+.manual-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  border-top: 1px solid #38505a;
+  padding-top: 20px;
+}
+.manual-footer span {
+  font-size: 10px;
+  color: #849fa5;
+  line-height: 1.7;
+}
+#tutorialClose {
+  font-size: 12px;
+  background: #bdcec9;
+  color: #172c33;
+  border-color: #cadbd7;
+  padding: 14px 20px;
+}
+.manual-heading .eyebrow {
+  color: #a5bdbb;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+}
+@media (max-width: 1050px) {
+  .survival-manual {
+    padding: 24px;
+  }
+  .manual-cards {
+    gap: 10px;
+  }
+  .manual-cards article {
+    padding: 14px;
+  }
+  .manual-heading h2 {
+    font-size: 27px;
+  }
+}
+@media (max-height: 750px) {
+  .survival-manual {
+    padding: 23px 28px;
+  }
+  .manual-cards {
+    margin: 18px 0;
+    gap: 10px;
+  }
+  .manual-cards article {
+    padding: 12px 15px;
+    gap: 8px;
+  }
+  .manual-cards svg {
+    width: 33px;
+    height: 33px;
+  }
+  .manual-cards h3 {
+    margin-bottom: 8px;
+  }
+  .manual-cards p {
+    font-size: 10px;
+    line-height: 1.65;
+    margin: 5px 0;
+  }
+  .manual-footer {
+    padding-top: 14px;
+  }
+  .manual-heading h2 {
+    font-size: 27px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .riutex-reactor i {
+    animation: none;
+    transform: translateY(-45vh);
+  }
+}
