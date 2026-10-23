@@ -1,8 +1,10 @@
-# Primera Persona POV · v0.16.1
+# Primera Persona POV · v0.16.2
 
 ## Uso
 
 La casilla «Primera Persona POV» está en Opciones y en Pausa. Arranca desactivada y se guarda como preferencia del navegador, separada del progreso de la campaña. Puedes volver a topdown en el mismo lugar y con los mismos recursos.
+
+Pulsa **Bloquear ratón** en la ayuda inferior para capturar el cursor en primera persona. **Esc** lo libera y pausa. El botón reaparece al reanudar; si el navegador rechaza la captura, puedes reintentar o usar el arrastre con clic derecho.
 
 W/S avanza o retrocede respecto de la cámara; A/D hace desplazamiento lateral. Shift corre. El ratón controla la mirada en sentido normal (subir mira arriba, bajar mira abajo) tras hacer clic en la escena; el clic que adquiere el control no dispara. Esc libera y pausa una sola vez. Las ventanas, transiciones, muerte, pérdida de foco y cambio de pestaña limpian el disparo y liberan el control. Reanudar requiere un clic explícito para recuperar el ratón. Si el bloqueo del puntero se rechaza, se puede mirar arrastrando con clic derecho o mediante flechas que no estén asignadas a un poder; un clic derecho breve golpea.
 

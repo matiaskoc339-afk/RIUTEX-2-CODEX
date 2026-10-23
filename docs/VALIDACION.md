@@ -1,3 +1,13 @@
+# Validación de v0.16.2 · Botón Bloquear ratón
+
+Botón visible durante la partida en POV cuando el cursor está libre. Un clic captura la mirada sin disparar ni consumir recursos. Esc libera el cursor y pausa; reanudar vuelve a mostrar el botón. Si el navegador rechaza la captura, se conserva la alternativa y el botón permite reintentar. La vista clásica no muestra el botón.
+
+- Motor, integración y mapas repetidos: **263 pruebas**, **103 comprobaciones** y **15 mapas**, sin fallos.
+- Navegador repetido: **129 comprobaciones en 4 grupos**: botón/captura 15, controles y recorrido POV 83, mirada/visibilidad 14 y HTML integrado 17. Sin errores JavaScript.
+- Los demás grupos se conservan como historial; no se repitió la campaña completa para este cambio de interfaz.
+
+---
+
 # Validación de v0.16.1 · Ajuste de cámara y visibilidad POV
 
 Solo en primera persona se elimina la máscara de estancias sin visitar. El mundo visible sigue limitado por paredes, puertas cerradas y cobertura. El mapa conserva el descubrimiento al entrar; la vista clásica mantiene su oscuridad de exploración. Ratón y flechas tienen mirada vertical normal.

@@ -1,5 +1,5 @@
 {
-  "version": "0.16.1",
+  "version": "0.16.2",
   "date": "2026-10-23",
   "scope": "RIUTEX 2 completo: mansión, hospital, fábrica, castillo, laboratorio UMBRAL, Wren/ORIGEN y dos epílogos",
   "system_tests": 263,
@@ -76,14 +76,13 @@
     "endings": 2
   },
   "browser_groups": {
+    "pov-capture-browser-results.json": 15,
     "pov-patch-browser-results.json": 14,
     "pov-browser-results.json": 83,
-    "pov-effects-browser-results.json": 33,
-    "horror-browser-results.json": 18,
     "standalone-blue-results.json": 17
   },
-  "browser_checks_total": 165,
-  "standalone_headless_fps": 23.2,
+  "browser_checks_total": 129,
+  "standalone_headless_fps": 59.0,
   "file_access": {
     "attempted": true,
     "status": "blocked_by_environment",
@@ -399,7 +398,7 @@
     "weapon": "r98",
     "reserve": 11
   },
-  "notes": "v0.16.1 corrige el sentido vertical de ratón/flechas y elimina únicamente en POV la máscara de salas sin visitar, manteniendo oclusión física, descubrimiento del plano y oscuridad clásica. v0.16 añade la opción Primera Persona POV en ajustes y pausa, con vista clásica predeterminada, materiales, enemigos frontales, armas y avisos proyectados. v0.15.1 renueva exclusivamente la presentación del menú; se elimina la figura humana y se intensifican disparos, material de sangre, entorno y botones. v0.15 conserva balance porcentual, opciones persistentes y fundidos. Rutas, mecanismos y finales con movimiento, puertas y botones reales; enemigos retirados solo para aislar geometría. Combates independientes con IA y recursos preparados finitos. El controlador conoce posiciones y avisos y no representa una primera partida humana ni valida los recursos de la campaña íntegra. UMBRAL se recorre en sus 26 espacios; sus tres cámaras no permiten eludir cierres. Wren atraviesa tres mutaciones sin saltos. El GL-6 tiene identidad independiente de la migración LG-4/FL-4, granadas fabricables, explosión y cuatro mejoras. La decisión del antídoto se guarda, elimina poderes mutantes y el brazo reconstruido al curarse, o conserva la transformación. Ambos finales caminan por la calle y muestran el helicóptero antes del resultado. Capturas preparadas de formas no se cuentan como combates. La inyección de vida máxima sustituye al rifle del hospital. HTML integrado probado por HTTP sin recursos externos; Chromium administrado bloquea file://, intento que no se cuenta como superado.",
+  "notes": "v0.16.2 añade el botón Bloquear ratón, visible solo en POV sin captura y durante la partida; Esc libera y pausa. v0.16.1 corrige el sentido vertical de ratón/flechas y elimina únicamente en POV la máscara de salas sin visitar, manteniendo oclusión física, descubrimiento del plano y oscuridad clásica. v0.16 añade la opción Primera Persona POV en ajustes y pausa, con vista clásica predeterminada, materiales, enemigos frontales, armas y avisos proyectados. v0.15.1 renueva exclusivamente la presentación del menú; se elimina la figura humana y se intensifican disparos, material de sangre, entorno y botones. v0.15 conserva balance porcentual, opciones persistentes y fundidos. Rutas, mecanismos y finales con movimiento, puertas y botones reales; enemigos retirados solo para aislar geometría. Combates independientes con IA y recursos preparados finitos. El controlador conoce posiciones y avisos y no representa una primera partida humana ni valida los recursos de la campaña íntegra. UMBRAL se recorre en sus 26 espacios; sus tres cámaras no permiten eludir cierres. Wren atraviesa tres mutaciones sin saltos. El GL-6 tiene identidad independiente de la migración LG-4/FL-4, granadas fabricables, explosión y cuatro mejoras. La decisión del antídoto se guarda, elimina poderes mutantes y el brazo reconstruido al curarse, o conserva la transformación. Ambos finales caminan por la calle y muestran el helicóptero antes del resultado. Capturas preparadas de formas no se cuentan como combates. La inyección de vida máxima sustituye al rifle del hospital. HTML integrado probado por HTTP sin recursos externos; Chromium administrado bloquea file://, intento que no se cuenta como superado.",
   "origin_combat": {
     "won": true,
     "state": "play",
@@ -452,37 +451,20 @@
     "previous_browser_suites": "Los escenarios de lógica y recorrido aíslan la presentación; polish-browser verifica los fundidos con requestAnimationFrame real."
   },
   "regression_baseline": {
-    "version": "0.16.0",
+    "version": "0.16.1",
     "system_tests": 263,
     "integration_checks": 103,
     "map_validations": 15,
     "browser_groups": {
-      "browser-blue-results.json": 24,
-      "horror-browser-results.json": 18,
-      "revision-browser-results.json": 14,
-      "presentation-browser-results.json": 18,
-      "adventure-browser-results.json": 29,
-      "fielddesk-browser-results.json": 42,
-      "survival-browser-results.json": 38,
-      "gold-browser-results.json": 11,
-      "finale-browser-results.json": 38,
-      "works-browser-results.json": 61,
-      "depths-browser-results.json": 29,
-      "depths-visual-results.json": 7,
-      "flamethrower-browser-results.json": 16,
-      "castle-combat-results.json": 4,
-      "castle-browser-results.json": 76,
-      "castle-visual-results.json": 17,
-      "endgame-browser-results.json": 63,
-      "endgame-visual-results.json": 12,
-      "standalone-blue-results.json": 17,
-      "polish-browser-results.json": 41,
+      "pov-patch-browser-results.json": 14,
       "pov-browser-results.json": 83,
-      "pov-effects-browser-results.json": 33
+      "pov-effects-browser-results.json": 33,
+      "horror-browser-results.json": 18,
+      "standalone-blue-results.json": 17
     },
-    "browser_checks_total": 691
+    "browser_checks_total": 165
   },
-  "validation_scope": "Motor, integración y mapas completos; navegador enfocado en visibilidad POV, mirada vertical, controles, efectos/epílogos, oscuridad clásica y HTML integrado. El resto de la campaña conserva su historial v0.16.0.",
+  "validation_scope": "Motor, integración y mapas completos; navegador enfocado en el botón Bloquear ratón, captura real/rechazada, controles POV, visibilidad y HTML integrado. Los otros grupos conservan sus validaciones anteriores.",
   "pov": {
     "optional": true,
     "default_enabled": false,
@@ -499,6 +481,7 @@
     "unvisited_rooms_visible_through_open_doors": true,
     "walls_and_closed_doors_occlude": true,
     "map_discovery_unchanged": true,
-    "topdown_visibility_unchanged": true
+    "topdown_visibility_unchanged": true,
+    "capture_button": "povCaptureButton"
   }
 }

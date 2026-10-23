@@ -5096,6 +5096,11 @@ body.scene-changing #hud{visibility:hidden}
 #pause{overflow-y:auto;padding-top:20px;padding-bottom:20px;justify-content:safe center}
 #povControlHint{position:fixed;z-index:7;left:50%;bottom:18px;transform:translateX(-50%);width:max-content;max-width:min(640px,90vw);padding:8px 14px;color:#bbc9c5;background:#081115cf;border:1px solid #708b8250;border-radius:2px;text-align:center;font:500 13px/1.45 Rajdhani,sans-serif;letter-spacing:.025em;pointer-events:none;box-shadow:0 4px 18px #0007}
 body.pov-playing #cv{cursor:default}
+#povControlHint{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+#povControlHint.hidden{display:none}
+#povCaptureButton{pointer-events:auto;flex-shrink:0;min-height:34px;margin:0;padding:6px 14px;border:1px solid #8eaea7;background:#182c30;color:#e3efe8;font:600 14px/1.2 Rajdhani,sans-serif;letter-spacing:.04em;cursor:pointer}
+#povCaptureButton:hover{background:#2c464b;border-color:#c3ddd2}
+#povCaptureButton:focus-visible{outline:2px solid #d6eddd;outline-offset:3px}
 body.pov-playing.pov-captured #cv{cursor:none}
 body.pov-playing.pov-dragging #cv{cursor:grabbing}
 body.pov-enabled #fog{opacity:.55}
@@ -18684,7 +18689,7 @@ const MenuScene = {
     menu.querySelector('h1').innerHTML='<span>RIUTEX</span><em>2</em>';menu.querySelector('h1').setAttribute('aria-label','RIUTEX 2');
     menu.querySelector('h2').textContent='EL CUSTODIO';
     UI.$('bNew').querySelectorAll('span')[1].textContent='Nueva partida';
-    menu.querySelector('.menu-footer').innerHTML='<span>HISTORIA COMPLETA / v0.16.1</span><span>EL SILENCIO NO TE SALVARÁ.</span><span>CUATRO FASES</span>';menu.appendChild(menu.querySelector('.menu-footer'));
+    menu.querySelector('.menu-footer').innerHTML='<span>HISTORIA COMPLETA / v0.16.2</span><span>EL SILENCIO NO TE SALVARÁ.</span><span>CUATRO FASES</span>';menu.appendChild(menu.querySelector('.menu-footer'));
     const opt=document.createElement('button');opt.id='bMenuOptions';opt.innerHTML='<span class="button-index">03</span><span>Opciones</span><span class="button-arrow">↗</span>';menu.querySelector('.menu-actions').appendChild(opt);
     const panel=document.createElement('section');panel.id='menuOptions';panel.className='screen hidden';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-labelledby','presentationOptionsTitle');
     panel.innerHTML='<div class="presentation-options"><span class="eyebrow">RIUTEX 2 / CONFIGURACIÓN</span><h2 id="presentationOptionsTitle">OPCIONES</h2><label for="menuVolume">Volumen <output id="menuVolumeValue"></output><input id="menuVolume" type="range" min="0" max="100" step="1"></label><label for="menuReduceMotion">Reducir movimiento y destellos<input id="menuReduceMotion" type="checkbox"></label><p>WASD · moverte &nbsp; / &nbsp; Ratón · apuntar y disparar<br>Shift · correr &nbsp; / &nbsp; E · interactuar &nbsp; / &nbsp; R · recargar<br>Tab · maletín &nbsp; / &nbsp; J · documentos &nbsp; / &nbsp; M · mapa<br>K · habilidades &nbsp; / &nbsp; Esc · pausa</p><button id="bMenuOptionsClose">Volver al menú</button></div>';
@@ -19230,7 +19235,7 @@ const FirstPerson = {
       const text=this.armed&&this.fallback
         ?'Arrastra con clic derecho para mirar · Flechas: girar · Clic derecho corto: golpe'
         :'Clic para controlar la mirada · WASD: moverte · Flechas: girar · Esc: pausa';
-      if(this.hint.textContent!==text)this.hint.textContent=text;
+      if(this.hintText.textContent!==text)this.hintText.textContent=text;
     }
   },
   requestCapture(g=Game){
@@ -19275,7 +19280,11 @@ const FirstPerson = {
     const menu=UI.$('menuOptions')?.querySelector('.presentation-options');
     if(menu){const row=makeSetting('menuFirstPerson','menuFirstPersonHelp');menu.insertBefore(row,UI.$('bMenuOptionsClose'));this.menuCheck=UI.$('menuFirstPerson');this.menuCheck.onchange=()=>this.setEnabled(this.menuCheck.checked);}
     const pause=UI.$('pause');if(pause){pause.appendChild(makeSetting('pauseFirstPerson','pauseFirstPersonHelp'));this.pauseCheck=UI.$('pauseFirstPerson');this.pauseCheck.onchange=()=>this.setEnabled(this.pauseCheck.checked);}
-    this.hint=document.createElement('div');this.hint.id='povControlHint';this.hint.className='hidden';this.hint.setAttribute('role','status');document.body.appendChild(this.hint);
+    this.hint=document.createElement('div');this.hint.id='povControlHint';this.hint.className='hidden';this.hint.setAttribute('role','status');
+    this.hintText=document.createElement('span');this.hint.appendChild(this.hintText);
+    this.captureButton=document.createElement('button');this.captureButton.id='povCaptureButton';this.captureButton.type='button';this.captureButton.textContent='Bloquear ratón';this.captureButton.title='Controla la mirada con el ratón. Esc lo libera y pausa.';
+    this.captureButton.onclick=e=>{e.preventDefault();e.stopPropagation();Sound.unlock();this.requestCapture(Game);};
+    this.hint.appendChild(this.captureButton);document.body.appendChild(this.hint);
     const stop=e=>{e.preventDefault();e.stopImmediatePropagation();};
     window.addEventListener('keydown',e=>{
       if(!this.active(Game))return;

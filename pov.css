@@ -8,6 +8,11 @@
 #pause{overflow-y:auto;padding-top:20px;padding-bottom:20px;justify-content:safe center}
 #povControlHint{position:fixed;z-index:7;left:50%;bottom:18px;transform:translateX(-50%);width:max-content;max-width:min(640px,90vw);padding:8px 14px;color:#bbc9c5;background:#081115cf;border:1px solid #708b8250;border-radius:2px;text-align:center;font:500 13px/1.45 Rajdhani,sans-serif;letter-spacing:.025em;pointer-events:none;box-shadow:0 4px 18px #0007}
 body.pov-playing #cv{cursor:default}
+#povControlHint{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+#povControlHint.hidden{display:none}
+#povCaptureButton{pointer-events:auto;flex-shrink:0;min-height:34px;margin:0;padding:6px 14px;border:1px solid #8eaea7;background:#182c30;color:#e3efe8;font:600 14px/1.2 Rajdhani,sans-serif;letter-spacing:.04em;cursor:pointer}
+#povCaptureButton:hover{background:#2c464b;border-color:#c3ddd2}
+#povCaptureButton:focus-visible{outline:2px solid #d6eddd;outline-offset:3px}
 body.pov-playing.pov-captured #cv{cursor:none}
 body.pov-playing.pov-dragging #cv{cursor:grabbing}
 body.pov-enabled #fog{opacity:.55}

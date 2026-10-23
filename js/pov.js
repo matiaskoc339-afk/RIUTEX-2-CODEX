@@ -62,7 +62,7 @@ const FirstPerson = {
       const text=this.armed&&this.fallback
         ?'Arrastra con clic derecho para mirar · Flechas: girar · Clic derecho corto: golpe'
         :'Clic para controlar la mirada · WASD: moverte · Flechas: girar · Esc: pausa';
-      if(this.hint.textContent!==text)this.hint.textContent=text;
+      if(this.hintText.textContent!==text)this.hintText.textContent=text;
     }
   },
   requestCapture(g=Game){
@@ -107,7 +107,11 @@ const FirstPerson = {
     const menu=UI.$('menuOptions')?.querySelector('.presentation-options');
     if(menu){const row=makeSetting('menuFirstPerson','menuFirstPersonHelp');menu.insertBefore(row,UI.$('bMenuOptionsClose'));this.menuCheck=UI.$('menuFirstPerson');this.menuCheck.onchange=()=>this.setEnabled(this.menuCheck.checked);}
     const pause=UI.$('pause');if(pause){pause.appendChild(makeSetting('pauseFirstPerson','pauseFirstPersonHelp'));this.pauseCheck=UI.$('pauseFirstPerson');this.pauseCheck.onchange=()=>this.setEnabled(this.pauseCheck.checked);}
-    this.hint=document.createElement('div');this.hint.id='povControlHint';this.hint.className='hidden';this.hint.setAttribute('role','status');document.body.appendChild(this.hint);
+    this.hint=document.createElement('div');this.hint.id='povControlHint';this.hint.className='hidden';this.hint.setAttribute('role','status');
+    this.hintText=document.createElement('span');this.hint.appendChild(this.hintText);
+    this.captureButton=document.createElement('button');this.captureButton.id='povCaptureButton';this.captureButton.type='button';this.captureButton.textContent='Bloquear ratón';this.captureButton.title='Controla la mirada con el ratón. Esc lo libera y pausa.';
+    this.captureButton.onclick=e=>{e.preventDefault();e.stopPropagation();Sound.unlock();this.requestCapture(Game);};
+    this.hint.appendChild(this.captureButton);document.body.appendChild(this.hint);
     const stop=e=>{e.preventDefault();e.stopImmediatePropagation();};
     window.addEventListener('keydown',e=>{
       if(!this.active(Game))return;

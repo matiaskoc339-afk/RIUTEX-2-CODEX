@@ -1,22 +1,24 @@
-# RIUTEX 2 · El Custodio · Historia completa · v0.16.1
+# RIUTEX 2 · El Custodio · Historia completa · v0.16.2
 
 Esta versión amplía **RIUTEX2_fase1_v0.2.2.zip**, la base que aportaste. Conserva su motor, historia, protagonistas y persecución. El contenido jugable comprende la mansión, el hospital las cloacas y fábrica de San Gabriel y el museo-fortaleza de Valcárcel y el laboratorio UMBRAL con sus dos desenlaces.
 
 ## Jugar
 
-La entrega incluye [RIUTEX2_Historia_Completa_v0.16.1.html](dist/RIUTEX2_Historia_Completa_v0.16.1.html), con gráficos, estilos y código integrados y sin descargas externas. Ábrelo en un navegador de escritorio con teclado y ratón. El sonido comienza con la primera interacción.
+La entrega incluye [RIUTEX2_Historia_Completa_v0.16.2.html](dist/RIUTEX2_Historia_Completa_v0.16.2.html), con gráficos, estilos y código integrados y sin descargas externas. Ábrelo en un navegador de escritorio con teclado y ratón. El sonido comienza con la primera interacción.
 
 Para ejecutar el proyecto fuente: `npm start` (o `python3 -m http.server 8000`). No hay dependencias de npm que instalar. Los guardados se almacenan en el navegador y dependen de la ubicación desde la que abras el juego. Esta edición utiliza guardados propios; conserva los de v0.2.2 sin importarlos a mapas que han cambiado.
 
-## Primera Persona POV · v0.16.1
+## Primera Persona POV · v0.16.2
 
 En **Opciones**, activa **Primera Persona POV**. También puedes cambiarla desde **Esc → Pausa** durante la partida. Empieza desactivada: la vista clásica sigue disponible. El ajuste se recuerda en el navegador y puedes cambiarlo sin reiniciar ni perder progreso.
+
+Pulsa **Bloquear ratón** en la ayuda inferior para capturar el cursor en primera persona. **Esc** lo libera y pausa. El botón reaparece al reanudar; si el navegador rechaza la captura, puedes reintentar o usar el arrastre con clic derecho.
 
 En POV, **W/S** avanza y retrocede; **A/D** se desplaza de lado. Haz clic en la escena para controlar la mirada con el ratón. Ese primer clic captura el control y no gasta una bala. **Esc** libera el ratón y pausa; abrir inventario, documentos, mapa, habilidades o un mecanismo también libera el cursor. Si el navegador no permite capturarlo, usa **arrastre con clic derecho** para mirar o las **flechas** para girar. Un clic derecho breve conserva el golpe.
 
 Las paredes, puertas y muebles tienen profundidad; los enemigos tienen siluetas frontales y las armas se ven en las manos. Los materiales distinguen mansión, hospital, fábrica, castillo, laboratorio y calle. Los avisos de ataques y poderes se proyectan sobre el suelo, con las mismas posiciones y tamaños del motor. La primera huida muestra una señal orientada respecto de la cámara.
 
-En v0.16.1, el ratón y las flechas miran arriba/abajo en sentido normal. Solo en POV puedes ver habitaciones aún no visitadas a través de puertas abiertas; las paredes y puertas cerradas siguen tapando la vista. El plano conserva su descubrimiento al entrar y la vista clásica conserva su oscuridad de exploración.
+En v0.16.2, el ratón y las flechas miran arriba/abajo en sentido normal. Solo en POV puedes ver habitaciones aún no visitadas a través de puertas abiertas; las paredes y puertas cerradas siguen tapando la vista. El plano conserva su descubrimiento al entrar y la vista clásica conserva su oscuridad de exploración.
 
 La simulación, los costes de armas y habilidades, el inventario, los puzles, las colisiones y los guardados se comparten entre ambas perspectivas. Detalles técnicos y alcance de pruebas: [docs/PRIMERA_PERSONA.md](docs/PRIMERA_PERSONA.md).
 

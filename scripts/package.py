@@ -12,7 +12,7 @@ assert 'class SpiderMatriarch' in text and 'const ProtectionSuit' in text and 'c
 result=json.loads((root/'docs/RESULTADOS.json').read_text());assert result['version']==version
 files=[root/n for n in ['.gitignore','artifacts/.gitkeep','README.md','RIUTEX2_LEEME.md','package.json','index.html',*styles]]
 for d in ['assets','docs','js','planos','scripts','tests']:files.extend(p for p in (root/d).rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix!='.pyc')
-logs=['all-tests-v0161.txt','pov-patch-browser-v0161.txt','pov-browser-v0161.txt','pov-effects-browser-v0161.txt','horror-browser-v0161.txt','standalone-v0161.txt','all-tests-v0160.txt','browser-suite-v0160.txt','maps-v015.txt','browser-diagnostic-unseeded-v0160.txt']
+logs=['all-tests-v0162.txt','pov-capture-browser-v0162.txt','pov-patch-browser-v0162.txt','pov-browser-v0162.txt','standalone-v0162.txt','all-tests-v0161.txt','pov-patch-browser-v0161.txt','pov-browser-v0161.txt','pov-effects-browser-v0161.txt','horror-browser-v0161.txt','standalone-v0161.txt','all-tests-v0160.txt','browser-suite-v0160.txt','maps-v015.txt','browser-diagnostic-unseeded-v0160.txt']
 shots=['pov-unvisited-office-v0161.png','menu-quiet-v016.png','menu-shot-v016.png','menu-options-v016.png','pov-mansion-v016.png','pov-hospital-v016.png','pov-hospitalworks-v016.png','pov-hospitalcastle-v016.png','pov-hospitalumbra-v016.png','pov-carnicero-2-v016.png','pov-matriarca-3-v016.png','pov-regente-2-v016.png','pov-wren-3-v016.png','pov-effects-wren-cues-v016.png','pov-effects-street-cure-v016.png','pov-effects-street-mutate-v016.png','standalone-pov-v016.png']
 shutil.copyfile(html,out/(stem+'.html'))
 with zipfile.ZipFile(out/(stem+'.zip'),'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
