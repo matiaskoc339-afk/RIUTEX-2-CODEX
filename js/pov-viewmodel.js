@@ -89,7 +89,6 @@ const POVViewmodel={
     c.fillStyle=grad;c.strokeStyle='#192a35';c.lineWidth=1.5;c.beginPath();c.moveTo(elbow[0]-nx*35,elbow[1]-ny*35);c.quadraticCurveTo(mx-nx*37,my-ny*37,wrist[0]-nx*20,wrist[1]-ny*20);c.lineTo(wrist[0]+nx*20,wrist[1]+ny*20);c.quadraticCurveTo(mx+nx*33,my+ny*33,elbow[0]+nx*35,elbow[1]+ny*35);c.closePath();c.fill();c.stroke();
     POVArt.line(c,[[elbow[0]-27,elbow[1]-2],[elbow[0]+27,elbow[1]-2]],'#4c6266',5);
     if(h.veins){c.save();c.globalAlpha=h.infected?.7:.25;POVArt.line(c,[[elbow[0],elbow[1]-8],[wrist[0]-6,wrist[1]+29],[wrist[0]+6,wrist[1]+9]],'#60b6e8',2);POVArt.line(c,[[wrist[0]-6,wrist[1]+29],[wrist[0]-20,wrist[1]+41]],'#4285b5',1.3);c.restore();}
-    if(p.flash>0){c.save();c.globalAlpha=.12;POVArt.line(c,[[elbow[0]+13,elbow[1]-8],[wrist[0]+12,wrist[1]+4]],'#ffcb89',7);c.restore();}
   },
   palm(c,h){
     c.save();c.translate(h.x,h.y);c.rotate(h.angle);c.scale(h.side*h.scale,h.scale);
@@ -123,7 +122,6 @@ const POVViewmodel={
     if(plan.id){const muzzle=this.gun(plan.id);this.stats.meshFaces=this.faces.length;this.paintGun(c);
       if(plan.id==='flamethrower'){const pts=[[-29,-12,-10],[-68,-32,18],[-40,-22,99],[5,7,135]].map(v=>this.point(...v));POVArt.line(c,pts,'#1d292d',9);POVArt.line(c,pts,'#877956',3);}
       for(const hand of plan.hands)if(hand.grip)this.fingers(c,hand);
-      if(p.flash>0){const m=this.point(...muzzle);POVArt.muzzle(c,m[0],m[1],plan.id==='flamethrower'?52:35,p,plan.id==='flamethrower');}
     }
     for(const hand of plan.hands){if(hand.attacking)this.palm(c,hand);if(plan.blade&&(hand.side<0||plan.predator))this.claws(c,hand);}
     if(plan.missing){POVArt.polygon(c,[[121,650],[183,650],[184,627],[155,615],[130,624]],'#605b55','#26343a');POVArt.line(c,[[130,630],[179,639]],'#b7b0a0',10);POVArt.line(c,[[145,627],[162,635]],'#6d3b40',5);}

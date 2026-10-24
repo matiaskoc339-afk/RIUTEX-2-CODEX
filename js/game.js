@@ -322,7 +322,7 @@ const Game = {
     ctx.drawImage(this.lc, 0, 0);
     if (p.poison > 0) { ctx.fillStyle = 'rgba(50,140,30,' + Math.min(.22, p.poison * .04) + ')'; ctx.fillRect(0, 0, W, H); }
     if (p.sense > 0) for (const e of this.enemies) { const d = Math.hypot(e.x - p.x, e.y - p.y); if (e.dead || d > 460) continue; ctx.strokeStyle = 'rgba(90,205,255,.9)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(e.x - cam.x, e.y - cam.y, e.r + 6 + Math.sin(this.t * 8) * 2, 0, 6.283); ctx.stroke(); } // Instinto
-    if (p.flash > 0) { ctx.fillStyle = 'rgba(255,220,150,.05)'; ctx.fillRect(0, 0, W, H); }
+    if (!isR2lvl(this.lvl) && p.flash > 0) { ctx.fillStyle = 'rgba(255,220,150,.05)'; ctx.fillRect(0, 0, W, H); }
   },
   drawItem(ctx, i) {
     ctx.save(); ctx.translate(i.x, i.y);

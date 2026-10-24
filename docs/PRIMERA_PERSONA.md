@@ -1,4 +1,4 @@
-# Primera Persona POV · v0.20.0
+# Primera Persona POV · v0.20.1
 
 ## Uso y ratón
 
@@ -45,3 +45,9 @@ Los avisos de los jefes conservan sus mismos círculos, arcos y líneas en las c
 Las pruebas específicas cubren controles y captura nativa, anatomía de las especies y mutaciones, ausencia de sprites en las mallas, animación, utilería y balística con altura. Las pruebas de navegador del render preparan escenas para comprobar la integración WebGL y los cambios de nivel. Los grupos antiguos que comparaban dibujos frontales pertenecen al render anterior y no prueban la geometría actual. Los resultados ejecutados y su alcance se registran en [VALIDACION.md](VALIDACION.md) y [RESULTADOS.json](RESULTADOS.json).
 
 Los escenarios preparados no equivalen a una primera partida humana completa. El render de Chromium headless sirve para detectar errores e inspeccionar imágenes; no garantiza una tasa de FPS en todos los equipos. El HTML autocontenido se prueba por HTTP, sin descargas externas.
+
+## Recogibles y captura en v0.20.1
+
+Los disparos conservan retroceso e impactos y dejan de producir fogonazo, luz en manos o incremento de linterna. Los recogibles tienen halo sobre el suelo y una señal pequeña en 3D con profundidad; en topdown conservan el mismo criterio de recogida. Se ocultan al recoger, fuera del alcance visual o tras puertas y paredes. Reducción de movimiento mantiene la señal estática.
+
+Tras un rechazo de captura, la siguiente tecla de desplazamiento o clic puede reintentar con interacción real, una vez por retorno al juego. Se mantiene el respaldo si el navegador sigue rechazando la API; no se reintenta en cada cuadro. Perder el foco pausa, y Reanudar recupera el cursor automáticamente.

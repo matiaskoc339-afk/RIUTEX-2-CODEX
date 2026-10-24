@@ -32,3 +32,10 @@ test('Abrir habilidades libera una captura activa y no la recupera mientras el m
  sandbox.document.pointerLockElement=null;if(original)sandbox.document.exitPointerLock=original;else delete sandbox.document.exitPointerLock;fp.ignoreUnlock=false;
 });
 function UI(screen){return X.UI.screen(screen);}
+test('Una interacción recupera una captura rechazada sin botón y sin reintentos continuos',()=>{
+ start();let requests=0;native(()=>{requests++;throw Error('activation required');},()=>{
+  fp.wantCapture(g);assert.equal(requests,1);assert.ok(fp.captureFromGesture(g));assert.equal(requests,2);
+  for(let i=0;i<60;i++)fp.tick(1/60,g);assert.equal(requests,2);assert.equal(fp.captureFromGesture(g),false);
+  fp.release(g);fp.wantCapture(g);assert.equal(requests,3);assert.ok(fp.captureFromGesture(g));assert.equal(requests,4);
+ });
+});

@@ -5,11 +5,9 @@ const POV3DViewmodel={
     if(this.ready)return;const T=THREE,k=core.kitAPI;this.k=k;
     this.scene=new T.Scene();this.camera=new T.PerspectiveCamera(58,innerWidth/innerHeight,.015,12);
     this.scene.add(new T.HemisphereLight('#c4d3df','#242028',.88));const light=new T.DirectionalLight('#f4ddc4',1.35);light.position.set(-1,2,1);this.scene.add(light);
-    this.warm=new T.PointLight('#ffcc88',0,6,1);this.warm.position.set(.2,.1,-.6);this.scene.add(this.warm);
     this.weaponRoot=new T.Group();this.scene.add(this.weaponRoot);
     this.skin=k.mat('#bd9679',.76),this.skinShadow=k.mat('#8e6d58',.82),this.knuckle=k.mat('#c5a28a',.78),this.blue=k.mat('#638da9',.72),this.blueDark=k.mat('#35566e',.79),this.blueKnuckle=k.mat('#789aaf',.74),this.sleeve=k.mat('#27363d',.88),this.vein=k.mat('#3c91bd',.58,0,'#174765'),this.bone=k.mat('#bed0d2',.57);
     this.arms=[this.hand(1),this.hand(-1)];for(const a of this.arms)this.scene.add(a.root);
-    this.flash=k.sphere(this.scene,0,0,-1,.08,.08,.08,k.mat('#ffd99a',.3,0,'#ffc46e'));this.flash.material=new T.MeshBasicMaterial({color:'#ffe9b5',transparent:true,opacity:.9});this.flash.castShadow=false;this.flash.visible=false;
     this.ready=true;
   },
   hand(side){
@@ -66,8 +64,6 @@ const POV3DViewmodel={
       const shoulder=[isLeft?-.63:.67,-.82,-.46],elbow=[isLeft?-.40:.43,-.58,-.68],wrist=[position.x,position.y-.045,position.z];
       this.segment(a.sleeve,shoulder,elbow);this.segment(a.forearm,elbow,wrist);this.segment(a.veinRod,[elbow[0]-.025,elbow[1],elbow[2]+.04],[wrist[0]-.015,wrist[1],wrist[2]+.027]);
     }
-    this.warm.intensity=p.flash>0?4:0;this.flash.visible=p.flash>0&&!!this.weaponMesh;
-    if(this.flash.visible){this.flash.position.copy(this.weaponMesh.userData.muzzle).applyMatrix4(this.weaponRoot.matrixWorld);this.flash.scale.setScalar(id==='flamethrower'?1.5:1);}
     core.renderer.clearDepth();core.renderer.render(this.scene,this.camera);
     core.stats.hands=this.arms.filter(a=>a.root.visible).length;core.stats.weapon3D=id;core.stats.armInfected=s.infected;
   }

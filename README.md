@@ -1,22 +1,30 @@
-# RIUTEX 2 · El Custodio · Historia completa · v0.20.0
+# RIUTEX 2 · El Custodio · Historia completa · v0.20.1
 
 Esta versión amplía **RIUTEX2_fase1_v0.2.2.zip**, la base que aportaste. Conserva su motor, historia, protagonistas y persecución. El contenido jugable comprende la mansión, el hospital las cloacas y fábrica de San Gabriel y el museo-fortaleza de Valcárcel y el laboratorio UMBRAL con sus dos desenlaces.
 
 ## Jugar
 
-La entrega incluye [RIUTEX2_Historia_Completa_v0.20.0.html](dist/RIUTEX2_Historia_Completa_v0.20.0.html), con gráficos, estilos y código integrados y sin descargas externas. Ábrelo en un navegador de escritorio con teclado y ratón. El modo 3D requiere WebGL; la vista clásica sigue disponible. El sonido comienza con la primera interacción.
+La entrega incluye [RIUTEX2_Historia_Completa_v0.20.1.html](dist/RIUTEX2_Historia_Completa_v0.20.1.html), con gráficos, estilos y código integrados y sin descargas externas. Ábrelo en un navegador de escritorio con teclado y ratón. El modo 3D requiere WebGL; la vista clásica sigue disponible. El sonido comienza con la primera interacción.
 
 Para ejecutar el proyecto fuente: `npm start` (o `python3 -m http.server 8000`). No hay dependencias de npm que instalar. Los guardados se almacenan en el navegador y dependen de la ubicación desde la que abras el juego. Esta edición utiliza guardados propios; conserva los de v0.2.2 sin importarlos a mapas que han cambiado.
 
-## Guardado web e itch.io · v0.20.0
+## Ajustes de v0.20.1
 
-Para itch.io usa [RIUTEX2_itchio_v0.20.0.zip](dist/RIUTEX2_itchio_v0.20.0.zip): contiene un `index.html` integrado en la raíz. Se genera con `npm run build`. Sube ese ZIP como juego HTML para navegador y permite pantalla completa.
+Se retira el destello al disparar en RIUTEX 2, incluida la subida de luz del entorno y las manos. Se conservan el retroceso, los trazadores y los impactos. Los recogibles tienen un halo discreto y una pequeña señal luminosa en ambas perspectivas; respetan paredes, puertas y reducción de movimiento.
+
+El POV recupera la captura con la siguiente pulsación de movimiento o clic si el navegador rechazó el primer intento. Las ventanas liberan el cursor y volver al juego lo captura automáticamente. Perder el foco mantiene la pausa; Reanudar recupera el ratón sin otro botón.
+
+La fábrica pasa de 42 a 58 enemigos ambientales, distribuidos por sus tres sectores. Cuatro recorren patrullas cortas y las abandonan al detectar al jugador. El refugio sigue protegido y hay seis suministros adicionales finitos fuera de él. Las bajas mantienen sus valores pequeños y no reaparecen al cargar.
+
+## Guardado web e itch.io · v0.20.1
+
+Para itch.io usa [RIUTEX2_itchio_v0.20.1.zip](dist/RIUTEX2_itchio_v0.20.1.zip): contiene un `index.html` integrado en la raíz. Se genera con `npm run build`. Sube ese ZIP como juego HTML para navegador y permite pantalla completa.
 
 La sesión se guarda cada diez segundos, al cerrar u ocultar la página, al pausar o volver al menú y tras recoger objetos, fabricar, consumir muestras o comprar habilidades. **Continuar → Continuar sesión** recupera posición, recursos, inventario, documentos, habilidades, puzles, enemigos heridos y fases de jefes. Los datos se comprimen para evitar llenar la cuota del navegador, conservando la lectura de guardados anteriores. Los tres huecos de las camillas y el punto de Reintentar se mantienen separados. Tras morir, la sesión continúa desde ese punto de control.
 
 **Pausa → Partidas y copias** permite descargar e importar una copia JSON. Si el navegador bloquea el almacenamiento, el juego avisa y ofrece la copia. El progreso pertenece al mismo navegador y origen web; no se sincroniza con la cuenta de itch.io. Borrar datos o usar una sesión privada puede eliminarlo. [Publicación y alcance de las pruebas](docs/ITCHIO_GUARDADO.md).
 
-## Primera persona 3D · v0.20.0
+## Primera persona 3D · v0.20.1
 
 **Primera Persona POV** activa una escena Three.js/WebGL con mallas reales. Enemigos, jefes, objetos, mobiliario, puertas y armas tienen volumen y profundidad. La anatomía se articula al respirar, andar y atacar; las fases de los jefes cambian sus cuerpos. Los materiales de suelo, muros y techo incorporan textura, relieve e iluminación. Hay linterna con sombras suaves, luces de las instalaciones, señales y avisos de ataques sobre el suelo y escaleras con peldaños, barandillas y flecha en 3D.
 
@@ -34,7 +42,7 @@ Las llaves y piezas dejan Artefactos cuando terminan todos sus usos. Los accesos
 
 Se añaden **24 documentos de lore**, unas 3358 palabras, repartidos desde la mansión hasta UMBRAL. Cartas, testimonios y registros cuentan la vida de Axel, Wren, pacientes, trabajadores y víctimas del proyecto, sin añadir soluciones de mecanismos ni requisitos nuevos. Cada hoja nueva conserva sus 2 XP habituales. [Catálogo y reglas de consumo](docs/LORE_Y_ARTEFACTOS.md).
 
-## Progresión de XP · v0.20.0
+## Progresión de XP · v0.20.1
 
 Solo conceden XP las bajas, absorber muestras de Riutex y recoger documentos nuevos. Enemigos: 1–2 XP en el hospital, 1–2 en cloacas, 2–3 en el castillo y 3–4 en el laboratorio. Los minijefes dan 6–10 y los cuatro jefes finales 11, 14, 18 y 29. Cada muestra consumida da 15 XP (antes 40), cada documento nuevo 2 (antes 4). Recoger una muestra no adelanta su premio.
 

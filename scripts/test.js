@@ -25,6 +25,7 @@ for (const args of [
     "tests/pov3d-assets.test.js",
     "tests/pov3d-ballistics.test.js",
     "tests/pov3d-viewmodel.test.js",
+    "tests/factory-refresh.test.js",
   ],
   ["tests/t3.js"],
   ["tests/t4.js"],

@@ -58,7 +58,7 @@ const FirstPersonRenderer = {
   light(distance,nx,wx,wy){
     const ambient=this.cell(Math.floor(wx/TILE),Math.floor(wy/TILE)).ambient;
     const spot=Math.pow(Math.max(0,1-Math.abs(nx)*.75),1.6);
-    return Math.min(1,.13+ambient+.82*spot/(1+Math.pow(distance/190,1.7))+(this.current.player.flash>0?.22/(1+distance/260):0));
+    return Math.min(1,.13+ambient+.82*spot/(1+Math.pow(distance/190,1.7)));
   },
   floor(g){
     const W=this.floorCanvas.width,H=this.floorCanvas.height,actualH=this.H,actualW=this.W,v=this.camera,out=this.floorPixels.data;
@@ -72,7 +72,7 @@ const FirstPersonRenderer = {
         const cell=this.cell(Math.floor(wx/TILE),Math.floor(wy/TILE));
         if(distance>this.far||!cell.allowed){out[i]=3;out[i+1]=6;out[i+2]=9;out[i+3]=255;continue;}
         const tx=((Math.floor(wx/TILE*texture.w)%texture.w)+texture.w)%texture.w,ty=((Math.floor(wy/TILE*texture.h)%texture.h)+texture.h)%texture.h,ti=(ty*texture.w+tx)*4;
-        const nx=x/W*2-1,spot=Math.pow(Math.max(0,1-Math.abs(nx)*.75),1.6),light=Math.min(.95,.12+cell.ambient+.68*spot/(1+Math.pow(distance/175,1.6))+(g.player.flash>0?.12:0)),fog=Math.max(0,Math.min(.85,(distance-320)/680));
+        const nx=x/W*2-1,spot=Math.pow(Math.max(0,1-Math.abs(nx)*.75),1.6),light=Math.min(.95,.12+cell.ambient+.68*spot/(1+Math.pow(distance/175,1.6))),fog=Math.max(0,Math.min(.85,(distance-320)/680));
         let r=texture.pixels[ti],b=texture.pixels[ti+2],green=texture.pixels[ti+1];
         if(ground&&cell.fluid){const wave=.8+.2*Math.sin(wx*.12+wy*.09+g.t*2);r=cell.fluid===2?45*wave:r*.5;green=cell.fluid===2?102*wave:green*.7;b=cell.fluid===2?39*wave:b*.75;}
         if(ground&&g.lvl==='hospitalchem'){const gx=((wx%32)+32)%32,gy=((wy%32)+32)%32;if(gx<3||gy<3){r=114;green=129;b=120;}else {r=22;green=64;b=47;}}

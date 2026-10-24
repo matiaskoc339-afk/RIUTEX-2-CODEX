@@ -33,7 +33,6 @@ const POV3DRenderer={
       this.fill=new THREE.DirectionalLight('#9caeb7',.33);this.fill.position.set(-80,100,50);this.scene.add(this.fill);
       this.flashlight=new THREE.SpotLight('#e5edf1',150,640,Math.PI/6,.72,1.15);this.flashlight.castShadow=true;this.flashlight.shadow.mapSize.set(1536,1536);this.flashlight.shadow.bias=-.00035;this.flashlight.shadow.normalBias=.2;this.flashlight.shadow.camera.near=1;this.flashlight.shadow.camera.far=680;this.scene.add(this.flashlight,this.flashlight.target);
       this.localLights=Array.from({length:6},()=>{const l=new THREE.PointLight('#c7d7df',0,220,1.25);this.scene.add(l);return l;});
-      this.muzzleLight=new THREE.PointLight('#ffcc8e',0,100,1.1);this.scene.add(this.muzzleLight);
       this.world=new THREE.Group();this.scene.add(this.world);this.actorRoot=new THREE.Group();this.scene.add(this.actorRoot);this.itemRoot=new THREE.Group();this.scene.add(this.itemRoot);this.effectRoot=new THREE.Group();this.scene.add(this.effectRoot);this.cueRoot=new THREE.Group();this.scene.add(this.cueRoot);
       this.kitAPI=this.kit();POV3DAssets.init(this.kitAPI);
       this.vector=new THREE.Vector3();this.forward=new THREE.Vector3();this.effectPool=[];
@@ -127,18 +126,17 @@ const POV3DRenderer={
   syncItems(g,time,dt){
     const present=new Set();let visible=0;
     for(const it of g.items){const id=it.id;present.add(id);let entry=this.items.get(id);const shown=this.lineVisible(it.x,it.y,12);if(!shown){if(entry)entry.root.visible=false;continue;}
-      const key=[it.type,it.part,it.weapon,it.key].join(':');if(!entry||entry.key!==key){if(entry)this.disposeObject(entry.root);const root=POV3DAssets.item(it,g);this.itemRoot.add(root);entry={root,key};this.items.set(id,entry);}
-      entry.root.visible=true;entry.root.position.set(it.x,0,it.y);POV3DAssets.animateItem(entry.root,it,g,time,dt);visible++;
+      const key=[it.type,it.part,it.weapon,it.key].join(':');if(!entry||entry.key!==key){if(entry)this.disposeObject(entry.root);const root=POV3DAssets.item(it,g);LootFeedback.decorate(root,it,g,this.kitAPI);this.itemRoot.add(root);entry={root,key};this.items.set(id,entry);}
+      entry.root.visible=true;entry.root.position.set(it.x,0,it.y);POV3DAssets.animateItem(entry.root,it,g,time,dt);LootFeedback.animate(entry.root,it,g,time);visible++;
     }
     for(const [id,e]of this.items)if(!present.has(id)){this.disposeObject(e.root);this.items.delete(id);}
     this.stats.visibleItems=visible;
   },
   lights(g,time){
     const p=g.player,c=this.camera3D;this.flashlight.position.copy(c.position);this.flashlight.position.y-=2;
-    this.flashlight.target.position.copy(c.position).addScaledVector(this.forward,300);this.flashlight.intensity=p.hidden?0:140+(p.flash>0?45:0);
+    this.flashlight.target.position.copy(c.position).addScaledVector(this.forward,300);this.flashlight.intensity=p.hidden?0:140;
     const lights=(this.worldState.lamps||[]).map(l=>({l,d:(l.x-p.x)**2+(l.z-p.y)**2})).filter(v=>v.d<650**2).sort((a,b)=>a.d-b.d);
     for(let i=0;i<this.localLights.length;i++){const light=this.localLights[i],source=lights[i]?.l;if(!source){light.intensity=0;continue;}light.position.set(source.x,source.y??54,source.z);light.color.set(source.color||'#c4d5d4');light.distance=source.distance||200;light.decay=source.decay||1.6;light.intensity=(source.intensity||26)*(source.flicker?(.87+.13*Math.sin(time*9+i*1.9)):1);}
-    this.muzzleLight.position.copy(c.position).addScaledVector(this.forward,13);this.muzzleLight.intensity=p.flash>0?95:0;
   },
   cueStyle(css,alpha=1){
     let opacity=alpha,color=css||'#e0ba89';if(typeof color==='string'&&color.startsWith('rgba')){const v=color.match(/[\d.]+/g);if(v?.length>=4){opacity*=Number(v[3]);color='rgb('+v.slice(0,3).join(',')+')';}}

@@ -1,3 +1,16 @@
+# Validación de v0.20.1 · Disparos, recogibles y fábrica
+
+- **350 pruebas de motor**, **103 comprobaciones de integración** y **15 mapas**, sin fallos.
+- **213 comprobaciones de navegador**: captura nativa 26, WebGL 49, fábrica 61, XP 34, persistencia 26 y HTML integrado 17. Sin errores JavaScript.
+- La captura se recupera con una tecla de desplazamiento después de un rechazo asíncrono, sin pulsar Bloquear ratón. Perder el foco pausa; Reanudar vuelve a capturar. Los menús liberan y recuperan el cursor.
+- El render no incorpora luces de destello ni intensifica la linterna al disparar. Los recogibles tienen señal 3D con profundidad que desaparece al recoger; se revisan capturas en POV y topdown. La escena mantiene armas y retroceso.
+- Se verifican los 16 enemigos adicionales en suelo accesible fuera del refugio, cuatro patrullas con movimiento y colisiones, transición a persecución, ausencia de respawn al cargar y XP por baja pequeña. La ruta de tres válvulas y la arena de ocho oleadas vuelven a pasar.
+- El HTML integrado incluye todos los scripts y se ejecuta sin solicitudes externas; su index.html es idéntico al del ZIP de itch.io. Guardado probado al cerrar/reabrir el mismo perfil y en un iframe local de otro origen.
+
+Los recorridos y combates son escenarios preparados; no representan una campaña humana completa ni una medición de GPU física. Los resultados anteriores se conservan como historial.
+
+---
+
 # Validación de v0.20.0 · Escena WebGL, control y archivo
 
 El render POV usa mallas Three.js para criaturas, recogibles, puertas, techos y armas, con materiales físicos, profundidad y sombras. La captura del ratón se coordina con las ventanas y ambos ejes comparten ganancia angular. Los cambios generales retiran artefactos agotados y añaden 24 documentos narrativos.

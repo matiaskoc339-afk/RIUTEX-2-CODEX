@@ -87,6 +87,16 @@ const WorksMap = {
     [['screw_small',66,18,8],['powder_small',68,18,8],['screw_large',45,64,3],['powder_large',105,69,4],['screw_small',35,81,8],['powder_small',63,99,8]].forEach(([t,x,y,n],i)=>D.items.push(['wx_mat_'+i,t,x,y,{amount:n}]));
     const foes=[['wx_listener',19,42],['wx_scuttler',23,54],['wx_scuttler',10,68],['wx_spitter',22,64],['wx_mauler',39,28],['wx_scuttler',34,42],['wx_listener',39,61],['wx_spitter',51,60],['wx_mauler',87,29],['wx_scuttler',107,30],['wx_listener',85,49],['wx_spitter',93,53],['wx_scuttler',113,45],['wx_mauler',137,43],['wx_scuttler',88,69],['wx_scuttler',93,63],['wx_listener',111,65],['wx_spitter',135,66],['wx_mauler',114,81],['wx_scuttler',96,82],['wx_spitter',61,60],['wx_mauler',41,80],['wx_listener',57,89],['wx_scuttler',86,89],['wx_spitter',40,101],['wx_mauler',63,100],['wx_listener',17,97],['wx_scuttler',25,95]];
     D.enemies=foes.map(([t,x,y],i)=>[5000+i,t,x,y]);
+    // Grupos finitos: presión distinta en cada sector, sin ocupar el refugio.
+    const extra=[['wx_scuttler',55,29],['wx_scuttler',61,32],['wx_spitter',23,28],['wx_scuttler',13,32],
+      ['wx_listener',43,43],['wx_scuttler',45,61],['wx_spitter',88,33],['wx_scuttler',119,29],
+      ['wx_listener',115,51],['wx_scuttler',82,63],['wx_spitter',95,69],['wx_scuttler',117,84],
+      ['wx_scuttler',34,78],['wx_listener',44,103],['wx_spitter',23,103],['wx_scuttler',71,78]];
+    extra.forEach(([t,x,y],i)=>D.enemies.push([5300+i,t,x,y]));
+    this.patrols={5300:[[55,29],[61,29],[61,32]],5307:[[119,29],[115,29],[115,32],[119,32]],
+      5312:[[34,78],[37,78],[37,83],[34,83]],5315:[[71,78],[72,82],[71,86]]};
+    [['ammo',21,30,18],['shells',90,34,4],['ammo',118,82,18],['smg',44,104,24],['inj_green',47,80],['powder_small',14,95,3]]
+      .forEach(([t,x,y,n],i)=>D.items.push(['wx_reinforcement_supply_'+i,t,x,y,n?{amount:n}:undefined]));
     const P=FLOORS.hospitalpit={W:49,H:45,spawn:[5,23],safe:[],patrol:[],rooms:[['Antesala del almacén',3,21,7,6],['Cámara de ensayo circular',11,10,27,27],['Salida de inspección',39,21,8,7]],cuts:[[10,22,1,3],[38,22,1,3]],doors:[['wx_pit_entry',10,22,1,3,null],['wx_pit_exit',38,22,1,3,'h:wx_arena']],furn:{},decor:[],enemies:[],barrels:[],items:[
       _F('wx_pit_back','wx_return',5,24),_F('wx_plate_drop','wx_plate',20,32),_F('wx_plate_paw','wx_plate',24,34),_F('wx_plate_sun','wx_plate',28,32),
       _D('wx_pit_log',5,22),_F('wx_arena_cache','wx_cache',24,12),_F('wx_arena_loot','wx_reward',42,23),_F('wx_pit_out','wx_return',45,25),

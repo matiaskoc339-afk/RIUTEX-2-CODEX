@@ -5,6 +5,7 @@ const FirstPerson = {
   dragging:false, dragMoved:false, dragDistance:0, pitch:0, maxPitch:1.4, turnKeys:{},
   sensitivity:.00235, sensitivityPercent:100, ignoreUnlock:false, ignoreEscapeUntil:0,
   captureWanted:false, capturePending:false, captureAttempted:false, captureEpoch:0,
+  gestureRetried:false,
   saveSettings(){
     try{localStorage.setItem(this.key,JSON.stringify({enabled:this.enabled,sensitivityPercent:this.sensitivityPercent}));}catch(e){}
   },
@@ -49,7 +50,7 @@ const FirstPerson = {
   },
   release(g=Game,preserveWanted=false){
     if(!preserveWanted)this.captureWanted=false;
-    this.captureEpoch++;this.capturePending=false;this.captureAttempted=false;
+    this.captureEpoch++;this.capturePending=false;this.captureAttempted=false;this.gestureRetried=false;
     this.armed=false;this.dragging=false;this.dragMoved=false;this.dragDistance=0;this.turnKeys={};
     this.clearActions(g);if(g.keys)g.keys={};
     if(this.locked()&&typeof document.exitPointerLock==='function'){
@@ -93,6 +94,10 @@ const FirstPerson = {
   tryAutoCapture(g=Game){
     if(!this.ready||!this.captureWanted||this.captureAttempted||this.capturePending||this.ignoreUnlock||this.locked()||!this.captureEligible(g)||!this.playable(g))return;
     this.requestCapture(g);
+  },
+  captureFromGesture(g=Game){
+    if(!this.playable(g)||this.locked()||this.capturePending||this.gestureRetried||typeof g.cv?.requestPointerLock!=='function')return false;
+    this.gestureRetried=true;this.requestCapture(g);return true;
   },
   requestCapture(g=Game){
     if(!this.captureEligible(g)||!this.playable(g)||this.capturePending||this.locked())return;
@@ -157,6 +162,7 @@ const FirstPerson = {
       if(e.code==='Escape'){
         stop(e);this.ignoreEscapeUntil=performance.now()+220;this.release(Game);Game.pause();return;
       }
+      if(!e.repeat&&['KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight'].includes(e.code))this.captureFromGesture(Game);
       if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.code)&&this.arrowAvailable(e.code)){
         this.turnKeys[e.code]=true;stop(e);return;
       }
@@ -181,6 +187,7 @@ const FirstPerson = {
       if(!this.playable(Game)||e.target!==Game.cv)return;
       if(e.button===0){
         stop(e);Sound.unlock();
+        if(this.captureFromGesture(Game))return;
         if(!this.armed){this.requestCapture(Game);return;}
         Game.mouse.down=true;Game.mouse.clicked=true;this.sync(Game);return;
       }
@@ -222,6 +229,7 @@ const FirstPerson = {
       if(this.playable(Game)&&!this.locked()){this.fallback=true;this.refreshUI(Game);}
     });
     window.addEventListener('blur',()=>{if(this.active(Game))this.release(Game);});
+    window.addEventListener('focus',()=>{if(this.playable(Game))this.wantCapture(Game);});
     document.addEventListener('visibilitychange',()=>{if(document.hidden&&this.active(Game)){this.release(Game);if(Game.state==='play')Game.pause();}});
     this.refreshUI(Game);
   }

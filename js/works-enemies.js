@@ -43,6 +43,15 @@ class WorksEnemy extends Enemy {
   if(Level.grid[Math.floor(t[1]/32)]?.[Math.floor(t[0]/32)]!==0){this.path=null;return;}
   const dx=t[0]-this.x,dy=t[1]-this.y,n=Math.hypot(dx,dy)||1;Level.move(this,dx/n*Math.min(n,amount),dy/n*Math.min(n,amount));
  }
+ patrol(dt,g){
+  const route=g.lvl===WorksMap.id&&WorksMap.patrols?.[this.id];if(!route)return false;
+  this.patrolIndex??=1;this.patrolPause=Math.max(0,(this.patrolPause||0)-dt);
+  if(this.patrolPause>0){this.mode='idle';return true;}
+  const [tx,ty]=route[this.patrolIndex%route.length],x=(tx+.5)*32,y=(ty+.5)*32;
+  this.mode='patrol';this.face=Math.atan2(y-this.y,x-this.x);
+  if(Math.hypot(x-this.x,y-this.y)<9){this.patrolIndex=(this.patrolIndex+1)%route.length;this.patrolPause=1.2;return true;}
+  this.moveToward(x,y,this.def.speed*.32*dt);return true;
+ }
  wind(kind,g) {
   this.mode='wind';this.attack=kind;this.dir=this.face=Math.atan2((this.target?.[1]??g.player.y)-this.y,(this.target?.[0]??g.player.x)-this.x);
   this.clock=this.windMax=kind==='spit'?.85:kind==='charge'?1.05:kind==='roar'?1.15:kind==='lunge'?.6:.65;
@@ -82,7 +91,7 @@ class WorksEnemy extends Enemy {
    return;
   }
   if(this.mode==='recover'){if(this.clock<=0){this.mode='stalk';this.clock=this.isBoss?.5:.7;}return;}
-  if(!this.target){this.mode='idle';this.face+=dt*.5;return;}
+  if(!this.target){if(this.patrol(dt,g))return;this.mode='idle';this.face+=dt*.5;return;}
   this.mode='stalk';
   const [x,y]=this.target,dx=x-this.x,dy=y-this.y,d=Math.hypot(dx,dy)||1;
   this.face=Math.atan2(dy,dx);

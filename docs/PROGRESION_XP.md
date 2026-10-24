@@ -1,4 +1,4 @@
-# Progresión de XP · v0.20.0
+# Progresión de XP · v0.20.1
 
 Solo dan XP las bajas, consumir muestras de Riutex y recoger documentos nuevos. El mismo reparto se aplica en topdown y primera persona.
 
@@ -47,11 +47,11 @@ Este presupuesto suma todas las bajas normales colocadas, documentos únicos y m
 | Hospital, planta baja | 38 | 70 | 15 | 123 |
 | Hospital, primer piso | 35 | 42 | 15 | 92 |
 | Hospital, sótano | 22 | 18 | 15 | 55 |
-| Cloacas / fábrica | 60 | 50 | 0 | 110 |
+| Cloacas / fábrica | 83 | 50 | 0 | 133 |
 | Castillo, planta baja | 48 | 26 | 0 | 74 |
 | Castillo, planta alta | 52 | 24 | 0 | 76 |
 | Laboratorio | 123 | 38 | 0 | 161 |
-| **Total** | **385** | **286** | **45** | **716** |
+| **Total** | **408** | **286** | **45** | **739** |
 
 La edición v0.20.0 incorpora 24 hojas narrativas: 23 están en estos ocho mapas (+46 XP) y una en calabozos (+2 XP fuera del presupuesto). No cambia el premio de cada documento ni añade fuentes de experiencia. Las tres columnas centrales expresan XP, no cantidades de objetos. No se incluyen jefes, minijefes, oleadas ni la muestra del EEG. Esos encuentros y muestras añaden sus recompensas limitadas. La mansión completa aporta como máximo 25 XP de las fuentes colocadas.
 
@@ -60,3 +60,5 @@ Las pruebas compran por separado dos rutas avanzadas con los requisitos reales: 
 Los guardados conservan XP, habilidades y objetos ya obtenidos; no se retira experiencia retroactivamente. Se conserva la devolución excepcional de antiguas elecciones doradas incompatibles al migrar guardados: restituye una compra previa, no es una fuente de XP de la campaña. El cálculo de bajas de RIUTEX 1 permanece intacto.
 
 Las comprobaciones numéricas y de compra no sustituyen una partida humana completa ni garantizan una dificultad idéntica para todos los estilos. Los resultados se registran en RESULTADOS.json.
+
+En v0.20.1 los dieciséis enemigos nuevos de fábrica añaden 23 XP al presupuesto finito, que pasa de 716 a 739. Cada baja conserva su valor anterior; los suministros adicionales no conceden XP.

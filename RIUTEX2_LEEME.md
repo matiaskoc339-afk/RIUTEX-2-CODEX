@@ -1,12 +1,12 @@
-# RIUTEX 2 · Historia completa · v0.20.0
+# RIUTEX 2 · Historia completa · v0.20.1
 
 La campaña parte de tu base v0.2.2 y recorre mansión, hospital, cloacas/fábrica, museo-castillo y laboratorio UMBRAL, con cuatro jefes finales de tres formas y dos desenlaces.
 
 ## Jugar y publicar
 
-Abre `RIUTEX2_Historia_Completa_v0.20.0.html` en un navegador de escritorio con teclado y ratón. Para el proyecto fuente, ejecuta `npm start` y visita `http://localhost:8000`. El sonido comienza con la primera interacción. No hay dependencias de npm que instalar.
+Abre `RIUTEX2_Historia_Completa_v0.20.1.html` en un navegador de escritorio con teclado y ratón. Para el proyecto fuente, ejecuta `npm start` y visita `http://localhost:8000`. El sonido comienza con la primera interacción. No hay dependencias de npm que instalar.
 
-Para itch.io utiliza **RIUTEX2_itchio_v0.20.0.zip**, que contiene un `index.html` integrado en la raíz. Súbelo como juego HTML para navegador y permite pantalla completa. El HTML incluye código, estilos, fuentes, Three.js y recursos locales: no descarga modelos ni bibliotecas de una CDN. Los archivos se generan con `npm run build`.
+Para itch.io utiliza **RIUTEX2_itchio_v0.20.1.zip**, que contiene un `index.html` integrado en la raíz. Súbelo como juego HTML para navegador y permite pantalla completa. El HTML incluye código, estilos, fuentes, Three.js y recursos locales: no descarga modelos ni bibliotecas de una CDN. Los archivos se generan con `npm run build`.
 
 ## Primera persona 3D
 
@@ -56,3 +56,9 @@ Los disparos gastan estamina según el arma y el golpe infectado consume Riutex.
 La primera captura de la mansión y la huida del hospital son secuencias jugables. Durante la primera huida, alcanza la puerta del fondo para que el primer golpe rompa el cierre; sigue la señal hasta el vestíbulo. Tras la guía, pulsa F para inyectarte. Después queda abierta la exploración del hospital.
 
 Consulta [README.md](README.md) para el contenido completo y [docs/VALIDACION.md](docs/VALIDACION.md) para las pruebas y su alcance. Los planos revelan el mapa entero y contienen spoilers. Las pruebas automatizadas no sustituyen una partida humana completa ni garantizan rendimiento en todos los equipos.
+
+## Ajustes de v0.20.1
+
+Disparar ya no produce destello ni ilumina de golpe el escenario. Los objetos recogibles muestran un halo y un brillo pequeño, también en topdown. La captura del ratón se recupera con una interacción si el navegador rechazó el intento automático; no hace falta pulsar un botón de bloqueo aparte. Al perder el foco se pausa y Reanudar vuelve a capturarlo.
+
+La fábrica tiene 58 enemigos ambientales (16 más), con cuatro patrullas, grupos variados y seis suministros finitos adicionales. El vestíbulo se mantiene como refugio. No se aumenta la XP por enemigo.

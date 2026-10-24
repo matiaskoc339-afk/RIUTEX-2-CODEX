@@ -62,14 +62,6 @@ const BlueArt = {
         c.fillStyle = "#7896a7";
         c.fillRect(17, -8, len - 6, 2);
         c.fillRect(16, -3, 4, 6);
-        if (p.flash > 0) {
-          c.fillStyle = "#fff1ad";
-          c.beginPath();
-          c.moveTo(12 + len, -10);
-          c.lineTo(22 + len, -5);
-          c.lineTo(12 + len, 0);
-          c.fill();
-        }
       }
     }
     c.fillStyle = enemy ? "#b0ac99" : "#c4a18b";

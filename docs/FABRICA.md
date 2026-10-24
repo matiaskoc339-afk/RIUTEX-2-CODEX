@@ -60,3 +60,7 @@ Cada recarga de 2,8 segundos consume un objeto `am_fuel` y llena el depósito. E
 El armero conserva los cuatro costes y niveles existentes por arma: daño +10 % por nivel, aguante −8 % de estamina por nivel, control +10 de alcance por nivel y depósito +15 de combustible por nivel. Un depósito gastado conserva su combustible después de comprar capacidad o cargar la partida. El traje S-4 no cambia.
 
 Antes de cargar una partida RIUTEX 2, se transforma una copia de los datos: `w_launcher` → `w_flamethrower`, `am_grenade` → `am_fuel`, selección activa y niveles de mejora hacia el nuevo identificador. Se convierte la proporción cargada respecto al antiguo cargador mejorado; cero sigue cero. También se convierten baúl y objetos soltados. Los objetos que ya usan el nuevo identificador no se vuelven a convertir. Las definiciones del lanzagranadas de los niveles internos de RIUTEX 1 se conservan.
+
+## Encuentros de v0.20.1
+
+Hay 58 enemigos ambientales: los 42 anteriores y 16 nuevos (corredores, sifones y rastreadores ciegos), sin ocupar el vestíbulo. Cuatro corredores patrullan comedor, frigorífica, herrería y eje de servicio a velocidad baja; pasan a perseguir o atacar cuando detectan un objetivo. Los recorridos respetan colisiones y puertas. Las bajas son finitas, conservan la XP pequeña existente y permanecen muertas al cargar. Se añaden seis reservas de munición, pólvora y recuperación fuera del refugio. La trampa de ocho oleadas y los tres volantes conservan sus requisitos.
