@@ -1,52 +1,50 @@
-# RIUTEX 2 · El Custodio · Historia completa · v0.19.0
+# RIUTEX 2 · El Custodio · Historia completa · v0.20.0
 
 Esta versión amplía **RIUTEX2_fase1_v0.2.2.zip**, la base que aportaste. Conserva su motor, historia, protagonistas y persecución. El contenido jugable comprende la mansión, el hospital las cloacas y fábrica de San Gabriel y el museo-fortaleza de Valcárcel y el laboratorio UMBRAL con sus dos desenlaces.
 
 ## Jugar
 
-La entrega incluye [RIUTEX2_Historia_Completa_v0.19.0.html](dist/RIUTEX2_Historia_Completa_v0.19.0.html), con gráficos, estilos y código integrados y sin descargas externas. Ábrelo en un navegador de escritorio con teclado y ratón. El sonido comienza con la primera interacción.
+La entrega incluye [RIUTEX2_Historia_Completa_v0.20.0.html](dist/RIUTEX2_Historia_Completa_v0.20.0.html), con gráficos, estilos y código integrados y sin descargas externas. Ábrelo en un navegador de escritorio con teclado y ratón. El modo 3D requiere WebGL; la vista clásica sigue disponible. El sonido comienza con la primera interacción.
 
 Para ejecutar el proyecto fuente: `npm start` (o `python3 -m http.server 8000`). No hay dependencias de npm que instalar. Los guardados se almacenan en el navegador y dependen de la ubicación desde la que abras el juego. Esta edición utiliza guardados propios; conserva los de v0.2.2 sin importarlos a mapas que han cambiado.
 
-## Guardado web e itch.io · v0.19.0
+## Guardado web e itch.io · v0.20.0
 
-Para itch.io usa [RIUTEX2_itchio_v0.19.0.zip](dist/RIUTEX2_itchio_v0.19.0.zip): contiene un `index.html` integrado en la raíz. Se genera con `npm run build`. Sube ese ZIP como juego HTML para navegador y permite pantalla completa.
+Para itch.io usa [RIUTEX2_itchio_v0.20.0.zip](dist/RIUTEX2_itchio_v0.20.0.zip): contiene un `index.html` integrado en la raíz. Se genera con `npm run build`. Sube ese ZIP como juego HTML para navegador y permite pantalla completa.
 
 La sesión se guarda cada diez segundos, al cerrar u ocultar la página, al pausar o volver al menú y tras recoger objetos, fabricar, consumir muestras o comprar habilidades. **Continuar → Continuar sesión** recupera posición, recursos, inventario, documentos, habilidades, puzles, enemigos heridos y fases de jefes. Los datos se comprimen para evitar llenar la cuota del navegador, conservando la lectura de guardados anteriores. Los tres huecos de las camillas y el punto de Reintentar se mantienen separados. Tras morir, la sesión continúa desde ese punto de control.
 
 **Pausa → Partidas y copias** permite descargar e importar una copia JSON. Si el navegador bloquea el almacenamiento, el juego avisa y ofrece la copia. El progreso pertenece al mismo navegador y origen web; no se sincroniza con la cuenta de itch.io. Borrar datos o usar una sesión privada puede eliminarlo. [Publicación y alcance de las pruebas](docs/ITCHIO_GUARDADO.md).
 
-## Visión y cuerpo en primera persona · v0.19.0
+## Primera persona 3D · v0.20.0
 
-Los enemigos con vista reaccionan en un frente amplio a 260–360 px según especie, con reacción breve y proximidad a 96 px. Puertas cerradas, paredes y muebles altos ocultan; pueden ver por encima de muebles bajos. Una puerta abierta permite detectar sin que el jugador haya entrado en la habitación. Los ciegos conservan su comportamiento auditivo, y los refugios y el camuflaje mantienen su función. Estas reglas se aplican al POV.
+**Primera Persona POV** activa una escena Three.js/WebGL con mallas reales. Enemigos, jefes, objetos, mobiliario, puertas y armas tienen volumen y profundidad. La anatomía se articula al respirar, andar y atacar; las fases de los jefes cambian sus cuerpos. Los materiales de suelo, muros y techo incorporan textura, relieve e iluminación. Hay linterna con sombras suaves, luces de las instalaciones, señales y avisos de ataques sobre el suelo y escaleras con peldaños, barandillas y flecha en 3D.
 
-Las siete armas tienen volúmenes en perspectiva, detalles propios y agarres conectados a los brazos. El golpe mueve el brazo izquierdo existente y baja el arma. La infección vuelve azul su tejido; perder el brazo lo retira. Elegir la cura elimina la mutación y la mano regenerada, y rechazarla transforma los dos brazos. [Detalles y validación](docs/POV_CUERPO_Y_VISION.md).
+Se presenta a la resolución de la ventana, con antialiasing y escala de píxel acotada. El estilo es 3D procedural: no depende de descargas de modelos ni de imágenes planas para los actores. Three.js y su licencia MIT se incluyen localmente y dentro del HTML integrado. La campaña conserva su simulación y colisiones; puedes cambiar a topdown en el mismo punto, con el mismo progreso.
 
-## Progresión de XP · v0.18.1
+**El ratón se captura al entrar o volver al juego y se libera al abrir una ventana.** Al cerrar habilidades, inventario, diario, mapa o pausa se intenta recuperarlo automáticamente. Esc libera y pausa sin un bucle de captura. Si el navegador exige otro gesto, el botón **Bloquear ratón** permite reintentar; también funcionan el arrastre derecho y las flechas. La barra de sensibilidad, de 25 % a 250 %, aplica la misma ganancia angular a X e Y y se guarda en el navegador. La mirada vertical llega a ±1,4 radianes y la retícula permanece centrada.
+
+Los disparos normales en POV consideran la altura de la mira y los cuerpos: apuntar al techo o al suelo no golpea un enemigo que queda fuera del rayo. La vista clásica conserva su disparo horizontal. Los enemigos con vista mantienen un alcance limitado y reaccionan al jugador delante de una puerta abierta; los ciegos conservan su comportamiento auditivo. Los dos brazos usan mallas articuladas: el golpe mueve el izquierdo existente, la infección vuelve azul el tejido regenerado y cada desenlace refleja la decisión del antídoto.
+
+Detalles y alcance de las comprobaciones: [Primera persona](docs/PRIMERA_PERSONA.md), [modelos](docs/MODELOS_POV.md) y [cuerpo/visión](docs/POV_CUERPO_Y_VISION.md).
+
+## Artefactos e historia · ambos modos
+
+Las llaves y piezas dejan Artefactos cuando terminan todos sus usos. Los accesos ya desbloqueados se recuerdan al cerrar puertas, cambiar de planta y cargar; las llaves que todavía sirven para otra cerradura permanecen con una explicación. Las piezas instaladas mantienen sus efectos y las misiones conservan lo ya realizado.
+
+Se añaden **24 documentos de lore**, unas 3358 palabras, repartidos desde la mansión hasta UMBRAL. Cartas, testimonios y registros cuentan la vida de Axel, Wren, pacientes, trabajadores y víctimas del proyecto, sin añadir soluciones de mecanismos ni requisitos nuevos. Cada hoja nueva conserva sus 2 XP habituales. [Catálogo y reglas de consumo](docs/LORE_Y_ARTEFACTOS.md).
+
+## Progresión de XP · v0.20.0
 
 Solo conceden XP las bajas, absorber muestras de Riutex y recoger documentos nuevos. Enemigos: 1–2 XP en el hospital, 1–2 en cloacas, 2–3 en el castillo y 3–4 en el laboratorio. Los minijefes dan 6–10 y los cuatro jefes finales 11, 14, 18 y 29. Cada muestra consumida da 15 XP (antes 40), cada documento nuevo 2 (antes 4). Recoger una muestra no adelanta su premio.
 
 Entrar en salas, resolver puzles, obtener armas, conseguir el traje, recoger el maletín de la arena, tocar campanas y la inyección inicial de la historia ya no conceden XP. Sus objetos, mecanismos y accesos siguen funcionando. Las muertes y los documentos no permiten cobrar dos veces; las crías invocadas no dan XP. La XP y habilidades ya guardadas se conservan. [Presupuestos y compras avanzadas comprobadas](docs/PROGRESION_XP.md).
 
-## Primera Persona POV · v0.18.0
+## Controles POV
 
-En **Opciones**, activa **Primera Persona POV**. También puedes cambiarla desde **Esc → Pausa** durante la partida. Empieza desactivada: la vista clásica sigue disponible. El ajuste se recuerda en el navegador y puedes cambiarlo sin reiniciar ni perder progreso.
+Activa **Primera Persona POV** en Opciones o desde **Esc → Pausa**. Empieza desactivada y el ajuste se recuerda. **W/S** avanza y retrocede; **A/D** se desplaza de lado; **Shift** corre. **E** interactúa, **R** recarga, **clic derecho** golpea, **Tab** abre inventario, **J** documentos, **M** mapa y **K** habilidades. El primer clic destinado a recuperar el ratón no gasta una bala.
 
-En v0.17.2 puedes mirar mucho más arriba y abajo: el recorrido vertical es cinco veces mayor, con ratón o flechas. La sensibilidad elegida conserva su velocidad y la retícula permanece centrada.
-
-La barra **Sensibilidad del ratón** está en Opciones y Pausa: de **25 % a 250 %**, con **100 %** como valor normal. Se aplica al instante a la mirada horizontal y vertical y se recuerda al volver a abrir el juego.
-
-Pulsa **Bloquear ratón** en la ayuda inferior para capturar el cursor en primera persona. **Esc** lo libera y pausa. El botón reaparece al reanudar; si el navegador rechaza la captura, puedes reintentar o usar el arrastre con clic derecho.
-
-En POV, **W/S** avanza y retrocede; **A/D** se desplaza de lado. Haz clic en la escena para controlar la mirada con el ratón. Ese primer clic captura el control y no gasta una bala. **Esc** libera el ratón y pausa; abrir inventario, documentos, mapa, habilidades o un mecanismo también libera el cursor. Si el navegador no permite capturarlo, usa **arrastre con clic derecho** para mirar o las **flechas** para girar. Un clic derecho breve conserva el golpe.
-
-Las paredes, puertas y muebles tienen profundidad; los enemigos tienen siluetas frontales y las armas se ven en las manos. Los materiales distinguen mansión, hospital, fábrica, castillo, laboratorio y calle. Los avisos de ataques y poderes se proyectan sobre el suelo, con las mismas posiciones y tamaños del motor. La primera huida muestra una señal orientada respecto de la cámara.
-
-Desde v0.16.1, el ratón y las flechas miran arriba/abajo en sentido normal. Solo en POV puedes ver habitaciones aún no visitadas a través de puertas abiertas; las paredes y puertas cerradas siguen tapando la vista. El plano conserva su descubrimiento al entrar y la vista clásica conserva su oscuridad de exploración.
-
-La revisión v0.17.0 da identidad propia a treinta familias y encuentros: el Carnicero, C-17, personal del hospital, fauna experimental y enemigos del castillo/laboratorio. Los cuatro jefes finales cambian de forma en sus tres fases. Armas del suelo, munición, frascos, documentos, llaves y piezas tienen formas reconocibles. La mira permanece centrada al inclinar la cámara. Detalles: [Modelos POV](docs/MODELOS_POV.md).
-
-La simulación, los costes de armas y habilidades, el inventario, los puzles, las colisiones y los guardados se comparten entre ambas perspectivas. Detalles técnicos y alcance de pruebas: [docs/PRIMERA_PERSONA.md](docs/PRIMERA_PERSONA.md).
+Solo en POV se ven habitaciones no visitadas a través de puertas abiertas; muros y puertas cerradas siguen tapando. El plano descubre salas al entrar y topdown conserva su oscuridad de exploración. Los recursos, habilidades, puzles y guardados se comparten entre ambas perspectivas.
 
 ## Menú, transiciones y progresión · v0.15.0
 
@@ -187,12 +185,12 @@ Las dos parejas anteriores siguen siendo independientes de estas. Hay cuatro dec
 - **Mutante:** transformación corporal, psicoquinesis, energía Riutex, regeneración, ancla psíquica, coraza orgánica e intercambio de salud por energía. Las mejoras pequeñas también aumentan vida y estamina.
 - **Ramales con final propio:** camuflaje en penumbra y ventana de precisión (estamina); suspensión temporal y forma del acechador (Riutex). Cada uno tiene dos mejoras de preparación y un final que no exige volver a unir todas las ramas. La suspensión dura 3 s y ralentiza a los jefes; la forma del acechador dura 9 s, cambia la silueta y prioriza la cuchilla sobre las armas.
 - **Monitor vital:** ECG animado que cambia gradualmente de verde a rojo al bajar la salud, tubo Riutex morado con burbujas y reserva de estamina naranja vertical. Números y estados acompañan a los colores.
-- **Puertas reconocibles:** hoja, ventanilla, barra antipánico, bisagras, marco y señal de cierre. Los accesos visibles conservan detalle en la oscuridad; una sala no visitada permanece oculta.
+- **Puertas reconocibles:** hoja, ventanilla, barra antipánico, bisagras, marco y señal de cierre. Los accesos visibles conservan detalle en la oscuridad; en topdown una sala no visitada permanece oculta.
 - **Interfaz:** botones y menús con tipografía Rajdhani local, mayor tamaño de texto, bordes y estados de foco coherentes. La fuente y su licencia SIL OFL van incluidas.
-- **Progreso por explorar:** descubrir espacios y leer documentos también da EXP. Los mecanismos opcionales conceden recompensas una sola vez. Los sueros y la munición sobrante pueden ir al baúl compartido; las armas de los alijos nuevos permanecen disponibles para recogerlas cuando tengas espacio.
+- **Progreso:** solo las bajas, los documentos nuevos y las muestras consumidas dan EXP. Los mecanismos opcionales conceden sus objetos y accesos una sola vez. Los sueros y la munición sobrante pueden ir al baúl compartido; las armas de los alijos nuevos permanecen disponibles para recogerlas cuando tengas espacio.
 - **Minijuegos:** reloj con agujas, circuitos giratorios para seguridad y generador, mezcla de suero, presión hidráulica y calibración de frecuencias. Los teclados de Farmacia y Dirección incorporan las pistas del diario que hayas reunido. Los mecanismos conservan sus ajustes al salir.
 - **Inicio guiado y jugable:** biblioteca → comedor → estudio → pasadizo → frasco y captura → hospital → primer golpe en la puerta → vestíbulo → tutorial e inyección. Tomar el frasco sella la cámara y ralentiza al personaje únicamente durante la captura física del Custodio. En el hospital, el primer golpe junto al cierre abre la puerta: ya no hace falta mantener E. La inyección con F espera hasta llegar al vestíbulo y cerrar la guía.
-- **Oscuridad con acentos azules:** conserva los personajes y el hospital vectorial, con menos saturación y luz ambiental. Las paredes y puertas cerradas bloquean la visión; los muebles conservan colisión y proyectan sombras cortas y suaves, sin borrar media sala. Una sala nueva permanece negra hasta que entras; el plano recuerda lo explorado. Sin grano ni filtro retro.
+- **Oscuridad con acentos azules:** conserva los personajes y el hospital vectorial, con menos saturación y luz ambiental. Las paredes y puertas cerradas bloquean la visión; los muebles conservan colisión y proyectan sombras cortas y suaves, sin borrar media sala. En topdown, una sala nueva permanece negra hasta que entras; el plano recuerda lo explorado en ambas vistas. Sin grano ni filtro retro.
 - **Carnicero con memoria:** persigue lo que ve, investiga ruidos y busca tu última posición conocida. Si no te ve entrar en la taquilla, abandona la búsqueda y continúa sus patrullas y rutinas. Si presencia cómo te escondes, inspecciona esa taquilla.
 - **Guía de la primera huida:** indicaciones persistentes y flecha para llegar al cierre, atravesarlo después del golpe y bajar hasta la persiana. En el vestíbulo aparece un tutorial pausado con seis dibujos sencillos, controles y mecánicas. Puedes volver a consultarlo desde la pausa.
 - **Puertas reparadas:** tabiques y accesos controlados en almacén/criogenia hacia la rampa y en el lateral del invernadero. Los marcos permanecen al abrir la hoja. En cruces con dos cierres cercanos, E elige la puerta más próxima.
@@ -226,4 +224,4 @@ Las habilidades activas nuevas se asignan desde K. Camuflaje necesita penumbra y
 
 El castillo se concentra en `js/castle-levels.js`, `js/castle-enemies.js`, `js/castle-puzzles.js`, `js/castle.js`, `js/castle-art.js` y `castle.css`. El reemplazo del FL-4 se concentra en `js/flamethrower.js`. Los archivos `js/blue-*.js`, `js/blue.js`, `js/horror.js`, `js/revision.js`, `js/presentation.js`, `js/adventure.js`, `js/weapon-puzzles.js`, `js/fielddesk.js`, `js/survival.js`, `js/workshop.js`, `fielddesk.css`, `survival.css`, `blue.css`, `horror.css`, `revision.css`, `presentation.css` y `adventure.css` concentran la ampliación. Se ajustaron también entrada, cámara, combate y persecución en el motor original. Los módulos de RIUTEX 1 siguen como dependencias internas del motor recibido; el menú de esta entrega ofrece las cuatro fases y ambos finales de RIUTEX 2.
 
-El detalle de la validación y sus límites está en `docs/VALIDACION.md`. Es una ampliación jugable en 2D con arte vectorial y sonido sintetizado; el equilibrio de una partida completa aún requiere pruebas con jugadores.
+El detalle de la validación y sus límites está en `docs/VALIDACION.md`. La simulación se comparte entre la vista clásica 2D y la escena 3D de primera persona. El arte se genera localmente y el sonido es sintetizado; el equilibrio de una partida completa aún requiere pruebas con jugadores.

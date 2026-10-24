@@ -50,7 +50,7 @@ with local_server(ROOT) as url,sync_playwright() as p:
  check('Grúa opcional da un compensador solo para la escopeta',page.evaluate("Works.data().upgrades.includes('shot_compensator')&&!Game.inv.keys.includes('wx_seal')"))
  take('wx_filter_note');take('wx_filter')
  for t in ['MALLA','CARBÓN','MEMBRANA']:page.get_by_role('button',name=t,exact=True).click()
- page.click('#wxConfirm');check('Explorar dos sectores permite ensamblar protección contra el veneno',page.evaluate("Works.data().filter&&Game.inv.keys.includes('wx_filter')"))
+ page.click('#wxConfirm');check('Explorar dos sectores permite ensamblar protección contra el veneno',page.evaluate("Works.data().filter&&!Game.inv.keys.includes('wx_filter')"))
  take('wx_control');page.locator('[data-install=b]').click();page.locator('[data-install=c]').click();page.keyboard.press('Escape')
  check('Tres volantes abren el principal sin exigir la trampa',page.evaluate("Game.pz['h:wx_gate']&&!Game.pz['h:wx_arena']&&Level.doors.find(d=>d.id==='wx_main').open"))
  rooms=page.evaluate('Level.rooms.map(r=>({...r}))')

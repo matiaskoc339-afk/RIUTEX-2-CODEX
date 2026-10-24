@@ -17,7 +17,7 @@ const SceneTransitions={
   if(g.state==='menu'&&MenuScene.canvas){
    const snapshot=UI.$('menu').cloneNode(true);snapshot.classList.add('menu-snapshot');snapshot.removeAttribute('id');snapshot.setAttribute('aria-hidden','true');for(const node of snapshot.querySelectorAll('[id]'))node.removeAttribute('id');
    snapshot.querySelector('canvas').getContext('2d').drawImage(MenuScene.canvas,0,0);this.overlay.prepend(snapshot);this.menuSnapshot=snapshot;
-  }else ctx.drawImage(g.cv,0,0);
+  }else {if(typeof POV3DRenderer!=='undefined'&&POV3DRenderer.visible&&POV3DRenderer.canvas)ctx.drawImage(POV3DRenderer.canvas,0,0,old.width,old.height);ctx.drawImage(g.cv,0,0);}
   this.active=true;g.mouse.down=false;g.mouse.rclick=false;g.mouse.clicked=false;g.keys={};this.overlay.classList.remove('hidden');document.body.classList.add('scene-changing');this.overlay.style.opacity='1';
   let result;try{result=action();}catch(e){this.finish();throw e;}
   // La llegada ya existe detrás del velo; ningún update corre hasta que sea visible.

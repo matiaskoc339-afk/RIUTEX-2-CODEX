@@ -20,17 +20,20 @@ const Weapons = {
     p.stamina = Math.max(0, p.stamina - effort); if (p.stamina <= 0) p.tired = true; if(isR2lvl(g.lvl))p.exertion=1.1; p.spreadAdd = Math.min(0.12, p.spreadAdd + 0.025); // disparar cansa: Issac no está entrenado
     const sp = (w.spread + (p.spreadAdd + (p.running ? 0.04 : 0) + wob) * (w.bloomFactor == null ? 1 : w.bloomFactor)) * (p.focus > 0 ? 0.35 : 1) * Math.pow(.75, p.mods.prec);
     if (w.grenade) { const a = p.angle + (Math.random() - .5) * 2 * sp; g.projectiles.push({ x: p.x + Math.cos(a) * 18, y: p.y + Math.sin(a) * 18, vx: Math.cos(a) * 430, vy: Math.sin(a) * 430, dmg: 0, damage: w.dmg * (1 + .3 * p.mods.pow) * (1 + g.mut.mod('gun')), life: 1.0, grenade: true }); Level.move(p, -Math.cos(p.angle) * w.recoil, -Math.sin(p.angle) * w.recoil); g.cam.shake = Math.max(g.cam.shake, 5); Sound.play('shot'); return; }
+    const ballistics = typeof POV3DBallistics !== 'undefined' && POV3DBallistics.active(g) ? POV3DBallistics : null;
     for (let k = 0; k < w.pellets; k++) {
       const a = p.angle + (Math.random() - .5) * 2 * sp, cx = Math.cos(a), cy = Math.sin(a);
-      let x = p.x + cx * 18, y = p.y + cy * 18, dist = 0, hit = null;
+      const ray = ballistics && ballistics.ray(g, p), horizontalScale = ray ? ray.horizontalScale : 1;
+      let x = p.x + cx * 18 * horizontalScale, y = p.y + cy * 18 * horizontalScale, dist = 0, hit = null;
       while (dist < w.range && !hit) {
-        x += cx * 5; y += cy * 5; dist += 5;
-        if (Level.solid(x, y)) { g.sparks(x, y, 5, '#ffd27a'); break; }
-        const bb = g.barrels.find(b => !b.dead && (b.x - x) ** 2 + (b.y - y) ** 2 < 140); if (bb) { g.explode(bb); break; } // barril explosivo
-        const cr = g.crystals.find(c => !c.dead && (c.x - x) ** 2 + (c.y - y) ** 2 < 220); if (cr) { cr.hp -= w.dmg || 20; g.sparks(cr.x, cr.y, 6, '#80e0ff'); if (cr.hp <= 0) g.breakCrystal(cr); break; } // cristal de suero (Lucía)
-        for (const e of g.enemies) if (!e.dead && (e.x - x) ** 2 + (e.y - y) ** 2 < e.r * e.r) { hit = e; break; }
+        x += cx * 5 * horizontalScale; y += cy * 5 * horizontalScale; dist += 5;
+        const height = ray ? ballistics.height(ray, dist) : 0;
+        if (ray ? ballistics.solid(x, y, height, g) : Level.solid(x, y)) { g.sparks(x, y, 5, '#ffd27a'); break; }
+        const bb = (!ray || ballistics.hitsStatic('barrel', height)) && g.barrels.find(b => !b.dead && (b.x - x) ** 2 + (b.y - y) ** 2 < 140); if (bb) { g.explode(bb); break; } // barril explosivo
+        const cr = (!ray || ballistics.hitsStatic('crystal', height)) && g.crystals.find(c => !c.dead && (c.x - x) ** 2 + (c.y - y) ** 2 < 220); if (cr) { cr.hp -= w.dmg || 20; g.sparks(cr.x, cr.y, 6, '#80e0ff'); if (cr.hp <= 0) g.breakCrystal(cr); break; } // cristal de suero (Lucía)
+        for (const e of g.enemies) if (!e.dead && (!ray || ballistics.hitsEntity(e, height)) && (e.x - x) ** 2 + (e.y - y) ** 2 < e.r * e.r) { hit = e; break; }
       }
-      g.tracers.push({ x1: p.x + cx * 18, y1: p.y + cy * 18, x2: x, y2: y, life: .07 });
+      g.tracers.push({ x1: p.x + cx * 18 * horizontalScale, y1: p.y + cy * 18 * horizontalScale, x2: x, y2: y, life: .07, ...(ray ? ballistics.trace(ray, dist) : {}) });
       if (hit) hit.hurt(w.dmg * (1 + .3 * p.mods.pow) * (1 + g.mut.mod('gun')), a, g);
     }
     Level.move(p, -Math.cos(p.angle) * w.recoil * (p.focus > 0 ? .4 : 1), -Math.sin(p.angle) * w.recoil * (p.focus > 0 ? .4 : 1));

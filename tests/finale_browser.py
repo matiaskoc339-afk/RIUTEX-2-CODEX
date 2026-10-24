@@ -21,7 +21,7 @@ with local_server(ROOT) as url,sync_playwright() as p:
  quiet(page);take(page,'pp1');take(page,'hk_pase');take(page,'stairs_up');quiet(page)
  check('Subir desde vestíbulo con el pase y escalera reales',page.evaluate("Game.lvl==='hospital1'&&!Level.blocked(Game.player.x,Game.player.y,10)"))
  for id in ['hk_h07','p4','hk_bib','p3','hk_dir','p9','hk_fb','hrifle','h_safe']:take(page,id)
- check('La cadena UCI, habitación 07, Biblioteca, Dirección y Quirófano es transitable',page.is_visible('#pad') and page.evaluate("Game.inv.keys.includes('fusible_b')&&Game.inv.keys.includes('director')&&Game.picked.has('hrifle')&&Game.inv.items.some(i=>i.type==='inj_yellow')&&!Game.player.weapons.rifle"))
+ check('La cadena UCI, habitación 07, Biblioteca, Dirección y Quirófano es transitable',page.is_visible('#pad') and page.evaluate("Game.inv.keys.includes('fusible_b')&&(Game.inv.keys.includes('director')||Game.story.artifactState.consumed.director)&&Game.picked.has('hrifle')&&Game.inv.items.some(i=>i.type==='inj_yellow')&&!Game.player.weapons.rifle"))
  for c in '0714':page.get_by_role('button',name=c,exact=True).click()
  page.get_by_role('button',name='OK',exact=True).click()
  check('La caja del director entrega la llave de la rampa',page.evaluate("Game.pz.h_safe&&Game.inv.keys.includes('garaje')"))

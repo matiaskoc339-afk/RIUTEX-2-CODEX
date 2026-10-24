@@ -10,10 +10,10 @@ def check(name,ok):
     passed.append(name);print('PASS',name,flush=True)
 
 with local_server(R) as url,sync_playwright() as pw:
-    browser=pw.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
+    browser=pw.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox','--enable-webgl','--enable-unsafe-swiftshader','--use-angle=swiftshader'])
     page=browser.new_page(viewport={'width':1440,'height':900});page.on('pageerror',lambda e:errors.append(str(e)))
     page.add_init_script("addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});")
-    page.goto(url);page.click('#bNew');page.evaluate('Game.loop=()=>{};SceneTransitions.finish()');page.wait_for_timeout(60)
+    page.goto(url);page.click('#bNew');page.evaluate("Game.loop=()=>{};SceneTransitions.finish();Game.cv.requestPointerLock=()=>{throw Error('La captura nativa se verifica en controls_v020; esta prueba aísla XP con el respaldo de control')};void 0");page.wait_for_timeout(60)
     page.evaluate("""window.xpqa={start(level='hospital'){
       const g=Game;g.startLvl='mansion';g.start(false);Hospital.toHospital(g);g.story.restrained=false;Hospital.inject(g);Hospital.lobbyReached(g);
       if(level!=='hospital')Hospital.goto(g,level,FLOORS[level].spawn);
@@ -35,6 +35,7 @@ with local_server(R) as url,sync_playwright() as pw:
         check(label+': descubrir salas no da XP; documento nuevo da 2 una sola vez',sources['room']==0 and sources['document']==2 and sources['repeated']==2)
         check(label+': recoger una muestra no anticipa la XP de consumirla',sources['pickup']==2 and sources['samples']==1)
         page.keyboard.press('k')
+        page.wait_for_function("Game.state==='tree'&&!FirstPerson.locked()&&!FirstPerson.capturePending")
         check(label+': el botón del árbol anuncia la recompensa real de 15 EXP','+15 EXP' in page.locator('#bSample').inner_text())
         page.click('#bSample')
         check(label+': absorber con el botón consume una muestra y suma exactamente 15 XP',page.evaluate('Game.player.xp===17&&Game.inv.samples===0') and page.locator('#bSample').is_disabled())
@@ -58,5 +59,5 @@ with local_server(R) as url,sync_playwright() as pw:
     check('Cuatro bajas permiten una primera mejora; guardar/cargar conserva XP y habilidad',purchase=={'earned':4,'after':0,'owned':True,'loaded':123,'skill':True})
     check('Sin errores JavaScript',not errors)
     version=json.loads((R/'package.json').read_text())['version']
-    (R/'artifacts/experience-browser-results.json').write_text(json.dumps({'version':version,'passed':passed,'errors':errors,'kills':metrics,'scope':'Disparo letal preparado, documentos y muestras reales, botón de absorción y puzle por controles en ambas perspectivas, compra y guardado. Las muertes preparadas de jefes aíslan XP y no son combates completos.'},ensure_ascii=False,indent=2)+'\n')
+    (R/'artifacts/experience-browser-results.json').write_text(json.dumps({'version':version,'passed':passed,'errors':errors,'kills':metrics,'scope':'Disparo letal preparado, documentos y muestras reales, botón de absorción y puzle por controles en ambas perspectivas, compra y guardado. La captura nativa se deniega deliberadamente para aislar XP durante reinicios rápidos; se prueba aparte en controls_v020. El modo POV sí renderiza WebGL. Las muertes preparadas de jefes aíslan XP y no son combates completos.'},ensure_ascii=False,indent=2)+'\n')
     browser.close()

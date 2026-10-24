@@ -1,4 +1,4 @@
-# Progresión de XP · v0.18.1
+# Progresión de XP · v0.20.0
 
 Solo dan XP las bajas, consumir muestras de Riutex y recoger documentos nuevos. El mismo reparto se aplica en topdown y primera persona.
 
@@ -43,17 +43,17 @@ Este presupuesto suma todas las bajas normales colocadas, documentos únicos y m
 
 | Mapa | Bajas | Documentos | Muestras | XP total |
 | --- | ---: | ---: | ---: | ---: |
-| Mansión | 7 | 14 | 0 | 21 |
-| Hospital, planta baja | 38 | 64 | 15 | 117 |
-| Hospital, primer piso | 35 | 34 | 15 | 84 |
-| Hospital, sótano | 22 | 16 | 15 | 53 |
-| Cloacas / fábrica | 60 | 40 | 0 | 100 |
-| Castillo, planta baja | 48 | 22 | 0 | 70 |
-| Castillo, planta alta | 52 | 20 | 0 | 72 |
-| Laboratorio | 123 | 30 | 0 | 153 |
-| **Total** | **385** | **240** | **45** | **670** |
+| Mansión | 7 | 18 | 0 | 25 |
+| Hospital, planta baja | 38 | 70 | 15 | 123 |
+| Hospital, primer piso | 35 | 42 | 15 | 92 |
+| Hospital, sótano | 22 | 18 | 15 | 55 |
+| Cloacas / fábrica | 60 | 50 | 0 | 110 |
+| Castillo, planta baja | 48 | 26 | 0 | 74 |
+| Castillo, planta alta | 52 | 24 | 0 | 76 |
+| Laboratorio | 123 | 38 | 0 | 161 |
+| **Total** | **385** | **286** | **45** | **716** |
 
-Las tres columnas centrales expresan XP, no cantidades de objetos. No se incluyen jefes, minijefes, oleadas ni la muestra del EEG. Esos encuentros y muestras añaden sus recompensas limitadas. La mansión completa aporta como máximo 21 XP de las fuentes colocadas.
+La edición v0.20.0 incorpora 24 hojas narrativas: 23 están en estos ocho mapas (+46 XP) y una en calabozos (+2 XP fuera del presupuesto). No cambia el premio de cada documento ni añade fuentes de experiencia. Las tres columnas centrales expresan XP, no cantidades de objetos. No se incluyen jefes, minijefes, oleadas ni la muestra del EEG. Esos encuentros y muestras añaden sus recompensas limitadas. La mansión completa aporta como máximo 25 XP de las fuentes colocadas.
 
 Las pruebas compran por separado dos rutas avanzadas con los requisitos reales: Disciplina de fuego cuesta 310 XP acumulados en 24 nodos, y Reactor orgánico 348 en 27. El presupuesto permite avanzar en una especialización y adquirir apoyos, sin completar automáticamente la red: sus 153 opciones suman 2460 XP antes de excluir alternativas doradas incompatibles.
 

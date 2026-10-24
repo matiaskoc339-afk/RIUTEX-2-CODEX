@@ -1,8 +1,10 @@
-# Guardado web e itch.io · v0.19.0
+# Guardado web e itch.io · v0.20.0
 
 ## Archivo para publicar
 
-Ejecuta `npm run build` y sube `dist/RIUTEX2_itchio_v0.19.0.zip` a itch.io. Elige un proyecto HTML que se reproduce en el navegador. El ZIP contiene un único `index.html` en la raíz con scripts, estilos, fuentes y gráficos integrados, sin descargas externas. Activa pantalla completa para la experiencia de escritorio; teclado y ratón siguen siendo necesarios.
+Ejecuta `npm run build` y sube `dist/RIUTEX2_itchio_v0.20.0.zip` a itch.io. Elige un proyecto HTML que se reproduce en el navegador. El ZIP contiene un único `index.html` en la raíz con scripts, estilos, fuentes y gráficos integrados, sin descargas externas. Activa pantalla completa para la experiencia de escritorio; teclado y ratón siguen siendo necesarios.
+
+Para la primera persona 3D hace falta un navegador con WebGL. Three.js se incluye en el archivo y no se solicita a una CDN. El iframe debe permitir la captura del ratón (`allow-pointer-lock`); si el navegador la rechaza, el juego ofrece botón de reintento, arrastre derecho y flechas. La vista clásica sigue disponible.
 
 El paquete de fuentes y el HTML de descarga individual son entregas distintas del ZIP listo para itch.io. No hay que poner el juego dentro de otra carpeta al preparar la subida.
 

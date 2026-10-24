@@ -1,3 +1,15 @@
+# Validación de v0.20.0 · Escena WebGL, control y archivo
+
+El render POV usa mallas Three.js para criaturas, recogibles, puertas, techos y armas, con materiales físicos, profundidad y sombras. La captura del ratón se coordina con las ventanas y ambos ejes comparten ganancia angular. Los cambios generales retiran artefactos agotados y añaden 24 documentos narrativos.
+
+La ejecución consolidada en `RESULTADOS.json` registra **345 pruebas de motor**, **103 comprobaciones de integración**, **15 mapas** y **434 comprobaciones de navegador** en once grupos, sin fallos. Los nuevos grupos de motor cubren captura, anatomía y armas 3D, disparos con altura y artefactos/lore. En navegador: WebGL 46, captura nativa 22, artefactos/lore 13, persistencia 26, XP 34, supervivencia 38, fábrica 61, castillo 76, final hospital 38, laboratorio/finales 63 y HTML integrado 17. El presupuesto de XP se ha recalculado desde los mapas: 716 XP en los ocho mapas principales, con 25 en la mansión. Los premios por fuente conservan su valor.
+
+La revisión gráfica renderiza los 15 mapas, 43 especies y 12 fases de jefes sin geometrías no finitas ni errores JavaScript. Comprueba puertas operadas con E y detección al abrirlas, techos sólidos, oclusión, escaleras con flecha física, cadáveres/eco/cadenas, siete armas, infección/amputación/cura, mira centrada a ±1,4 radianes, fundidos con captura 3D y retorno a topdown. La revisión visual usa escenas preparadas y un contexto WebGL real de Chromium con render por software. Comprueba la integración gráfica y errores de ejecución; no mide una campaña humana completa ni garantiza FPS en otro equipo. Las pruebas del render antiguo que comparaban imágenes frontales no se consideran pruebas de las mallas nuevas. El paquete autocontenido incluye Three.js local y se prueba por HTTP sin solicitudes de recursos externos. La prueba local de iframe no publica el juego en un dominio real de itch.io.
+
+Las cifras y combates de las versiones anteriores se conservan a continuación como historial.
+
+---
+
 # Validación de v0.19.0 · Guardado web y cuerpo POV
 
 - **305 pruebas de motor**, **103 comprobaciones de integración** y **15 mapas**, sin fallos.

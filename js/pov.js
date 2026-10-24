@@ -4,6 +4,7 @@ const FirstPerson = {
   key:'riutex_pov_v016', enabled:false, ready:false, armed:false, fallback:false,
   dragging:false, dragMoved:false, dragDistance:0, pitch:0, maxPitch:1.4, turnKeys:{},
   sensitivity:.00235, sensitivityPercent:100, ignoreUnlock:false, ignoreEscapeUntil:0,
+  captureWanted:false, capturePending:false, captureAttempted:false, captureEpoch:0,
   saveSettings(){
     try{localStorage.setItem(this.key,JSON.stringify({enabled:this.enabled,sensitivityPercent:this.sensitivityPercent}));}catch(e){}
   },
@@ -14,6 +15,7 @@ const FirstPerson = {
     this.saveSettings();this.refreshUI(Game);return this.sensitivityPercent;
   },
   active(g=Game){return !!(this.enabled&&g?.player&&typeof isR2lvl==='function'&&isR2lvl(g.lvl));},
+  captureEligible(g=Game){return this.active(g)&&g.state==='play'&&!g.mut?.bindingTarget&&document.hidden!==true;},
   playable(g=Game){return this.active(g)&&g.state==='play'&&!g.mut?.bindingTarget&&!(typeof SceneTransitions!=='undefined'&&SceneTransitions.active);},
   locked(){return typeof document!=='undefined'&&document.pointerLockElement===Game.cv&&!!Game.cv;},
   pointerLocked(){return this.locked();},
@@ -24,9 +26,11 @@ const FirstPerson = {
   },
   look(dx,dy,g=Game){
     if(!this.active(g))return;
-    const p=g.player,a=(p.angle||0)+Math.max(-200,Math.min(200,Number(dx)||0))*this.sensitivity;
+    // Misma ganancia angular por píxel y mismo límite de eventos para ambos ejes.
+    const axis=v=>Number.isFinite(Number(v))?Math.max(-2048,Math.min(2048,Number(v))):0;
+    const p=g.player,a=(p.angle||0)+axis(dx)*this.sensitivity;
     p.angle=Math.atan2(Math.sin(a),Math.cos(a));
-    this.pitch=Math.max(-this.maxPitch,Math.min(this.maxPitch,this.pitch+(Number(dy)||0)*this.sensitivity*.7));
+    this.pitch=Math.max(-this.maxPitch,Math.min(this.maxPitch,this.pitch+axis(dy)*this.sensitivity));
     this.sync(g);
   },
   sync(g=Game){
@@ -43,7 +47,9 @@ const FirstPerson = {
   clearActions(g=Game){
     if(g.mouse){g.mouse.down=false;g.mouse.clicked=false;g.mouse.rclick=false;}
   },
-  release(g=Game){
+  release(g=Game,preserveWanted=false){
+    if(!preserveWanted)this.captureWanted=false;
+    this.captureEpoch++;this.capturePending=false;this.captureAttempted=false;
     this.armed=false;this.dragging=false;this.dragMoved=false;this.dragDistance=0;this.turnKeys={};
     this.clearActions(g);if(g.keys)g.keys={};
     if(this.locked()&&typeof document.exitPointerLock==='function'){
@@ -55,7 +61,7 @@ const FirstPerson = {
     const next=!!value;
     if(next!==this.enabled){this.release(Game);this.enabled=next;this.pitch=0;}
     this.saveSettings();
-    this.sync(Game);this.refreshUI(Game);return this.enabled;
+    this.sync(Game);this.refreshUI(Game);if(next)this.wantCapture(Game);return this.enabled;
   },
   refreshUI(g=Game){
     if(typeof document==='undefined')return;
@@ -75,20 +81,32 @@ const FirstPerson = {
       this.hint.classList.toggle('hidden',!this.playable(g)||this.locked());
       const text=this.armed&&this.fallback
         ?'Arrastra con clic derecho para mirar · Flechas: girar · Clic derecho corto: golpe'
-        :'Clic para controlar la mirada · WASD: moverte · Flechas: girar · Esc: pausa';
+        :'Si el navegador lo solicita, haz clic para capturar el ratón · Esc: pausa';
       if(this.hintText.textContent!==text)this.hintText.textContent=text;
     }
   },
+  wantCapture(g=Game){
+    if(!this.captureEligible(g))return;
+    if(!this.captureWanted)this.captureAttempted=false;
+    this.captureWanted=true;this.tryAutoCapture(g);
+  },
+  tryAutoCapture(g=Game){
+    if(!this.ready||!this.captureWanted||this.captureAttempted||this.capturePending||this.ignoreUnlock||this.locked()||!this.captureEligible(g)||!this.playable(g))return;
+    this.requestCapture(g);
+  },
   requestCapture(g=Game){
-    if(!this.playable(g))return;
+    if(!this.captureEligible(g)||!this.playable(g)||this.capturePending||this.locked())return;
+    this.captureWanted=true;this.captureAttempted=true;
     this.armed=true;this.fallback=false;this.clearActions(g);
     if(typeof g.cv?.requestPointerLock!=='function'){this.fallback=true;this.refreshUI(g);return;}
+    const epoch=++this.captureEpoch;this.capturePending=true;
     try{
       const request=g.cv.requestPointerLock();
       if(request&&typeof request.catch==='function')request.catch(()=>{
+        if(epoch!==this.captureEpoch)return;this.capturePending=false;
         if(this.playable(g)&&!this.locked()){this.fallback=true;this.refreshUI(g);}
       });
-    }catch(e){this.fallback=true;}
+    }catch(e){this.capturePending=false;this.fallback=true;}
     this.refreshUI(g);
   },
   arrowAvailable(code,g=Game){
@@ -97,16 +115,17 @@ const FirstPerson = {
   tick(dt,g=Game){
     if(!this.active(g))return;
     if(!this.playable(g)){
-      if(this.armed||this.locked()||this.dragging)this.release(g);
+      if(this.armed||this.locked()||this.dragging)this.release(g,this.captureEligible(g));
       this.refreshUI(g);return;
     }
+    this.tryAutoCapture(g);
     if(!this.armed)this.clearActions(g);
     const speed=Math.min(.05,Math.max(0,dt))*1.65,
       turn=(this.turnKeys.ArrowRight?1:0)-(this.turnKeys.ArrowLeft?1:0),
       tilt=(this.turnKeys.ArrowDown?1:0)-(this.turnKeys.ArrowUp?1:0);
     if(turn||tilt){
       const p=g.player,a=p.angle+turn*speed;p.angle=Math.atan2(Math.sin(a),Math.cos(a));
-      this.pitch=Math.max(-this.maxPitch,Math.min(this.maxPitch,this.pitch+tilt*speed*.45));
+      this.pitch=Math.max(-this.maxPitch,Math.min(this.maxPitch,this.pitch+tilt*speed));
     }
     this.sync(g);this.refreshUI(g);
   },
@@ -183,17 +202,23 @@ const FirstPerson = {
       }
     },true);
     document.addEventListener('pointerlockchange',()=>{
-      const now=this.locked(),was=this.wasLocked;this.wasLocked=now;
-      if(now){this.armed=true;this.fallback=false;this.ignoreUnlock=false;}
+      const now=this.locked(),was=this.wasLocked,hadCapture=was||this.armed&&this.captureWanted&&this.captureAttempted;this.wasLocked=now;
+      this.capturePending=false;
+      if(now){
+        if(!this.captureEligible(Game)||!this.playable(Game)){this.release(Game,this.captureEligible(Game));return;}
+        this.armed=true;this.fallback=false;this.ignoreUnlock=false;this.captureWanted=true;this.captureAttempted=true;
+      }
       else{
         const deliberate=this.ignoreUnlock;this.ignoreUnlock=false;this.armed=false;this.clearActions(Game);
-        if(was&&!deliberate&&this.active(Game)&&Game.state==='play'){
+        if(hadCapture&&!deliberate&&this.active(Game)&&Game.state==='play'){
+          this.captureWanted=false;this.captureAttempted=false;
           this.ignoreEscapeUntil=performance.now()+220;Game.pause();
-        }
+        }else if(deliberate)this.tryAutoCapture(Game);
       }
       this.refreshUI(Game);
     });
     document.addEventListener('pointerlockerror',()=>{
+      this.capturePending=false;
       if(this.playable(Game)&&!this.locked()){this.fallback=true;this.refreshUI(Game);}
     });
     window.addEventListener('blur',()=>{if(this.active(Game))this.release(Game);});
@@ -206,12 +231,12 @@ const FirstPerson = {
   const update=Game.update;Game.update=function(dt){
     if(FirstPerson.active(this))FirstPerson.tick(dt,this);
     const result=update.call(this,dt);
-    if(FirstPerson.active(this)){if(!FirstPerson.playable(this)){FirstPerson.clearActions(this);if(FirstPerson.armed||FirstPerson.locked())FirstPerson.release(this);}FirstPerson.sync(this);FirstPerson.refreshUI(this);}
+    if(FirstPerson.active(this)){if(!FirstPerson.playable(this)){FirstPerson.clearActions(this);if(FirstPerson.armed||FirstPerson.locked())FirstPerson.release(this,FirstPerson.captureEligible(this));}FirstPerson.sync(this);FirstPerson.refreshUI(this);}
     return result;
   };
   const screen=UI.screen;UI.screen=function(name){
     if(FirstPerson.enabled&&name)FirstPerson.release(Game);
-    const result=screen.call(this,name);FirstPerson.refreshUI(Game);return result;
+    const result=screen.call(this,name);if(!name)FirstPerson.wantCapture(Game);FirstPerson.refreshUI(Game);return result;
   };
   const start=Game.start;Game.start=function(...args){
     if(FirstPerson.enabled)FirstPerson.release(this);
@@ -222,7 +247,8 @@ const FirstPerson = {
       if(Math.hypot(dx,dy)>1)p.angle=Math.atan2(dy,dx);
       FirstPerson.sync(this);
     }
-    FirstPerson.refreshUI(this);return result;
+    FirstPerson.wantCapture(this);FirstPerson.refreshUI(this);return result;
   };
+  const finish=SceneTransitions.finish;SceneTransitions.finish=function(...args){const result=finish.apply(this,args);FirstPerson.tryAutoCapture(Game);return result;};
   const cast=Game.castSkill;Game.castSkill=function(...args){if(FirstPerson.active(this))FirstPerson.sync(this);return cast.apply(this,args);};
 })();

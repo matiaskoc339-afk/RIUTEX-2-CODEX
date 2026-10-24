@@ -1,4 +1,4 @@
-# Cuerpo y percepción POV · v0.19.0
+# Cuerpo y percepción POV · v0.20.0
 
 ## Percepción
 
@@ -10,24 +10,24 @@ El rastreador ciego y el Tallador no obtienen visión. Esconderse, el camuflaje 
 
 ## Dos brazos
 
-El nuevo rig contiene como máximo una mano izquierda y una derecha, conectadas a antebrazos con volumen. Las palmas, dedos y arma se dibujan en capas para representar el agarre; no son manos adicionales.
+El nuevo rig contiene como máximo una mano izquierda y una derecha, conectadas a antebrazos con volumen. Palmas, dedos, mangas y antebrazos son mallas de una escena 3D separada, con puntos de agarre en el arma; no son manos adicionales.
 
 El golpe desplaza el brazo izquierdo ya existente mientras la mano derecha baja el arma. La cuchilla y las transformaciones nacen de esos mismos brazos. No se dibuja una tercera mano durante la animación.
 
 - En el prólogo se mantiene piel humana.
 - Después de consumir Riutex, el tejido del brazo regenerado se vuelve azul y aparecen venas del compuesto.
-- Mientras falta el brazo, se muestra solo la mano derecha y un muñón vendado.
+- Mientras falta el brazo, se retira la mano izquierda y se mantiene la derecha.
 - La cura elimina el azul, las garras y el brazo regenerado.
 - El desenlace mutante transforma ambos brazos existentes.
 
 ## Armas
 
-M9, M12, UZI, AK, R-98, FL-4 y GL-6 usan cuerpos de perspectiva con caras y cañones proyectados, biseles, miras, cargadores, empuñaduras y detalles diferenciados. Las manos siguen los puntos de agarre. Hay balanceo, retroceso y descenso de recarga; el disparo y los costes siguen usando la simulación del arma equipada.
+M9, M12, UZI, AK, R-98, FL-4 y GL-6 usan cuerpos tridimensionales con caras, cañones y materiales físicos, biseles, miras, cargadores, empuñaduras y detalles diferenciados. Las manos siguen los puntos de agarre. Hay balanceo, retroceso y descenso de recarga; el disparo y los costes siguen usando la simulación del arma equipada.
 
-La perspectiva del modelo converge hacia el centro de la mira y se adapta al tamaño de la ventana. No requiere archivos externos ni modifica los dibujos de topdown.
+La cámara del arma se adapta al tamaño de la ventana y conserva una perspectiva estable. No requiere archivos externos ni modifica los dibujos de topdown.
 
 ## Pruebas
 
-Las pruebas de motor verifican alcance, cono, reacción cercana, ocultación, puerta abierta sin descubrir la sala, muebles bajos y altos, pérdida visual, ciegos, camuflaje y estados de brazos. En Chromium se abre una puerta con E para adquirir al jugador y se dibujan las siete armas, el golpe, la pérdida del brazo y ambos finales. Se comprueban siluetas distintas, tejido azul y una única palma dibujada por brazo.
+Las pruebas de motor verifican alcance, cono, reacción cercana, ocultación, puerta abierta sin descubrir la sala, muebles bajos y altos, pérdida visual, ciegos, camuflaje y estados de brazos. En Chromium se abre una puerta con E para adquirir al jugador y se dibujan las siete armas, el golpe, la pérdida del brazo y ambos finales. Se comprueban siluetas distintas, tejido azul y un máximo de dos manos de malla y uso del mismo brazo en el golpe.
 
 Las capturas preparadas se revisan visualmente y no se cuentan como partidas o victorias de campaña. Los resultados se conservan en RESULTADOS.json.

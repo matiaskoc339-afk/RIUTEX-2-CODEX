@@ -1,41 +1,47 @@
-# Primera Persona POV · v0.17.2
+# Primera Persona POV · v0.20.0
 
-## Uso
+## Uso y ratón
 
-La casilla «Primera Persona POV» está en Opciones y en Pausa. Arranca desactivada y se guarda como preferencia del navegador, separada del progreso de la campaña. Puedes volver a topdown en el mismo lugar y con los mismos recursos.
+La casilla **Primera Persona POV** está en Opciones y Pausa. Empieza desactivada y se guarda como preferencia del navegador, separada de la campaña. Puedes volver a topdown en el mismo lugar y con los mismos recursos.
 
-En v0.17.2 puedes mirar mucho más arriba y abajo: el recorrido vertical es cinco veces mayor, con ratón o flechas. La sensibilidad elegida conserva su velocidad y la retícula permanece centrada.
+Al iniciar o volver al juego se intenta capturar el cursor automáticamente. Abrir habilidades, inventario, documentos, mapa, mecanismos o pausa lo libera; cerrar la ventana vuelve a solicitarlo. Esc libera y pausa una sola vez, sin recapturarlo mientras estás en el menú. Transiciones, muerte, pérdida de foco y cambio de pestaña limpian las acciones para que no continúe un disparo.
 
-La barra **Sensibilidad del ratón** está en Opciones y Pausa: de **25 % a 250 %**, con **100 %** como valor normal. Se aplica al instante a la mirada horizontal y vertical y se recuerda al volver a abrir el juego.
+Si el navegador impide una captura automática por falta de un gesto de usuario o por las restricciones del iframe, aparece **Bloquear ratón** para reintentar. También funcionan el arrastre con clic derecho y las flechas que no estén asignadas a un poder. El clic destinado a capturar no dispara; un clic derecho breve conserva el golpe.
 
-Pulsa **Bloquear ratón** en la ayuda inferior para capturar el cursor en primera persona. **Esc** lo libera y pausa. El botón reaparece al reanudar; si el navegador rechaza la captura, puedes reintentar o usar el arrastre con clic derecho.
+La barra **Sensibilidad del ratón**, de 25 % a 250 % en pasos de 5 %, aplica la misma ganancia angular a X e Y. El valor normal es 100 % y se recuerda entre sesiones. Mover arriba mira arriba y mover abajo mira abajo. La inclinación alcanza ±1,4 radianes, unos 80 grados por dirección. La retícula permanece centrada.
 
-W/S avanza o retrocede respecto de la cámara; A/D hace desplazamiento lateral. Shift corre. El ratón controla la mirada en sentido normal (subir mira arriba, bajar mira abajo) tras hacer clic en la escena; el clic que adquiere el control no dispara. Esc libera y pausa una sola vez. Las ventanas, transiciones, muerte, pérdida de foco y cambio de pestaña limpian el disparo y liberan el control. Reanudar requiere un clic explícito para recuperar el ratón. Si el bloqueo del puntero se rechaza, se puede mirar arrastrando con clic derecho o mediante flechas que no estén asignadas a un poder; un clic derecho breve golpea.
+W/S avanza y retrocede respecto de la cámara; A/D se desplaza de lado y Shift corre. E interactúa por proximidad, R recarga, F usa inyección, Tab abre inventario, J documentos, M mapa y K habilidades. Las teclas asignadas siguen activando poderes.
 
-Los demás controles y ventanas conservan su comportamiento: E interactúa por proximidad, R recarga, F usa inyección, Tab abre inventario, J documentos, M mapa, K habilidades y las teclas asignadas activan poderes.
+## Escena 3D
 
-## Integración
+El POV usa una escena Three.js/WebGL con profundidad, mallas y materiales físicos. Actores y objetos no son imágenes frontales. Los enemigos tienen anatomía articulada, ropa, equipo y materiales según su especie; respiran, andan y anuncian ataques con sus extremidades. Los cuatro jefes cambian de volumen y anatomía al mutar. Los recogibles, muebles y mecanismos tienen cuerpos sólidos. Las escaleras incluyen peldaños, barandillas y una flecha tridimensional visible.
 
-- `pov.js`: ajuste, entrada relativa, captura/alternativa de ratón y coordinación con ventanas. Los únicos enganches a Player.update/dodge son condicionales al modo activo.
-- `pov-renderer.js`: proyección desde la posición del jugador, profundidad por píxel, suelo/techo, paredes, puertas, cobertura, actores, proyectiles, campos y señales.
-- `pov-models.js`: treinta identidades de criaturas/encuentros, mutaciones, objetos sueltos y claves visuales de caché independientes de los tipos heredados. [Catálogo](MODELOS_POV.md).
-- `pov-art.js`: materiales y arte frontal propios, armamento en manos, enemigos y sus mutaciones, escuadrón, primer Custodio, documentos, suministros, mecanismos y helicóptero. Recursos locales y cachés acotadas.
-- `pov.css`: ajuste accesible y ayuda de control, incluidos 720p.
+Paredes, suelos y techos usan texturas locales de 512 píxeles con mapas de relieve y rugosidad por ambiente. Hay linterna con sombras suaves, luminarias, destello del arma y niebla a distancia. Las puertas tienen marcos, hojas, tiradores e indicadores y se abren con desplazamiento animado hacia sus laterales. Los techos son geometría estable; patios y espacios exteriores permanecen abiertos y las arenas grandes tienen más altura.
 
-Se mantiene la simulación original en dos dimensiones. El render usa paredes extruidas y actores frontales, con oclusión real; no es una ampliación del dibujo topdown. La inclinación vertical es visual y la retícula permanece en el centro al mirar arriba o abajo y el combate conserva su plano horizontal: no añade saltos, disparos a alturas independientes ni bonificaciones por disparar a la cabeza. La vida, armas, munición, habilidades, colisiones, IA, requisitos y guardados conservan sus reglas.
+El canvas 3D se presenta al tamaño de la ventana, con antialiasing y densidad de píxel limitada a 1,5 para controlar el coste. Las formas se generan localmente: el estilo es 3D procedural y no requiere modelos remotos ni texturas de una CDN. Three.js r160 y su licencia MIT se incluyen en `vendor/` y dentro del HTML integrado. Hace falta WebGL para esta vista. Si no puede iniciarse, se informa y queda disponible el modo clásico.
 
-Solo la vista POV prescinde de la máscara de habitaciones no visitadas: se puede mirar dentro por una puerta abierta antes de entrar. La oclusión por profundidad sigue ocultando lo que queda detrás de paredes y puertas cerradas. HorrorVision.prepare conserva el registro de visitas y el plano descubre cada sala al entrar. Al volver a topdown se mantiene su máscara de exploración original. El mobiliario sólido alcanza el plano de combate, por lo que la cobertura sigue bloqueando los disparos como en la vista clásica.
+Solo POV prescinde de la máscara de habitaciones no visitadas. Se puede mirar por una puerta abierta antes de entrar; los muros y puertas cerradas siguen ocultando físicamente. El registro de visitas y el plano descubren cada sala al entrar. Al volver a topdown se mantiene su máscara original.
 
-Los avisos originales de los jefes pasan por un adaptador que proyecta sus mismos círculos, arcos y líneas al suelo. Las bandas amplias conservan grosor en coordenadas del mundo. Se incluyen presión química y ganchos del Carnicero, veneno/saltos/crías de la Matriarca, marcas y cargas del Regente y marcas/ondas/cadenas de Wren. Los campos Riutex y los residuos se muestran en sus coordenadas reales. Durante la huida inicial se reutiliza el destino de EscapeGuide con una señal relativa a la cámara, sin instrucciones absolutas de izquierda/derecha.
+## Simulación y combate
 
-## Comprobaciones
+La campaña conserva su simulación y colisiones en dos dimensiones: no hay salto libre ni navegación vertical. Vida, recursos, habilidades, IA, requisitos y guardados comparten el mismo estado entre vistas. Los enemigos con vista tienen alcance limitado y reaccionan en una puerta abierta; los ciegos siguen investigando sonidos.
 
-La batería del motor incluye dieciocho pruebas específicas de la nueva perspectiva: valores por defecto, movimiento cardinal y diagonal, esquiva, paredes, apuntado, consumo/recarga, melee, proyectil mutante, guardado, quince mapas, puertas, cobertura e inclinación.
+Los disparos instantáneos normales en POV usan la inclinación de la mira, la altura del cuerpo y las superficies. Un disparo al suelo o techo no alcanza a un enemigo fuera del rayo, y los muebles bajos pueden cubrir las piernas sin borrar la cabeza. No se añade daño extra por un disparo en la cabeza. Granadas, poderes y el lanzallamas conservan su comportamiento de simulación anterior; la vista clásica conserva su disparo horizontal.
 
-El navegador comprueba ajuste/persistencia, cambio de vista en pausa sin alterar recursos, captura permitida y alternativa rechazada, foco, ventanas, recorrido del prólogo y reloj, captura obligatoria y primera huida hasta inyectarse. Se preparan enemigos para comprobar siete armas, proyectiles, costes, recarga y píxeles de oclusión. Se preparan doce formas de jefes y se comparan avisos con recuperación. Los escenarios adicionales aíslan marcas, ondas, crías, charcos, veneno, poderes, escondite, caída y los dos epílogos con helicóptero/cuerda/disparos. El HTML integrado comprueba que el modo POV y la vuelta al clásico estén incluidos.
+El arma y los dos brazos son otra escena 3D con agarres, retroceso, recarga y golpe. La mano izquierda existente ejecuta el golpe; no aparece una tercera mano. Los estados de pérdida, regeneración azul y desenlace del antídoto se deducen de la historia guardada.
 
-La revisión v0.16.1 repite motor, integración, quince mapas y cinco grupos de navegador (165 comprobaciones). Añade catorce comprobaciones enfocadas con eventos reales de ratón/flechas y comparación de píxeles a través de dos puertas: estancia desconocida visible, puerta cerrada oculta, plano sin descubrir y máscara clásica conservada. La ejecución de los otros grupos completos de campaña corresponde al historial v0.16.0.
+Los avisos de los jefes conservan sus mismos círculos, arcos y líneas en las coordenadas del suelo: presión y ganchos del Carnicero, veneno y saltos de la Matriarca, marcas y cargas del Regente, y marcas/ondas/cadenas de Wren. También se muestran campos Riutex, residuos y proyectiles. La primera huida conserva su señal orientada respecto de la cámara. Los fundidos capturan la escena 3D junto con su interfaz.
 
-Los recorridos geométricos retiran enemigos normales para aislar movimiento y requisitos. Las presentaciones de formas y epílogos usan estados preparados; no son victorias adicionales. Los combates clásicos independientes conservan IA, movimiento y recursos finitos. El controlador automatizado de la Matriarca fija la semilla aleatoria 369 y la restaura al terminar, para repetir exactamente el ensayo sin cambiar la aleatoriedad del juego normal. Una ejecución previa sin semilla agotó su munición; no se alteró la dificultad ni se concedieron recursos durante las pruebas.
+## Módulos y comprobación
 
-No se ha jugado toda la campaña en primera persona con una única provisión natural de recursos ni se ha medido dificultad humana. Las cifras de render en Chromium headless son diagnósticas, no una garantía de FPS en todos los dispositivos. Chromium administrado bloquea file://; el HTML autocontenido se prueba por HTTP sin descargas externas.
+- `pov.js`: preferencia, movimiento relativo, sensibilidad y ciclo de captura con menús.
+- `pov3d-renderer.js`: cámara, iluminación, profundidad, escena, efectos, interfaz y vuelta a la vista clásica.
+- `pov3d-world.js`: materiales de ambiente, muros, techos, puertas, fluidos y luminarias.
+- `pov3d-assets.js`: criaturas articuladas, mutaciones, muebles y recogibles volumétricos.
+- `pov3d-viewmodel.js`: dos brazos y siete armas en una escena 3D de primera persona.
+- `pov3d-ballistics.js`: trayectorias de armas normales con altura y oclusión en POV.
+- `pov-models.js`, `pov-art.js`, `pov-renderer.js` y `pov-viewmodel.js`: catálogos, geometría auxiliar y adaptadores de avisos conservados de la presentación anterior.
+
+Las pruebas específicas cubren controles y captura nativa, anatomía de las especies y mutaciones, ausencia de sprites en las mallas, animación, utilería y balística con altura. Las pruebas de navegador del render preparan escenas para comprobar la integración WebGL y los cambios de nivel. Los grupos antiguos que comparaban dibujos frontales pertenecen al render anterior y no prueban la geometría actual. Los resultados ejecutados y su alcance se registran en [VALIDACION.md](VALIDACION.md) y [RESULTADOS.json](RESULTADOS.json).
+
+Los escenarios preparados no equivalen a una primera partida humana completa. El render de Chromium headless sirve para detectar errores e inspeccionar imágenes; no garantiza una tasa de FPS en todos los equipos. El HTML autocontenido se prueba por HTTP, sin descargas externas.

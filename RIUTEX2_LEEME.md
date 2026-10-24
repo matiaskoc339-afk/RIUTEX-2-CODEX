@@ -1,136 +1,58 @@
-# RIUTEX 2 · Historia completa · v0.18.0
+# RIUTEX 2 · Historia completa · v0.20.0
 
-v0.18.0 · XP POR BAJAS REDUCIDA
+La campaña parte de tu base v0.2.2 y recorre mansión, hospital, cloacas/fábrica, museo-castillo y laboratorio UMBRAL, con cuatro jefes finales de tres formas y dos desenlaces.
 
-Enemigos normales: 1–2 XP en hospital/cloacas, 2–3 en castillo y 3–4 en laboratorio. Minijefes: 6–10. Jefes finales: 11, 14, 18 y 29. Las bajas iniciales aportan aproximadamente un 83–84 % menos en conjunto. Cada muerte paga una sola vez. Explorar, leer y resolver puzles sigue dando su XP; las partidas existentes conservan lo ya ganado.
+## Jugar y publicar
 
+Abre `RIUTEX2_Historia_Completa_v0.20.0.html` en un navegador de escritorio con teclado y ratón. Para el proyecto fuente, ejecuta `npm start` y visita `http://localhost:8000`. El sonido comienza con la primera interacción. No hay dependencias de npm que instalar.
 
-NUEVO · PRIMERA PERSONA POV
+Para itch.io utiliza **RIUTEX2_itchio_v0.20.0.zip**, que contiene un `index.html` integrado en la raíz. Súbelo como juego HTML para navegador y permite pantalla completa. El HTML incluye código, estilos, fuentes, Three.js y recursos locales: no descarga modelos ni bibliotecas de una CDN. Los archivos se generan con `npm run build`.
 
-Opciones → Primera Persona POV. También está en Esc → Pausa, para cambiar de vista durante la partida. Desactivada mantiene la vista clásica. Se recuerda en el navegador y no reinicia tu progreso.
+## Primera persona 3D
 
-En v0.17.2 puedes mirar mucho más arriba y abajo: el recorrido vertical es cinco veces mayor, con ratón o flechas. La sensibilidad elegida conserva su velocidad y la retícula permanece centrada.
+Activa **Primera Persona POV** en Opciones o desde Esc → Pausa. Empieza desactivada. Puedes cambiar a la vista clásica en el mismo lugar y con los mismos recursos, sin reiniciar. El ajuste se recuerda en el navegador.
 
-La barra **Sensibilidad del ratón** está en Opciones y Pausa: de **25 % a 250 %**, con **100 %** como valor normal. Se aplica al instante a la mirada horizontal y vertical y se recuerda al volver a abrir el juego.
+El POV usa una escena WebGL con mallas reales: criaturas articuladas, mutaciones de jefes, armas, muebles, mecanismos y objetos del suelo. Hay materiales de ambiente con relieve y rugosidad, linterna con sombras, luces de instalaciones, techos sólidos y puertas con marcos y apertura animada. Las escaleras tienen peldaños, pasamanos y una flecha 3D. Es un estilo procedural generado localmente y requiere WebGL; si el navegador no puede iniciarlo, conserva disponible la vista clásica.
 
-Pulsa **Bloquear ratón** en la ayuda inferior para capturar el cursor en primera persona. **Esc** lo libera y pausa. El botón reaparece al reanudar; si el navegador rechaza la captura, puedes reintentar o usar el arrastre con clic derecho.
+El ratón se captura al entrar o volver al juego. Se libera al abrir habilidades, inventario, diario, mapa, mecanismos o pausa y se intenta recuperar al cerrar la ventana. **Esc libera y pausa.** Si el navegador exige otro gesto, usa **Bloquear ratón**; también puedes mirar arrastrando con clic derecho o con flechas. El primer clic destinado a recuperar el control no gasta una bala.
 
-W/S avanza y retrocede; A/D se desplaza de lado. Haz clic para controlar la mirada; el primer clic no dispara. Esc libera el ratón y pausa. Si no se puede capturar, arrastra con clic derecho o usa flechas para mirar; clic derecho breve golpea. Las ventanas usan sus controles habituales y liberan el cursor.
+La sensibilidad va de 25 % a 250 %, con 100 % normal. X e Y comparten la misma ganancia angular. Arriba mira arriba y abajo mira abajo; la inclinación llega a unos 80 grados por dirección. La retícula permanece centrada. Los disparos normales consideran la altura de la mira y de los cuerpos; los muebles bajos pueden cubrir las piernas sin ocultar una cabeza. El golpe mueve el brazo izquierdo existente. La regeneración muestra tejido azul y los desenlaces reflejan la decisión del antídoto.
 
-v0.18.0: mirada vertical normal (arriba mira arriba, abajo mira abajo). Solo en POV se ven salas aún no visitadas por puertas abiertas; paredes y puertas cerradas siguen tapando la vista. El mapa y la vista clásica mantienen su exploración habitual.
+Solo en POV se puede ver una habitación desconocida a través de una puerta abierta. Paredes y puertas cerradas siguen tapando. El plano descubre cada sala al entrar; topdown conserva su oscuridad de exploración. La campaña comparte simulación, colisiones y progreso entre ambas vistas.
 
-v0.18.0: treinta identidades visuales, incluyendo Carnicero y C-17 sin confundirlos con enemigos comunes; mutaciones de los cuatro jefes, objetos sueltos reconocibles y mira centrada al mirar arriba/abajo.
+## Artefactos y documentos
 
-Paredes, puertas, enemigos, armas, objetos, poderes y señales de ataque están adaptados. El motor, sus recursos y el progreso se comparten entre ambas vistas.
+Las llaves desaparecen de Artefactos al terminar todos sus usos. Si todavía sirven para otra cerradura permanecen con una explicación. Las puertas ya desbloqueadas recuerdan ese acceso al cerrarlas, cambiar de planta o cargar. Las piezas instaladas dejan el maletín de artefactos sin perder su efecto ni el progreso del mecanismo. También se limpian sobrantes de partidas anteriores.
 
-NUEVO · PRESENTACIÓN Y PROGRESIÓN
+Se añaden 24 documentos narrativos, unas 3358 palabras, con cartas y testimonios sobre Axel, Wren, pacientes, familiares, trabajadores y víctimas del proyecto. Complementan la exploración sin introducir requisitos nuevos ni soluciones de puzles. Se conservan en J para releerlos.
 
-Menú centrado sobre sangre húmeda con reflejos de disparos más visibles. Se eliminó la persona caminando. La sangre, los detalles del hospital, el logo y los botones están renovados. Opciones permite ajustar volumen y reducir estos efectos. Hay fundidos al comenzar, cambiar de planta, cargar y reintentar; la acción se pausa durante ellos.
+## Guardado al salir
 
-Las mejoras porcentuales del árbol son más perceptibles, con descripciones actualizadas: por ejemplo, regeneración Riutex 8→12 % y recuperación de estamina 10→14 %. Las habilidades que ya posees también usan el nuevo balance al cargar.
+El juego guarda una sesión cada diez segundos, al pausar, ocultar o cerrar normalmente la página y después de acciones importantes. **Continuar → Continuar sesión** recupera posición, recursos, inventario, documentos, habilidades, mecanismos y enemigos heridos. Los tres huecos de las camillas y el punto de Reintentar siguen separados.
 
-FASE FINAL · LABORATORIO UMBRAL
+En **Pausa → Partidas y copias** puedes descargar una copia JSON e importarla después. El guardado pertenece al mismo navegador y origen web; no se sincroniza con la cuenta de itch.io. Borrar datos, cambiar de dominio o usar navegación privada puede perderlo. Un cierre forzado puede impedir el último guardado: conserva una copia descargada para trasladar o respaldar la partida. Si el navegador bloquea el almacenamiento, el juego avisa.
 
-Después del Regente, la compuerta de la galería baja al laboratorio. Tres expedientes principales te orientan hacia las muestras del antídoto; puedes hacer sus rutas en cualquier orden. Los instrumentos conservan ajustes. Vuelve al vestíbulo para guardar, usar el baúl o mejorar armas.
+## Progresión
 
-El GL-6 se consigue explorando y restaurando su seguro. Pulsa 5 de nuevo para alternarlo con el FL-4. Sus granadas tienen receta propia y la explosión es peligrosa de cerca. Hay cinco restauraciones opcionales de armas y una ampliación del maletín.
+Solo dan XP las bajas, los documentos nuevos y las muestras consumidas. Leer un documento nuevo da **2 XP** una sola vez; absorber una muestra desde K da **15 XP** y consume el objeto. Recoger una muestra sin absorberla no adelanta su premio.
 
-Lleva las tres muestras al núcleo y prepara equipo antes de activar la consola. Wren se inyecta durante la síntesis y combate en tres formas. Cada ataque tiene aviso; las cargas contra pared dejan una pausa larga.
+Los enemigos normales dan 1–2 XP en hospital y cloacas, 2–3 en castillo y 3–4 en laboratorio. Los minijefes dan 6–10; los jefes finales, 11, 14, 18 y 29. Las crías invocadas no dan XP y una misma muerte no vuelve a pagar. Explorar salas, resolver mecanismos, recoger equipo, tocar campanas o completar recompensas opcionales da sus objetos y accesos, sin XP adicional. Las partidas conservan experiencia y habilidades ya obtenidas.
 
-Tras vencerlo, el antídoto ofrece dos elecciones. Tomarlo elimina las habilidades mutantes y el brazo reconstruido, pero conserva tu entrenamiento. Rechazarlo termina la transformación. La puerta se abre en ambos casos: sal y camina al norte por la calle para que llegue el helicóptero. Los dos desenlaces se guardan. Conserva un guardado anterior a la elección si quieres ver ambos.
+La red de K tiene 153 opciones, comienzo común, cruces, ramas humanas azules y mutantes moradas, y cuatro decisiones doradas de dos alternativas: dos humanas y dos mutantes. Cada pareja permite escoger una. Las habilidades activas permiten asignar una tecla libre. El panel explica costes, requisitos y qué alternativa se cierra.
 
-NUEVO · FASE DEL CASTILLO
+## Equipo y controles
 
-La salida de la araña ahora lleva por escaleras al calabozo de Valcárcel. Lee la advertencia antes de cruzar la reja: el Tallador es ciego; caminar por suelo limpio es silencioso, pero los restos, choques, carreras y disparos lo llaman. Ataca donde oyó el ruido. Deja ese punto durante el aviso, aprovecha su recuperación y recoge la llave que deja al morir.
+El AK pertenece al prólogo. Al despertar en el hospital pierdes ese equipo. La M9 está en el vestíbulo; la escopeta y la UZI requieren exploración y mecanismos opcionales. La antigua recompensa de rifle del hospital es una inyección de vida máxima. El FL-4 se consigue en la fábrica, el R-98 en el castillo y el GL-6 en el laboratorio mediante sus rutas opcionales. El banco permite mejorar daño, aguante, control o precisión y capacidad según el arma. El traje S-4 es opcional y su barra solo se recupera reparándolo en el banco.
 
-Sube al vestíbulo para guardar, usar el baúl y mejorar armas. Dos plantas abiertas y tres escaleras conectan las rutas de las dos campanas. Los documentos orientan sin resolver los tableros. Puedes hacer primero poniente o levante. Ambas voces abren la sala real.
+- **WASD / Shift:** moverte y correr; en POV, A/D se desplaza de lado.
+- **Ratón / clic:** apuntar y disparar. **Clic derecho:** golpe. **R:** recargar. **1–5:** equipar armas; algunas teclas alternan dos armas.
+- **E:** interactuar y cerrar puertas abiertas. **F:** inyección.
+- **Tab:** maletín. Sus pestañas conectan Construcción, Artefactos, Documentos, Mapa y Adaptación.
+- **J / M / K:** documentos, mapa y habilidades. Repite el atajo activo o pulsa Esc para volver.
+- **Esc:** pausa o cierre de ventanas; libera el ratón en POV.
 
-El R-98 y los cinco módulos para armas son opcionales. Lee los expedientes para encontrar sus piezas y resolver cada estuche. Si llevas ambos rifles, pulsa 4 de nuevo para alternar. Construcción permite fabricar cuatro cartuchos R-98 con tres tornillos grandes y tres pólvoras grandes. El banco ofrece daño, aguante, precisión y cargador.
+Los disparos gastan estamina según el arma y el golpe infectado consume Riutex. Mucho ruido fuerte seguido puede atraer al Carnicero desde lejos. Rompe su línea de visión antes de entrar en una taquilla: si te ve esconderte, puede comprobarla. Los enemigos ciegos investigan ruidos y contacto.
 
-El Regente tiene tres formas: espada y escudo, carne pesada al romper la armadura y furia final. Cada corte de una cadena tiene su propio aviso. La puerta de la galería se abre al vencerlo; cruzarla desciende al laboratorio final. Puedes seguir desde guardados anteriores con la Matriarca vencida.
+La primera captura de la mansión y la huida del hospital son secuencias jugables. Durante la primera huida, alcanza la puerta del fondo para que el primer golpe rompa el cierre; sigue la señal hasta el vestíbulo. Tras la guía, pulsa F para inyectarte. Después queda abierta la exploración del hospital.
 
-Usa el HTML `RIUTEX2_Historia_Completa_v0.18.0.html` para la versión autocontenida, o `index.html` para el proyecto fuente. Empieza con «Nueva partida».
-
-La base de esta ampliación es tu ZIP v0.2.2. La mansión conduce al hospital en una introducción jugable. Tras la persiana del vestíbulo, el hospital queda abierto para explorar sus tres plantas, sus nuevas salas y los recorridos alternativos.
-
-M: plano · K: red de 153 opciones con comienzo común, cruces y doradas (149 compatibles por partida), zoom y arrastre · J: pistas · Tab: maletín · Esc: controles, pausa, guía y volumen.
-
-Los mecanismos nuevos se explican en su pantalla. Puedes salir y volver sin perder ajustes. Los refugios y las camillas ayudan a preparar la siguiente ruta. Guarda antes de cerrar el navegador.
-
-Consulta README.md para cambios y controles completos. Los planos de la carpeta `planos` revelan el mapa entero y contienen spoilers.
-
-Al tomar el frasco en la mansión se cierra la cámara y tus piernas pesan hasta la captura. En la primera persecución del hospital, corre hasta la puerta del fondo: el primer golpe junto a ella rompe el cierre. Atraviesa la puerta, sigue a la derecha y baja hasta el vestíbulo. Tras la guía visual, pulsa F para inyectarte. El hospital queda abierto a la exploración.
-
-Las doradas son elecciones permanentes: dos parejas humanas y dos mutantes. Puedes escoger una de cada pareja; las cuatro decisiones son independientes. Puedes combinar las mejoras humanas y mutantes normales. Algunos nodos necesitan sus dos conexiones anteriores; el panel te indica cuáles.
-
-Para esconderte del Carnicero rompe primero su línea de visión; si te ve entrar en una taquilla, comprobará ese lugar. Las salas nuevas permanecen ocultas hasta entrar en ellas. El mobiliario proyecta sombras cortas sin ocultar toda la zona que tiene detrás.
-
-El monitor de salud tiene pulso y cambia de verde a rojo; Riutex es morado con burbujas y la estamina es naranja vertical. En K, azul significa Humano y morado Mutante. Pasa el ratón sobre un nodo para leer su nombre. El fondo conserva la animación al comprar.
-
-Los nuevos ramales terminan en camuflaje, precisión, suspensión temporal o forma del acechador. Lee sus condiciones y costes en K; puedes asignar una tecla a cada técnica aprendida.
-
-El AK pertenece únicamente a la operación de la mansión. Al despertar pierdes ese equipo. La pistola del vestíbulo queda cerca del centro y tiene una señal discreta de recogida.
-
-El hospital contiene M9, escopeta, UZI y rifle de precisión. La escopeta y la UZI exigen explorar, leer y resolver mecanismos opcionales de correderas y espejos. Si el maletín está lleno, el arma espera donde la encontraste. Los ajustes y los alijos abiertos se recuerdan al guardar.
-
-El HUD del arma muestra cargador actual / capacidad y reserva debajo. La imagen cambia al equipar otro modelo. El objetivo principal solo ofrece una pista: abre M con su botón para ver el sector aproximado. Las búsquedas opcionales permanecen a cargo de tu exploración; revisa «Pistas» en J.
-
-
-En v0.8, Tab muestra únicamente el inventario. Cambia de sección desde la barra superior: Construcción (munición y preparación de materiales), Artefactos (llaves y piezas con pistas), Documentos, Mapa y Adaptación. J, M y K cambian directamente a su sección. Repite el atajo de la sección activa o pulsa Esc para volver al juego.
-
-En el mapa puedes arrastrar, acercar con la rueda o +/−, centrar tu posición y poner una marca en suelo que ya hayas visto. La marca se conserva al guardar; puedes borrarla. Selecciona una sala visitada para consultar sus conexiones. El mapa mantiene ocultas las salas sin visitar.
-
-El maletín y el baúl usan iconos propios. Construcción explica los costes y bloquea recetas sin materiales o espacio, sin consumir nada. También permite preparar o reagrupar tornillos y pólvora con un coste de conversión.
-
-Los documentos tienen papel clínico con pliegues, sello, manchas y variantes de archivo. Al desarrollar habilidades mutantes aparecen cambios físicos pequeños. Las taquillas están en los bordes del paso y el reloj del estudio queda junto al muro.
-
-
-En v0.9 los disparos gastan estamina según el arma. Tras cada disparo necesitas un instante para recuperar el aliento; no puedes seguir disparando con la barra vacía. El golpe infectado consume Riutex. La primera cuchilla es breve y requiere administrar energía.
-
-Mucho ruido fuerte seguido llama al Carnicero. Oirás un aviso antes de su llegada; aparece lejos, fuera de la vista y con una ruta real hacia el sonido. Si ya ronda la planta, camina hasta investigar. Perder su visión y ocultarte sin testigos sigue siendo importante.
-
-Reflejos e Instinto ahora son compras opcionales. Las activas permiten elegir su tecla al comprarlas. Puedes cancelar y asignarla después; las teclas de acciones básicas están reservadas. Hay cuatro ramales nuevos: Segundo aliento, Cambio de guardia, Singularidad y Eco de carne.
-
-La camilla del vestíbulo ofrece los tres huecos de guardado y permite pasar a carga. La sangre que deja Axel tras perder el brazo cesa cuando se reconstruye.
-
-Busca los registros opcionales del personal para ganar accesorios de M9, escopeta, UZI y rifle. Un documento advierte sobre C-17: el encuentro se inicia solo si rompes su precinto y puedes retirarte. Su cargador se recupera después de vencerlo.
-
-La orden de Mantenimiento explica cómo devolver corriente a la mesa de mejoras mediante un generador auxiliar. Es otro circuito distinto del generador del garaje. En la mesa puedes gastar materiales del maletín para mejorar por separado daño, aguante, precisión y cargador de cada arma que tengas, incluso las del baúl.
-
-
-v0.9.1 solo añade dos parejas doradas avanzadas. Tras Control total, elige Disciplina de fuego o Reserva del veterano. Tras Sobrecarga estable, elige Reactor orgánico o Corazón abisal. Cada opción cuesta 48 EXP; adquirir una bloquea solo su alternativa. Las decisiones anteriores se conservan.
-
-
-Final de v0.10.0: con la energía del garaje restaurada, busca la salida a la calle. El suelo cederá y caerás sobre la rejilla de la cuba química. El punto de control conserva los recursos con los que llegaste. El Carnicero lucha en tres formas: normal, mutada y furia. Mira las marcas, deja que falle y aprovecha sus pausas; no necesitas comprar una esquiva para evitar sus ataques. Al vencerlo se abre una compuerta lateral. Al otro lado hay una escalera para bajar a la nueva fábrica.
-
-Las tres plantas siguen siendo explorables antes de la caída. Se probaron las quince zonas de la planta alta, sus llaves y mecanismos, y la ida y vuelta por las escaleras. En el acceso al sótano ya puedes abrir la puerta cercana sin activar de nuevo la escalera por accidente.
-
-
-NUEVA ZONA v0.11.0 · CLOACAS / FÁBRICA
-
-Tras vencer al Carnicero, cruza la puerta lateral y pulsa E en las escaleras. El vestíbulo inferior conserva una línea segura: camilla, baúl, ducha y mesa de mejoras. Su armero funciona aunque no hubieras encendido el generador opcional del hospital. La ducha limpia el veneno; no restaura salud.
-
-Explora depuración, vivario y fundición. Cada sector tiene una pieza, un mecanismo y un volante. Vuelve al panel del vestíbulo para instalar las tres válvulas y abrir el colector. Las salas están conectadas por bucles y atajos; no hace falta explorar en el orden del objetivo. El mapa solo revela las zonas visitadas.
-
-Escucha antes de correr: el rastreador no ve, pero oye el sprint, los disparos y el contacto. El agua negra acumula veneno. Hay pasos secos y un filtro opcional que reduce la exposición. Los otros experimentos tienen abalanzamientos, cargas y descargas tóxicas con aviso.
-
-La radio del vivario conserva la transmisión del escuadrón 3-6-9AK en Documentos y Artefactos. Seguirla al almacén es opcional. Prepara equipo antes de confirmar las tres placas; la trampa tiene ocho oleadas y la última incluye un minijefe. Si sobrevives, abre el maletín de inspección de la salida para terminar esa misión y obtener la mejora UZI. El principal no exige completarla.
-
-Escape cierra cualquier mecanismo sin perder sus ajustes. Conserva los archivos de tu versión anterior: los guardados siguen asociados a la ubicación/origen desde el que el navegador abre el HTML.
-
-Para reutilizar guardados al jugar con el HTML descargado, conserva una copia del anterior y abre la actualización con el mismo nombre y desde la misma carpeta en el mismo navegador. Los guardados no se transfieren entre orígenes diferentes.
-
-
-CIERRE DE LA FASE 2 v0.12.0
-
-El LG-4 ha sido sustituido por el lanzallamas FL-4. Lee el expediente del armero en Depósito logístico. Recupera el regulador del Taller de rotores y la válvula de Calderas, y recompón el plano del estuche del Muelle de chatarra. Equipa con 5 y mantén clic para lanzar fuego continuo de corto alcance. Consume combustible y estamina, causa quemado leve de tres segundos y no inmoviliza a los enemigos continuamente.
-
-R cambia un tanque completo: el combustible que quedaba se descarta. Fabrica tanques en Construcción (2 tornillos grandes + 3 pólvoras grandes por tanque). El banco mejora daño, aguante, control del chorro y depósito. Ampliar el depósito no lo rellena. Los guardados anteriores convierten el LG-4, sus mejoras y sus granadas sin repetir la misión; un cargador vacío se mantiene vacío.
-
-Seguridad S-4, en el vestíbulo, inicia otra misión opcional más larga. Recupera tejido, sellos y resina en los sectores que describe el expediente. Con la presión detenida, conecta el esterilizador de las Celdas de recuperación. Comprueba tu equipo antes de activarlo: comienza un encuentro contra el custodio y sus crías. Tras vencerlo, recupera el traje del estuche.
-
-El traje es una defensa adicional: barra propia y resistencia al veneno mientras conserve capa. Aparece junto a las armas en el armero. Puedes mejorar protección, durabilidad y resistencia al veneno. SOLO REPARAR CAPA restaura la barra, gastando materiales. Las curas y las mejoras de capacidad no la rellenan. Si se rompe, el daño pasa a tu salud y pierde su filtrado hasta repararlo. El desgaste se conserva al guardar o cambiar de planta.
-
-Las arañas del vertido son frágiles, pero se mueven en grupos y dejan charcos al morir. No camines sobre sus restos inmediatamente.
-
-Tras instalar las tres válvulas, cruza el colector hacia la última estación. Hay suministros limitados y un retorno al refugio antes de entrar en la cueva. La Matriarca tiene tres formas: veneno e invocaciones, persecución física rápida y una combinación final. Mira las marcas del suelo, cambia de dirección antes de sus disparos y aprovecha sus pausas. La puerta del este solo se abre al vencerla; cruzarla da paso al calabozo del museo y comienza la fase 3.
+Consulta [README.md](README.md) para el contenido completo y [docs/VALIDACION.md](docs/VALIDACION.md) para las pruebas y su alcance. Los planos revelan el mapa entero y contienen spoilers. Las pruebas automatizadas no sustituyen una partida humana completa ni garantizan rendimiento en todos los equipos.

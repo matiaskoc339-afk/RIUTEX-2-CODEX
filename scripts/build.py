@@ -15,6 +15,9 @@ def script(match):
  text=(ROOT/match[1]).read_text().replace('</script','<\\/script')
  return '<script>\n'+text+'\n</script>'
 html=re.sub(r'<script src="([^"]+)"></script>',script,html)
+# La licencia también viaja en el HTML único distribuido en itch.io.
+license_text=(ROOT/'vendor/THREE-LICENSE.txt').read_text()
+html=html.replace('</head>','<!-- Three.js / MIT\n'+license_text+'-->\n</head>')
 assert not re.search(r'<script src=|<link rel="stylesheet"',html)
 out=ROOT/'dist';out.mkdir(exist_ok=True)
 version=json.loads((ROOT/'package.json').read_text())['version']

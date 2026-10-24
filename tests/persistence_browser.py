@@ -37,7 +37,7 @@ with local_server(ROOT) as base,local_server(ROOT) as hostbase,sync_playwright()
     for pov in [False,True]:
         label='POV' if pov else 'Topdown'
         with TemporaryDirectory(prefix='riutex-profile-') as profile:
-            args={'executable_path':'/usr/bin/chromium','headless':True,'args':['--no-sandbox'],'viewport':{'width':1440,'height':900},'accept_downloads':True}
+            args={'executable_path':'/usr/bin/chromium','headless':True,'args':['--no-sandbox','--enable-webgl','--enable-unsafe-swiftshader','--use-angle=swiftshader'],'viewport':{'width':1440,'height':900},'accept_downloads':True}
             context=pw.chromium.launch_persistent_context(profile,**args)
             page,frame=opened(context,base,hostbase);prepare(frame,pov)
             check(label+': carga dentro de iframe de otro origen',frame.evaluate('location.origin')!=page.evaluate('location.origin'))
@@ -65,7 +65,7 @@ with local_server(ROOT) as base,local_server(ROOT) as hostbase,sync_playwright()
             check(label+': volver al menú también guarda la sesión',frame.evaluate('Game.player.xp===31'))
             context.close()
 
-    browser=pw.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
+    browser=pw.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox','--enable-webgl','--enable-unsafe-swiftshader','--use-angle=swiftshader'])
     context=browser.new_context(viewport={'width':1440,'height':900},accept_downloads=True)
     context.add_init_script("Storage.prototype.getItem=function(){throw new DOMException('blocked','SecurityError')};Storage.prototype.setItem=function(){throw new DOMException('blocked','SecurityError')};")
     page,frame=opened(context,base,hostbase);prepare(frame)
