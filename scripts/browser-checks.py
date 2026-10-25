@@ -15,3 +15,6 @@ if result.returncode:
 result=subprocess.run([sys.executable,str(root/'tests/perspective_choice_browser.py')],cwd=root)
 if result.returncode:
     raise SystemExit(result.returncode)
+result=subprocess.run([sys.executable,str(root/'tests/intro_pursuit_browser.py')],cwd=root)
+if result.returncode:
+    raise SystemExit(result.returncode)

@@ -1,20 +1,21 @@
 {
-  "version": "0.23.0",
+  "version": "0.24.0",
   "date": "2026-10-25",
   "scope": "RIUTEX 2 completo: mansión, hospital, fábrica, castillo, laboratorio UMBRAL, Wren/ORIGEN y dos epílogos",
-  "system_tests": 377,
+  "system_tests": 386,
   "system_failures": 0,
   "integration_checks": 103,
   "map_validations": 15,
   "browser_groups": {
-    "perspective_choice": 20,
+    "intro_pursuit": 18,
+    "revision": 14,
     "pov_webgl": 52,
     "capture_native": 26,
-    "standalone": 17,
-    "persistence": 26
+    "persistence": 26,
+    "standalone": 17
   },
-  "browser_checks_total": 141,
-  "validation_scope": "377 pruebas de motor, 103 comprobaciones de integración y 15 mapas sin fallos. 141 comprobaciones de navegador: selector 20, WebGL 52, captura nativa 26, HTML integrado 17 y persistencia 26. Elección real por teclado y ratón con dos capturas locales; cancelación, foco, tamaños 1440/1280/390 px, fundido y captura nativa. Continuar no repite la elección y la ventana no sobrescribe la sesión. El balanceo usa desplazamiento real, se suaviza al parar y respeta pausa y reducción de movimiento; el ojo y el disparo comparten altura y la inclinación no gira el apuntado. Motor comprueba además pared, ocultación, sprint y reinicio. HTML autocontenido sin solicitudes externas y guardado en iframe y al reabrir el perfil. Las pruebas son escenarios preparados con SwiftShader; no miden una campaña humana ni FPS en GPU física.",
+  "browser_checks_total": 153,
+  "validation_scope": "386 pruebas de motor, 103 comprobaciones de integración y 15 mapas sin fallos. 153 comprobaciones de navegador: huida/brazos 18, revisión 14, WebGL 52, captura nativa 26, persistencia 26 y HTML integrado 17. Huida con IA activa y colisiones reales en ambos modos: cierre trasero, objetivo permanente, forcejeo, golpe único, llegada e inyección. Reanudar durante el forcejeo conserva la posición y permite avanzar; las camillas antiguas en run reconstruyen al Carnicero en suelo válido. Motor recorre las tres filas de la puerta en ambos modos. Brazos más gruesos, siete armas, dos manos, materiales, amputación/cura, golpe y línea central libre en reposo. HTML integra scripts e imágenes locales, sin recursos externos. Son escenarios preparados con SwiftShader; no miden una campaña humana ni FPS de GPU física.",
   "new_map": {
     "factory_dimensions": [
       148,
@@ -1219,5 +1220,54 @@
     "aim_direction_unchanged": true,
     "shot_and_camera_eye_aligned": true,
     "persistent_save_fields_added": false
+  },
+  "previous_validation_v0230": {
+    "version": "0.23.0",
+    "date": "2026-10-25",
+    "system_tests": 377,
+    "system_failures": 0,
+    "integration_checks": 103,
+    "map_validations": 15,
+    "browser_groups": {
+      "perspective_choice": 20,
+      "pov_webgl": 52,
+      "capture_native": 26,
+      "standalone": 17,
+      "persistence": 26
+    },
+    "browser_checks_total": 141,
+    "validation_scope": "377 pruebas de motor, 103 comprobaciones de integración y 15 mapas sin fallos. 141 comprobaciones de navegador: selector 20, WebGL 52, captura nativa 26, HTML integrado 17 y persistencia 26. Elección real por teclado y ratón con dos capturas locales; cancelación, foco, tamaños 1440/1280/390 px, fundido y captura nativa. Continuar no repite la elección y la ventana no sobrescribe la sesión. El balanceo usa desplazamiento real, se suaviza al parar y respeta pausa y reducción de movimiento; el ojo y el disparo comparten altura y la inclinación no gira el apuntado. Motor comprueba además pared, ocultación, sprint y reinicio. HTML autocontenido sin solicitudes externas y guardado en iframe y al reabrir el perfil. Las pruebas son escenarios preparados con SwiftShader; no miden una campaña humana ni FPS en GPU física."
+  },
+  "intro_pursuit": {
+    "both_views": true,
+    "hospital_run_only": true,
+    "rear_door_temporarily_locked": true,
+    "normal_stalker_ai_preserved": true,
+    "player_keeps_look_control": true,
+    "bracing_blocks_movement_and_dodge": true,
+    "bracing_does_not_drain_stamina": true,
+    "door_opens_on_actual_enemy_strike": true,
+    "first_strike_once": true,
+    "restores_control_after_strike": true,
+    "rear_door_restored_at_lobby": true,
+    "session_resume_bracing_verified": true,
+    "legacy_manual_save_reconstructs_stalker": true,
+    "three_door_rows_tested_in_both_views": true
+  },
+  "pov_arm_volume": {
+    "pov_only": true,
+    "forearm_wrist_radius": 0.038,
+    "forearm_elbow_radius": 0.072,
+    "sleeve_elbow_radius": 0.082,
+    "sleeve_shoulder_radius": 0.103,
+    "palm_scale": [
+      1.1,
+      1.08,
+      1.1
+    ],
+    "seven_guns_verified": true,
+    "idle_center_aim_unobstructed": true,
+    "two_hands_maximum": true,
+    "infection_amputation_cure_preserved": true
   }
 }

@@ -75,7 +75,7 @@ test('Un puñetazo repetido no mantiene al Carnicero inmóvil ni cancela su prep
   g.t+=.3;c.hurt(16,0,g);assert.equal(c.stagger,0);g.t+=2;c.state='rushWind';c.hurt(16,0,g);assert.equal(c.stagger,0);assert.equal(c.hp,c.maxHp);
 });
 test('La huida inicial exige correr pero conserva la puerta y el golpe guionizado',()=>{
-  start();g.story.seq='run';g.story.armHealed=false;g.story.armCut=false;g.player.x=41.6*32;g.player.y=7.5*32;
+  start();g.story.seq='run';g.story.armHealed=false;g.story.armCut=false;g.player.x=43.2*32;g.player.y=7.5*32;
   const c=run('new Carnicero(900,37*32,7.5*32)');c.scripted=true;c.dormant=false;c.hunt=true;c.state='chase';c.burstCd=0;g.enemies=[c];
   const x=c.x;c.update(.1,g);assert.ok(c.x-x>13&&c.x-x<21.5);assert.notEqual(c.state,'rushWind');
   c.hitPlayer(g);assert.equal(g.story.seq,'wounded_run');assert.ok(g.story.armCut);

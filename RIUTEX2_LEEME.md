@@ -1,12 +1,12 @@
-# RIUTEX 2 · Historia completa · v0.23.0
+# RIUTEX 2 · Historia completa · v0.24.0
 
 La campaña parte de tu base v0.2.2 y recorre mansión, hospital, cloacas/fábrica, museo-castillo y laboratorio UMBRAL, con cuatro jefes finales de tres formas y dos desenlaces.
 
 ## Jugar y publicar
 
-Abre `RIUTEX2_Historia_Completa_v0.23.0.html` en un navegador de escritorio con teclado y ratón. Para el proyecto fuente, ejecuta `npm start` y visita `http://localhost:8000`. El sonido comienza con la primera interacción. No hay dependencias de npm que instalar.
+Abre `RIUTEX2_Historia_Completa_v0.24.0.html` en un navegador de escritorio con teclado y ratón. Para el proyecto fuente, ejecuta `npm start` y visita `http://localhost:8000`. El sonido comienza con la primera interacción. No hay dependencias de npm que instalar.
 
-Para itch.io utiliza **RIUTEX2_itchio_v0.23.0.zip**, que contiene un `index.html` integrado en la raíz. Súbelo como juego HTML para navegador y permite pantalla completa. El HTML incluye código, estilos, fuentes, Three.js y recursos locales: no descarga modelos ni bibliotecas de una CDN. Los archivos se generan con `npm run build`.
+Para itch.io utiliza **RIUTEX2_itchio_v0.24.0.zip**, que contiene un `index.html` integrado en la raíz. Súbelo como juego HTML para navegador y permite pantalla completa. El HTML incluye código, estilos, fuentes, Three.js y recursos locales: no descarga modelos ni bibliotecas de una CDN. Los archivos se generan con `npm run build`.
 
 ## Primera persona 3D
 
@@ -74,3 +74,7 @@ Animaciones de reposo, marcha, preparación, golpe, recuperación y mutación ex
 ## Elección de vista · v0.23.0
 
 Nueva partida abre dos tarjetas con capturas del juego: Primera persona y Topdown. Esc permite cancelar; Tab y flechas recorren las opciones; Enter elige la tarjeta enfocada. Puedes cambiar de vista desde Opciones o Pausa. Continuar y Reintentar no vuelven a preguntar. El POV tiene un balanceo suave al caminar/correr, que se centra al parar y se desactiva con Reducir movimiento.
+
+## Brazos y huida inicial · v0.24.0
+
+Los brazos en primera persona tienen antebrazos y mangas más gruesos, con muñecas y manos proporcionadas, conservando agarres, golpe, infección y amputación. La persecución inicial sella la vuelta a la habitación y mantiene al Carnicero siguiendo al jugador. Al alcanzar el cierre del fondo, Axel lo empuja y el primer golpe abre la puerta; no puede esquivarse ese momento. La llegada al vestíbulo devuelve el control normal y restaura el acceso trasero. Cerrar durante el forcejeo permite continuar al reanudar. [Detalle de los cambios](docs/BRAZOS_HUIDA.md).

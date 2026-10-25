@@ -1,3 +1,16 @@
+# Validación de v0.24.0 · Brazos y huida inicial
+
+- **386 pruebas de motor**, **103 comprobaciones de integración** y **15 mapas**, sin fallos.
+- **153 comprobaciones de navegador**: huida/brazos 18, revisión 14, WebGL 52, captura nativa 26, persistencia 26 y HTML integrado 17. Sin errores JavaScript.
+- Recorrido inicial con IA y colisiones reales en ambos modos: cierre trasero, objetivo permanente, pasillo transitable, forcejeo sin gasto de estamina, golpe único, amputación, puerta abierta, llegada e inyección. Motor recorre las tres filas de la puerta en ambos modos. Fuera del tramo se conserva ocultación y movimiento normal.
+- Reanudar durante el forcejeo permite recibir el golpe y continuar, sin quedar inmóvil para siempre. Una camilla antigua en `run` reconstruye al perseguidor en suelo válido. Al llegar al vestíbulo vuelve a abrirse el acceso trasero.
+- Los brazos POV aumentan de volumen y conservan texturas, infección, ausencia del brazo, cura y animación del golpe. Se prueban las siete armas y los puños, dos manos como máximo y el eje central de visión libre en reposo.
+- Persistencia probada al reabrir el perfil y en iframe local de otro origen. HTML y ZIP contienen los scripts y ambas capturas de perspectivas integrados; no solicitan recursos externos.
+
+Son escenarios preparados y controladores que conocen las rutas; no sustituyen una campaña humana ni miden FPS de una GPU física. La prueba de iframe usa orígenes locales, sin publicar el juego en itch.io. [Cambios y alcance](BRAZOS_HUIDA.md).
+
+---
+
 # Validación de v0.23.0 · Elección y cámara POV
 
 - **377 pruebas de motor**, **103 comprobaciones de integración** y **15 mapas**, sin fallos.

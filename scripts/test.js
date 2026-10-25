@@ -28,6 +28,7 @@ for (const args of [
     "tests/factory-refresh.test.js",
     "tests/boss-pressure.test.js",
     "tests/perspective-choice.test.js",
+    "tests/intro-pursuit.test.js",
   ],
   ["tests/t3.js"],
   ["tests/t4.js"],

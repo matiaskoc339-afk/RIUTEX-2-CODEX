@@ -34,7 +34,7 @@ const POV3DViewmodel={
     add(k.rod(fistDigits,[-.026,.018,.06],[.005,.025,.055],.013,this.skin));add(k.sphere(fistDigits,.005,.025,.055,.014,.013,.012,this.skin));
     k.box(veins,-.008,-.019,.025,.002,.037,.001,this.vein);const branch=k.box(veins,.006,.009,.025,.002,.028,.001,this.vein);branch.rotation.z=-.5;
     for(let i=0;i<3;i++){const spike=k.cylinder(claws,-.026+i*.027,.15+i*.008,-.012,0,.008,.2,this.bone,10);spike.rotation.x=-.24;}
-    const forearm=k.cylinder(root,0,0,0,.031,.049,1,this.skin,8),sleeve=k.cylinder(root,0,0,0,.058,.074,1,this.sleeve,8),veinRod=new T.Group();root.add(veinRod);
+    const forearm=k.cylinder(root,0,0,0,.038,.072,1,this.skin,8),sleeve=k.cylinder(root,0,0,0,.082,.103,1,this.sleeve,8),veinRod=new T.Group();root.add(veinRod);
     root.userData.side=side;return {root,palm,parts,forearm,sleeve,veins,claws,veinRod,gripDigits,fistDigits,side};
   },
   segment(mesh,a,b,r1=1){const av=new THREE.Vector3(...a),bv=new THREE.Vector3(...b),d=bv.clone().sub(av);mesh.position.copy(av.add(bv).multiplyScalar(.5));mesh.scale.y=d.length();mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());},
@@ -57,7 +57,7 @@ const POV3DViewmodel={
     if(s.strike)left.lerp(new THREE.Vector3(-.015,-.07,-1.18),strike);
     for(const a of this.arms){
       if(!a.root.visible)continue;const isLeft=a.side<0,infected=isLeft?s.infected:s.terminal,position=isLeft?left:right;
-      a.palm.position.copy(position);a.palm.rotation.set(isLeft&&s.strike?-.2-strike*.3:id?.12:.5,isLeft?.4:-.45,isLeft?-.1:.12);a.palm.scale.x=isLeft?-1:1;
+      a.palm.position.copy(position);a.palm.rotation.set(isLeft&&s.strike?-.2-strike*.3:id?.12:.5,isLeft?.4:-.45,isLeft?-.1:.12);a.palm.scale.set(isLeft?-1.1:1.1,1.08,1.1);
       a.gripDigits.visible=!!id&&!(isLeft&&s.strike);a.fistDigits.visible=!a.gripDigits.visible;
       for(const part of a.parts)part.material=part.userData.handTone==='knuckle'?(infected?this.blueKnuckle:this.knuckle):(infected?this.blue:this.skin);
       a.forearm.material=infected?this.blueDark:this.skinShadow;a.veins.visible=infected;a.claws.visible=s.blade&&(isLeft||s.predator);a.veinRod.visible=infected;

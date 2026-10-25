@@ -279,7 +279,7 @@ const RevisionScenes = {
   const hit = Carnicero.prototype.hitPlayer;
   Carnicero.prototype.hitPlayer = function (g) {
     if (g.lvl === "hospital" && g.story.seq === "run") {
-      if (g.player.x >= 41.5 * 32 && g.player.y < 10 * 32)
+      if (g.player.x >= 43 * 32 && g.player.y < 9 * 32)
         return RevisionScenes.doorStrike(g);
       g.player.hp = Math.max(25, g.player.hp - 6);
       g.player.knx = 140;
