@@ -2,7 +2,7 @@
 from pathlib import Path
 import json,base64
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 ROOT=Path(__file__).resolve().parents[1];passed=[];errors=[]
 def check(name,ok):
  assert ok,name
@@ -10,7 +10,7 @@ def check(name,ok):
 with local_server(ROOT) as url,sync_playwright() as pw:
  b=pw.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox']);page=b.new_page(viewport={'width':1440,'height':900});page.on('pageerror',lambda e:errors.append(str(e)))
  page.add_init_script("addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});")
- page.goto(url);page.click('#bNew');page.evaluate("Game.loop=()=>{};Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Hospital.lobbyReached(Game);Game.story.seq='free';Game.state='play';UI.screen(null);FirstPerson.setEnabled(true)")
+ page.goto(url);start_new_game(page);page.evaluate("Game.loop=()=>{};Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Hospital.lobbyReached(Game);Game.story.seq='free';Game.state='play';UI.screen(null);FirstPerson.setEnabled(true)")
  page.evaluate("""(()=>{const g=Game;g.items=[];g.carn=null;g.noise=g.worksNoise=null;g.player.x=272;g.player.y=336;g.player.angle=Math.PI;g.player.invuln=100;Level.grid=Array.from({length:24},(_,y)=>Array.from({length:40},(_,x)=>!x||!y||x===39||y===23?1:0));Level.W=40;Level.H=24;Level.props={};Level.safeRects=[];Level.doors=[{id:'qa_door',tiles:[[7,10]],open:false,key:null}];Level.grid[10][7]=2;const e=window.qaEnemy=new Enemy('sonambulo',208,336,99199);e.face=0;g.enemies=[e];e.update(.2,g);})()""")
  check('POV: no detecta a través de la puerta cerrada',page.evaluate('!qaEnemy.alert'))
  page.keyboard.press('e');page.evaluate('qaEnemy.update(.2,Game)')

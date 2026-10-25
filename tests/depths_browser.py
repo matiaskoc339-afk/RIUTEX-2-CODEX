@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 ROOT=Path(__file__).resolve().parents[1];passed=[]
 def check(name,cond):
  assert cond,name
@@ -17,7 +17,7 @@ def setup():
 def combat_supply(armor=False):
  page.evaluate("""armor=>{const g=Game,keys=[...g.inv.keys],docs=[...g.inv.docs];g.inv=new Inventory();g.inv.keys=keys;g.inv.docs=docs;for(let i=0;i<4;i++)g.inv.expand();g.player.weapons={};g.player.weapon=null;g.giveWeapon('pistol',180,true);for(let i=0;i<4;i++)g.inv.add('inj_green');g.player.hp=g.player.maxHp=100;g.player.stamina=100;g.player.maxStamina=100;g.player.poison=0;g.player.resist=0;g.player.invuln=0;g.player.mods={mag:0,pow:0,prec:0,rate:0,mask:0};Workshop.ensure(g).levels={};g.mut.owned=new Set(['core']);if(armor){ProtectionSuit.data().owned=true;ProtectionSuit.data().hp=90;ProtectionSuit.data().levels={protection:0,durability:0,poison:0};}}""",armor)
 with local_server(ROOT) as url,sync_playwright() as p:
- b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1440,'height':900});errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);page.evaluate('SceneTransitions.enabled=false;SceneTransitions.finish()');page.click('#bNew');page.evaluate('Game.loop=()=>{};SceneTransitions.enabled=false;SceneTransitions.finish()');page.wait_for_timeout(70);setup()
+ b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1440,'height':900});errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);page.evaluate('SceneTransitions.enabled=false;SceneTransitions.finish()');start_new_game(page);page.evaluate('Game.loop=()=>{};SceneTransitions.enabled=false;SceneTransitions.finish()');page.wait_for_timeout(70);setup()
  take('ds_launcher');take('ds_breech_pick');take('ds_actuator_pick');take('ds_launcher_case');page.click('#wxConfirm');check('El estuche exige reconstruir el plano además de sus dos piezas',not page.evaluate('!!Depths.data().gun'))
  # Resolver el tablero deslizando sus vecinos por una ruta calculada, sin asignar estado resuelto.
  path=page.evaluate("""(()=>{const start=WorksPuzzles.values(Game).v,q=[start],seen=new Map([[start.join(','),[]]]);for(let pos=0;pos<q.length;pos++){const a=q[pos],key=a.join(','),path=seen.get(key);if(a.every((v,i)=>v===i))return path;const h=a.indexOf(8);for(const i of [h-3,h-1,h+1,h+3])if(i>=0&&i<9&&Math.abs(i%3-h%3)+Math.abs(Math.floor(i/3)-Math.floor(h/3))===1){const b=a.slice();[b[h],b[i]]=[b[i],b[h]];const k=b.join(',');if(!seen.has(k)){seen.set(k,[...path,i]);q.push(b);}}}})()""")

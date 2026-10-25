@@ -12,3 +12,6 @@ for path in ['scripts/build.py','tests/browser_blue.py','tests/horror_browser.py
 result=subprocess.run([sys.executable,str(root/'tests/enemy_motion_browser.py')],cwd=root)
 if result.returncode:
     raise SystemExit(result.returncode)
+result=subprocess.run([sys.executable,str(root/'tests/perspective_choice_browser.py')],cwd=root)
+if result.returncode:
+    raise SystemExit(result.returncode)

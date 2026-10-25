@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 root=Path(__file__).resolve().parents[1]
 passed=[]
 def check(name,ok):
@@ -15,7 +15,7 @@ with local_server(root) as url,sync_playwright() as p:
  page.on('pageerror',lambda e:errors.append(str(e)))
  page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);page.evaluate('SceneTransitions.enabled=false;SceneTransitions.finish()');page.evaluate('document.fonts.ready');page.screenshot(path=str(root/'artifacts/menu-v060.png'))
  check('Fuente local y botones legibles en todas las pantallas',page.evaluate("document.fonts.check('600 18px Rajdhani')&&['bNew','bRes','bUse','puzzleConfirm','bBuy'].every(id=>{let s=getComputedStyle(document.getElementById(id));return s.fontFamily.includes('Rajdhani')&&parseFloat(s.fontSize)>=16})"))
- page.click('#bNew')
+ start_new_game(page)
  page.evaluate("Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Hospital.lobbyReached(Game);Game.player.x=38.5*32;Game.player.y=28.5*32;Game.enemies=[];Game.items=[];Game.mouse.x=Game.cv.width/2-150;Game.mouse.y=Game.cv.height/2;Game.cam.x=Game.player.x-Game.cv.width/2;Game.cam.y=Game.player.y-Game.cv.height/2")
  page.wait_for_timeout(350)
  check('ECG, estamina vertical y fluido Riutex presentes',page.locator('.pulse-track polyline').count()==2 and page.locator('#en>b').count()==5 and page.locator('#vitalStatus').inner_text()=='ESTABLE')

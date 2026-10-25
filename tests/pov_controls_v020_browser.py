@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 ROOT=Path(__file__).resolve().parents[1];passed=[];errors=[]
 def check(name,ok):
  assert ok,name
@@ -15,7 +15,7 @@ with local_server(ROOT) as url,sync_playwright() as pw:
  page.add_init_script("localStorage.setItem('riutex_pov_v016',JSON.stringify({enabled:true,sensitivityPercent:100}));addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});")
  page.goto(url)
  check('El menú principal mantiene el cursor libre',page.evaluate("Game.state==='menu'&&!FirstPerson.locked()"))
- page.click('#bNew');locked(page)
+ start_new_game(page);locked(page)
  check('Nueva partida captura el ratón automáticamente desde el clic de inicio',page.evaluate("Game.state==='play'&&FirstPerson.armed&&document.pointerLockElement===Game.cv"))
  page.evaluate("Game.loop=()=>{};Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Hospital.lobbyReached(Game);Game.story.seq='free';Game.state='play';UI.screen(null);Game.enemies=[];Game.carn=null;Game.keys={}")
  locked(page);resources=page.evaluate('JSON.stringify([Game.player.hp,Game.player.stamina,Game.player.energy,Game.player.weapon?.mag])')
@@ -67,7 +67,7 @@ with local_server(ROOT) as url,sync_playwright() as pw:
  page.locator('#pauseFirstPerson').uncheck();page.click('#bRes')
  check('Topdown mantiene el cursor libre al reanudar',page.evaluate("!FirstPerson.enabled&&!FirstPerson.locked()&&!FirstPerson.captureWanted&&Game.state==='play'"))
  page.evaluate('Game.toMenu()');page.click('#bMenuOptions');page.locator('#menuFirstPerson').check();page.click('#bMenuOptionsClose')
- page.evaluate('SceneTransitions.enabled=true');page.click('#bNew');page.wait_for_function('!SceneTransitions.active&&FirstPerson.locked()')
+ page.evaluate('SceneTransitions.enabled=true');start_new_game(page);page.wait_for_function('!SceneTransitions.active&&FirstPerson.locked()')
  check('Un fundido real termina con captura automática y sin clic extra',page.evaluate("Game.state==='play'&&FirstPerson.locked()"))
  check('Sin errores JavaScript',not errors)
  (ROOT/'artifacts/pov-controls-v020-browser-results.json').write_text(json.dumps({'version':json.loads((ROOT/'package.json').read_text())['version'],'passed':passed,'errors':errors,'native_look':native,'fallback_look':fallback,'scope':'Pointer Lock nativo de Chromium, clic de inicio, retorno por K/Tab/M/J/Escape, pausa, salida de captura, denegación preparada y fundido real. No elude permisos del navegador.'},ensure_ascii=False,indent=2)+'\n')

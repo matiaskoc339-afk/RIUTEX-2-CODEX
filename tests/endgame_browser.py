@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 R=Path(__file__).resolve().parents[1];passed=[]
 def check(n,v):
  assert v,n
@@ -15,7 +15,7 @@ def path(goal,kind):return page.evaluate("""o=>{const start=EndPuzzles.values(Ga
 def stop():
  page.evaluate('Game.loop=()=>{};SceneTransitions.enabled=false;SceneTransitions.finish()');page.wait_for_timeout(70);page.evaluate((R/'tests/walker.js').read_text())
 with local_server(R) as url,sync_playwright() as p:
- b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1440,'height':900});errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);page.evaluate('SceneTransitions.enabled=false;SceneTransitions.finish()');page.click('#bNew');stop()
+ b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1440,'height':900});errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);page.evaluate('SceneTransitions.enabled=false;SceneTransitions.finish()');start_new_game(page);stop()
  page.evaluate("Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Game.story.seq='free';Game.pz['h:boss']=Game.pz['h:ds_spider']=Game.pz['h:cl_regent']=true;Game.killed.add(900);Game.resume();Hospital.goto(Game,'hospitalroyal',[43,18]);Game.giveWeapon('pistol',24,true);Game.giveWeapon('r98',8,true)")
  page.keyboard.down('d');page.evaluate("for(let i=0;i<30&&Game.lvl==='hospitalroyal';i++)Game.update(1/30)");page.keyboard.up('d');page.evaluate('Game.enemies=[];Game.update(.01);Game.render()');check('Caminar por la compuerta del Regente inicia UMBRAL con equipo',page.evaluate("Game.lvl==='hospitalumbra'&&Game.player.weapons.r98&&Castle.data().complete"));page.screenshot(path=str(R/'artifacts/endgame-arrival-v014.png'))
  take('lf_save');check('Refugio conserva tres espacios de guardado',page.locator('.save-slot').count()==3);page.locator('.save-slot').first.click();take('lf_arrival');take('lf_protocol');take('lf_core');check('Núcleo rechaza acceso sin tres muestras',page.evaluate("Game.lvl==='hospitalumbra'&&Endgame.data().ingredients.length===0"))

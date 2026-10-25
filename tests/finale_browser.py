@@ -4,7 +4,7 @@ La exploración se aísla sin enemigos. El combate usa movimiento, tiros y recar
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 ROOT=Path(__file__).resolve().parents[1];passed=[]
 def check(name,condition):
  assert condition,name
@@ -16,7 +16,7 @@ def quiet(page):page.evaluate('Game.enemies=[];Game.carn=null;Game.keys={}')
 with local_server(ROOT) as url,sync_playwright() as p:
  browser=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox'])
  page=browser.new_page(viewport={'width':1440,'height':900});errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
- page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);page.evaluate('SceneTransitions.enabled=false;SceneTransitions.finish()');page.click('#bNew');page.evaluate('Game.loop=()=>{};SceneTransitions.enabled=false;SceneTransitions.finish()');page.wait_for_timeout(70);page.evaluate((ROOT/'tests/walker.js').read_text())
+ page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);page.evaluate('SceneTransitions.enabled=false;SceneTransitions.finish()');start_new_game(page);page.evaluate('Game.loop=()=>{};SceneTransitions.enabled=false;SceneTransitions.finish()');page.wait_for_timeout(70);page.evaluate((ROOT/'tests/walker.js').read_text())
  page.evaluate("Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Hospital.lobbyReached(Game);Game.resume();Game.story.seq='free';Game.player.x=52.5*32;Game.player.y=26.5*32;Game.inv.expand();Game.inv.expand();Game.inv.expand();Game.inv.expand()")
  quiet(page);take(page,'pp1');take(page,'hk_pase');take(page,'stairs_up');quiet(page)
  check('Subir desde vestíbulo con el pase y escalera reales',page.evaluate("Game.lvl==='hospital1'&&!Level.blocked(Game.player.x,Game.player.y,10)"))

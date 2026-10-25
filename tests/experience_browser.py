@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 
 R=Path(__file__).resolve().parents[1];passed=[];errors=[];metrics={}
 def check(name,ok):
@@ -13,7 +13,7 @@ with local_server(R) as url,sync_playwright() as pw:
     browser=pw.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox','--enable-webgl','--enable-unsafe-swiftshader','--use-angle=swiftshader'])
     page=browser.new_page(viewport={'width':1440,'height':900});page.on('pageerror',lambda e:errors.append(str(e)))
     page.add_init_script("addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});")
-    page.goto(url);page.click('#bNew');page.evaluate("Game.loop=()=>{};SceneTransitions.finish();Game.cv.requestPointerLock=()=>{throw Error('La captura nativa se verifica en controls_v020; esta prueba aísla XP con el respaldo de control')};void 0");page.wait_for_timeout(60)
+    page.goto(url);start_new_game(page);page.evaluate("Game.loop=()=>{};SceneTransitions.finish();Game.cv.requestPointerLock=()=>{throw Error('La captura nativa se verifica en controls_v020; esta prueba aísla XP con el respaldo de control')};void 0");page.wait_for_timeout(60)
     page.evaluate("""window.xpqa={start(level='hospital'){
       const g=Game;g.startLvl='mansion';g.start(false);Hospital.toHospital(g);g.story.restrained=false;Hospital.inject(g);Hospital.lobbyReached(g);
       if(level!=='hospital')Hospital.goto(g,level,FLOORS[level].spawn);

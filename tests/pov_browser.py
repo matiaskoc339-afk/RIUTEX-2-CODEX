@@ -5,7 +5,7 @@ El prólogo y la primera huida se recorren con movimiento/colisiones; no mide di
 from pathlib import Path
 import json,math
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 R=Path(__file__).resolve().parents[1];passed=[];errors=[];shots=[]
 def check(name,ok):
  if not ok:
@@ -30,7 +30,7 @@ with local_server(R) as url,sync_playwright() as pw:
  page.click('#bMenuOptions');check('Ajustes ofrece Primera Persona POV',page.locator('#menuFirstPerson').count()==1 and 'Primera Persona POV' in page.inner_text('#menuOptions'))
  page.locator('#menuFirstPerson').check();page.click('#bMenuOptionsClose');page.reload();page.click('#bMenuOptions')
  check('Activar POV se conserva al recargar el navegador',page.locator('#menuFirstPerson').is_checked() and page.evaluate('FirstPerson.enabled'))
- page.click('#bMenuOptionsClose');page.click('#bNew');page.evaluate('Game.loop=()=>{};SceneTransitions.finish();Game.enemies=[];Game.keys={}');page.wait_for_timeout(70)
+ page.click('#bMenuOptionsClose');start_new_game(page);page.evaluate('Game.loop=()=>{};SceneTransitions.finish();Game.enemies=[];Game.keys={}');page.wait_for_timeout(70)
  check('Nueva partida conserva historia y AK en primera persona',page.evaluate("FirstPerson.active(Game)&&Game.lvl==='mansion'&&Game.player.weapon.id==='ak'"))
  capture('mansion')
  check('El escuadrón del prólogo conserva sus cuerpos visibles en POV',page.evaluate("(()=>{const a=Game.player.angle;Game.player.angle=Math.PI/2;Game.render();const n=FirstPersonRenderer.stats.sprites;Game.player.angle=a;return Game.squad.length===3&&n>=1})()"))

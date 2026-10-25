@@ -1,7 +1,7 @@
 from pathlib import Path
 import json, os
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 r=Path(__file__).resolve().parents[1]
 version=json.loads((r/'package.json').read_text())['version'];html_name='RIUTEX2_Historia_Completa_v'+version+'.html'
 with local_server(r) as base_url, sync_playwright() as p:
@@ -10,7 +10,7 @@ with local_server(r) as base_url, sync_playwright() as p:
  page.on('pageerror',lambda e:errors.append(str(e)))
  page.on('request',lambda req:requests.append(req.url))
  page.goto(base_url+'/dist/'+html_name)
- page.click('#bNew');page.wait_for_function('!SceneTransitions.active');page.keyboard.down('w');page.wait_for_function("Game.player.y<46*32");page.keyboard.up('w')
+ start_new_game(page);page.wait_for_function('!SceneTransitions.active');page.keyboard.down('w');page.wait_for_function("Game.player.y<46*32");page.keyboard.up('w')
  assert page.evaluate("Game.lvl==='mansion'&&Game.player.y<46*32"),'El HTML no mueve al jugador'
  page.evaluate("Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Hospital.lobbyReached(Game);Game.player.x=52*32;Game.player.y=28*32;Game.giveWeapon('pistol',24,true)")
  page.wait_for_timeout(900)

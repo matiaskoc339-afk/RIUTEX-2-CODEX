@@ -4,7 +4,7 @@ El recorrido con enemigos del prólogo se comprueba aparte en browser_blue.py.
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 root=Path(__file__).resolve().parents[1];passed=[]
 def check(name,ok):
  assert ok,name
@@ -20,7 +20,7 @@ def slide(page,piece,delta,count):
 with local_server(root) as url,sync_playwright() as p:
  browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
  page=browser.new_page(viewport={'width':1440,'height':900});errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
- page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);page.evaluate('SceneTransitions.enabled=false;SceneTransitions.finish()');page.click('#bNew');page.wait_for_timeout(180)
+ page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);page.evaluate('SceneTransitions.enabled=false;SceneTransitions.finish()');start_new_game(page);page.wait_for_timeout(180)
  check('AK preparado con imagen, cargador circular y reserva',page.locator('#weaponName').inner_text()=='AK de asalto' and page.locator('#weaponLoaded').inner_text()=='30' and page.locator('#weaponCapacity').inner_text()=='30' and '90' in page.locator('#weaponReserve').inner_text())
  ak=page.locator('#weaponIllustration').inner_html();page.mouse.click(900,430);page.wait_for_timeout(180)
  check('Disparar reduce el número y el arco de munición',int(page.locator('#weaponLoaded').inner_text())<30 and float(page.locator('#ammoArc').get_attribute('data-fraction'))<1)

@@ -4,7 +4,7 @@ from tempfile import TemporaryDirectory
 import json,zipfile
 from urllib.parse import quote
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 
 ROOT=Path(__file__).resolve().parents[1]
 VERSION=json.loads((ROOT/'package.json').read_text())['version']
@@ -27,7 +27,7 @@ def opened(context,base,hostbase):
     return page,frame
 
 def prepare(frame,pov=False):
-    frame.click('#bNew')
+    start_new_game(frame)
     frame.evaluate("""pov=>{const g=Game;Hospital.toHospital(g);g.story.restrained=false;Hospital.inject(g);Hospital.lobbyReached(g);g.story.seq='free';g.carn=null;g.state='play';UI.screen(null);g.giveWeapon('pistol',12,true);FirstPerson.setEnabled(pov);
       g.take(g.items.find(i=>i.doc==='a1'));g.resume();g.save(0);
       g.player.hp=37;g.player.stamina=21;g.player.energy=26;g.player.poison=4;g.player.xp=22;g.player.weapon.mag=5;

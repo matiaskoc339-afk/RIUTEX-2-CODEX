@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 
 R = Path(__file__).resolve().parents[1]
 passed, errors = [], []
@@ -20,7 +20,7 @@ with local_server(R) as url, sync_playwright() as pw:
     page.goto(url)
     button = page.locator('#povCaptureButton')
     check('El botón no aparece en el menú clásico', not button.is_visible())
-    page.click('#bNew')
+    start_new_game(page)
     page.evaluate('Game.loop=()=>{};SceneTransitions.finish();Game.enemies=[];Game.keys={}')
     page.wait_for_timeout(60)
     check('El botón no aparece durante el juego topdown', not button.is_visible())

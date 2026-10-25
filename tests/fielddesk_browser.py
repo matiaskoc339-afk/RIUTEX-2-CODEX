@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 ROOT=Path(__file__).resolve().parents[1]
 RESULT=[]
 def record(name,value):
@@ -14,7 +14,7 @@ with local_server(ROOT) as url,sync_playwright() as p:
  page=b.new_page(viewport={'width':1440,'height':900});errors=[];missing=[]
  page.on('pageerror',lambda e:errors.append(str(e)))
  page.on('response',lambda r:missing.append(r.url) if r.status>=400 else None)
- page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);page.evaluate('SceneTransitions.enabled=false;SceneTransitions.finish()');page.click('#bNew');page.evaluate('Game.loop=()=>{};SceneTransitions.enabled=false;SceneTransitions.finish()');page.wait_for_timeout(60)
+ page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);page.evaluate('SceneTransitions.enabled=false;SceneTransitions.finish()');start_new_game(page);page.evaluate('Game.loop=()=>{};SceneTransitions.enabled=false;SceneTransitions.finish()');page.wait_for_timeout(60)
  page.evaluate("Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Hospital.lobbyReached(Game);Game.resume();Game.enemies=[];Game.carn=null;Game.player.x=52.5*32;Game.player.y=26.5*32;Game.inv=new Inventory();Game.inv.expand();Game.inv.expand();Game.giveWeapon('pistol',12,true);Game.inv.add('inj_green');Game.inv.add('inj_blue');Game.inv.add('inj_yellow');Game.inv.addAmmo('screw_small',8);Game.inv.addAmmo('powder_small',8);Game.inv.addAmmo('powder_large',3);Game.inv.addAmmo('screw_large',2);Game.inv.add('sample');Game.inv.keys=['archivo','farmacia','rack_crank','optic_cell','optic_lens'];Game.inv.docs=['h1','h2','w_shot_notice','w_shot_manual','b_diag','b_blood','w_uzi_optics'];Game.inv.sel=0;Game.update(.01);Game.render()")
  page.keyboard.press('Tab')
  record('TAB abre solo el maletín con seis pestañas comunes',page.is_visible('#inv') and page.locator('#fieldDesk [data-desk]').count()==6 and page.locator('#inv .craft-actions').count()==0 and not page.locator('#invKeys').inner_text() and not page.locator('#invDocs').inner_text())

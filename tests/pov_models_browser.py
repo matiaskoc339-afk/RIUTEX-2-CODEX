@@ -4,7 +4,7 @@ Los paneles y combates visuales usan entidades preparadas; no miden dificultad.
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 
 R=Path(__file__).resolve().parents[1]
 passed=[]
@@ -18,7 +18,7 @@ with local_server(R) as url,sync_playwright() as pw:
     page=browser.new_page(viewport={'width':1440,'height':900});errors=[]
     page.on('pageerror',lambda e:errors.append(str(e)))
     page.add_init_script("addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});")
-    page.goto(url);page.evaluate('document.fonts.ready');page.click('#bNew')
+    page.goto(url);page.evaluate('document.fonts.ready');start_new_game(page)
     page.evaluate("Game.loop=()=>{};SceneTransitions.finish();Game.enemies=[];Game.keys={};FirstPerson.setEnabled(true)")
     page.wait_for_timeout(60)
     page.evaluate("""window.modelqa={

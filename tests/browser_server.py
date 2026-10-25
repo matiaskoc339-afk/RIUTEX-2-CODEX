@@ -9,6 +9,15 @@ class QuietHandler(SimpleHTTPRequestHandler):
     def log_message(self, *_):
         pass
 
+def start_new_game(page, first_person=None):
+    """Recorre la elección real; conserva la preferencia que esperaba cada suite."""
+    if first_person is None:
+        first_person = page.evaluate("typeof FirstPerson!=='undefined'&&FirstPerson.enabled")
+    page.click('#bNew')
+    if page.locator('#perspectiveChoice').count():
+        page.wait_for_selector('#perspectiveChoice:not(.hidden)')
+        page.click('#bPerspectivePOV' if first_person else '#bPerspectiveTopdown')
+
 @contextmanager
 def local_server(root):
     configured = os.environ.get('RIUTEX_TEST_URL')

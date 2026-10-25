@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 R=Path(__file__).resolve().parents[1];passed=[]
 def check(n,v):
  assert v,n
@@ -14,7 +14,7 @@ def move(keys,n=12):
  page.evaluate('n=>{for(let i=0;i<n;i++)Game.update(1/30);Game.render()}',n)
  for k in keys:page.keyboard.up(k)
 with local_server(R) as url,sync_playwright() as p:
- b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1440,'height':900});errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);page.click('#bNew');page.evaluate('Game.loop=()=>{};SceneTransitions.enabled=false;SceneTransitions.finish()');page.wait_for_timeout(70)
+ b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1440,'height':900});errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);start_new_game(page);page.evaluate('Game.loop=()=>{};SceneTransitions.enabled=false;SceneTransitions.finish()');page.wait_for_timeout(70)
  page.evaluate("Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Game.story.seq='free';Game.pz['h:boss']=Game.pz['h:ds_spider']=true;Game.killed.add(900);Game.resume();Hospital.goto(Game,'hospitalcells',[17,31]);Castle.beginPrison(Game);Game.giveWeapon('pistol',48,true)")
  place(30,26);move(['d'],5);check('Caminar sobre piedra limpia no genera señal acústica del calabozo',page.evaluate("Game.clSounds.length===0&&Game.prisoner.target===null"))
  place(30,26);move(['d','Shift'],4);check('Correr con el teclado crea ruido y una reacción de escucha',page.evaluate("Game.clSounds.some(n=>n.kind==='carrera')&&Game.prisoner.mode==='listen'"))

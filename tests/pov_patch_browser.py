@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 
 R = Path(__file__).resolve().parents[1]
 passed, errors = [], []
@@ -20,7 +20,7 @@ with local_server(R) as url, sync_playwright() as pw:
     page.on('pageerror', lambda error: errors.append(str(error)))
     page.add_init_script("addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});")
     page.goto(url)
-    page.click('#bNew')
+    start_new_game(page)
     page.evaluate('Game.loop=()=>{};SceneTransitions.finish()')
     page.wait_for_timeout(60)
     page.evaluate("""Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Hospital.lobbyReached(Game);

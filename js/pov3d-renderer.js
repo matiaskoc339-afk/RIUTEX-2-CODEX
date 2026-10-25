@@ -203,8 +203,8 @@ const POV3DRenderer={
       this.resize(g);this.canvas.style.display='block';this.visible=true;document.body.classList.add('pov3d-active');
       HorrorVision.prepare(g);
       if(this.levelGrid!==Level.grid||this.level!==g.lvl)this.rebuild(g);
-      const time=g.t||0,dt=Math.min(.1,Math.max(0,time-this.lastTime));this.lastTime=time;const p=g.player,pitch=-(FirstPerson.pitch||0),bob=MenuScene.motionReduced()?0:Math.sin(p.walkT||0)*(p.running?.4:.16);
-      this.camera3D.position.set(p.x,35+bob,p.y);this.forward.set(Math.cos(p.angle)*Math.cos(pitch),Math.sin(pitch),Math.sin(p.angle)*Math.cos(pitch));this.camera3D.lookAt(this.camera3D.position.clone().add(this.forward));this.camera3D.updateMatrixWorld();
+      const time=g.t||0,dt=Math.min(.1,Math.max(0,time-this.lastTime));this.lastTime=time;const p=g.player,pitch=-(FirstPerson.pitch||0),motion=POVCameraMotion.pose(g);
+      this.eyeHeight=35+motion.y;this.camera3D.position.set(p.x,this.eyeHeight,p.y);this.forward.set(Math.cos(p.angle)*Math.cos(pitch),Math.sin(pitch),Math.sin(p.angle)*Math.cos(pitch));this.camera3D.lookAt(this.camera3D.position.clone().add(this.forward));this.camera3D.rotateZ(motion.roll);this.camera3D.updateMatrixWorld();
       POV3DWorld.update(this.worldState,g,time,dt);this.syncActors(g,time,dt);this.syncRemains(g,time,dt);this.syncItems(g,time,dt);this.lights(g,time);this.cues(g);this.effects(g,time);
       for(const p of this.props)p.root.visible=(!p.barrel||!p.barrel.dead)&&this.lineVisible(p.x,p.z,20);
       this.renderer.info.reset();this.renderer.clear();this.renderer.render(this.scene,this.camera3D);

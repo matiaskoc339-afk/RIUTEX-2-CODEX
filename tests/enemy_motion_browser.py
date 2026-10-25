@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 
 ROOT = Path(__file__).resolve().parents[1]
 passed, errors = [], []
@@ -17,7 +17,7 @@ with local_server(ROOT) as url, sync_playwright() as pw:
     page = browser.new_page(viewport={'width':1280,'height':800})
     page.on('pageerror', lambda e: errors.append(str(e)))
     page.add_init_script("addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});")
-    page.goto(url); page.click('#bNew')
+    page.goto(url); start_new_game(page)
     page.evaluate("Game.loop=()=>{};Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Hospital.lobbyReached(Game);Game.story.seq='free';Game.story.armCut=true;Game.state='play';UI.screen(null);FirstPerson.setEnabled(true);Game.render()")
     page.evaluate("""window.motionQA={
       pose(root){const out=[];root.traverse(n=>{if(n.isGroup)out.push(...n.position.toArray(),...n.quaternion.toArray(),...n.scale.toArray());});return JSON.stringify(out);},

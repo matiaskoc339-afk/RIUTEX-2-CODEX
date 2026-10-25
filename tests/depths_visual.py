@@ -2,13 +2,13 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 ROOT=Path(__file__).resolve().parents[1];passed=[]
 def check(n,v):
  assert v,n
  passed.append(n);print('PASS',n,flush=True)
 with local_server(ROOT) as url,sync_playwright() as p:
- b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1440,'height':900});errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);page.click('#bNew');page.evaluate('Game.loop=()=>{};SceneTransitions.enabled=false;SceneTransitions.finish()');page.wait_for_timeout(70)
+ b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1440,'height':900});errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);start_new_game(page);page.evaluate('Game.loop=()=>{};SceneTransitions.enabled=false;SceneTransitions.finish()');page.wait_for_timeout(70)
  page.evaluate("Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Game.story.seq='free';Game.pz['h:boss']=true;Game.killed.add(900);Game.resume();Hospital.goto(Game,'hospitalworks',[16,40]);Game.enemies=[];Game.inv=new Inventory();for(let i=0;i<4;i++)Game.inv.expand();Game.player.weapons={};Game.player.weapon=null;Game.giveWeapon('flamethrower',3,true);Game.player.weapon=Game.player.weapons.flamethrower;Game.player.stamina=100;Game.player.angle=0;Game.mouse.x=Game.player.x+250-Game.cam.x;Game.mouse.y=Game.player.y-Game.cam.y;for(let i=0;i<3;i++){const e=new MutantSpider((23.5+i*.4)*32,40.5*32,9700+i);e.grace=10;Game.enemies.push(e)}")
  page.evaluate("Hospital.goto(Game,'hospitalnest',[31,28]);ProtectionSuit.acquire(Game);Game.player.x=31.5*32;Game.player.y=28.5*32;Game.boss.active=true;Game.curBoss=Game.boss;Game.boss.x=31.5*32;Game.boss.y=23.5*32;Game.player.angle=-Math.PI/2;Game.cam.x=Game.player.x-720;Game.cam.y=Game.player.y-450;Game.mouse.x=720;Game.mouse.y=290;Game.update(1/30);Game.cam.x=Game.player.x-720;Game.cam.y=Game.player.y-450;Blue.discover(Game);HospitalCompass.hud(Game);UI.hud(Game.player,Game.inv,Game.mut);UI.msg('',0)")
  for phase in [1,2,3]:

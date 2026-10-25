@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 
 R=Path(__file__).resolve().parents[1];passed=[];errors=[]
 def check(name,ok):
@@ -13,7 +13,7 @@ with local_server(R) as url,sync_playwright() as pw:
     browser=pw.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
     page=browser.new_page(viewport={'width':1280,'height':720});page.on('pageerror',lambda e:errors.append(str(e)))
     page.add_init_script("addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});")
-    page.goto(url);page.click('#bNew');page.evaluate("Game.loop=()=>{};SceneTransitions.finish();Game.enemies=[];Game.keys={};FirstPerson.setEnabled(true);FirstPerson.setSensitivity(100)");page.wait_for_timeout(60)
+    page.goto(url);start_new_game(page);page.evaluate("Game.loop=()=>{};SceneTransitions.finish();Game.enemies=[];Game.keys={};FirstPerson.setEnabled(true);FirstPerson.setSensitivity(100)");page.wait_for_timeout(60)
     page.evaluate("Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Hospital.lobbyReached(Game);Game.story.seq='free';Game.state='play';UI.screen(null);Game.enemies=[];Game.carn=null;Game.player.x=51.5*32;Game.player.y=29.5*32;Game.player.angle=0;Game.giveWeapon('pistol',12,true);Game.update(0);Game.render()")
     signature=page.evaluate('JSON.stringify([Game.player.x,Game.player.y,Game.player.hp,Game.player.stamina,Game.player.energy,Game.player.weapon.mag])')
     def drag(direction,n=2):

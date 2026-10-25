@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 ROOT=Path(__file__).resolve().parents[1];passed=[]
 def check(name,ok):
  assert ok,name
@@ -32,7 +32,7 @@ with local_server(ROOT) as url,sync_playwright() as p:
   page.set_viewport_size({'width':w,'height':h})
   check(f'Menú completo y sin desbordes en {w}×{h}',page.locator('#bMenuOptions').evaluate('e=>{let r=e.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&r.bottom<innerHeight-40}') and page.evaluate('document.documentElement.scrollWidth===innerWidth'))
   page.screenshot(path=str(ROOT/f'artifacts/menu-{w}-v016.png'))
- page.set_viewport_size({'width':1440,'height':900});page.click('#bNew');page.keyboard.down('w')
+ page.set_viewport_size({'width':1440,'height':900});start_new_game(page);page.keyboard.down('w')
  check('Nueva partida comienza con fundido',page.evaluate('SceneTransitions.active&&!document.getElementById("sceneTransition").classList.contains("hidden")'))
  check('La instantánea conserva las opciones y no duplica identificadores',page.evaluate("(()=>{const ids=[...document.querySelectorAll('[id]')].map(e=>e.id);return document.querySelectorAll('.menu-snapshot .menu-actions button:not(.hidden)').length===3&&new Set(ids).size===ids.length})()"))
  page.screenshot(path=str(ROOT/'artifacts/transition-start-v016.png'))
@@ -58,7 +58,7 @@ with local_server(ROOT) as url,sync_playwright() as p:
  page.click('#bEnd');page.click('#bMenuOptions');page.locator('#menuReduceMotion').check();page.keyboard.press('Escape')
  # Dos tiempos fijos deben producir exactamente la misma superficie en movimiento reducido.
  check('Movimiento reducido elimina ondas y fogonazos',page.evaluate("(()=>{MenuScene.draw(.8);const a=MenuScene.canvas.toDataURL();MenuScene.draw(1.62);return MenuScene.motionReduced()&&a===MenuScene.canvas.toDataURL()})()"))
- page.click('#bNew');page.wait_for_timeout(250);check('Movimiento reducido conserva un fundido breve sin bloqueo',page.evaluate("!SceneTransitions.active&&Game.state==='play'"))
+ start_new_game(page);page.wait_for_timeout(250);check('Movimiento reducido conserva un fundido breve sin bloqueo',page.evaluate("!SceneTransitions.active&&Game.state==='play'"))
  page.evaluate('MenuScene.reduced=false');page.emulate_media(reduced_motion='reduce');check('También se respeta la preferencia de movimiento del sistema',page.evaluate('MenuScene.motionReduced()'))
  check('Sin errores de JavaScript en presentación ni transiciones',not errors)
  (ROOT/'artifacts/polish-browser-results.json').write_text(json.dumps({'version':json.loads((ROOT/'package.json').read_text())['version'],'passed':passed,'errors':errors,'shot_luminance':brightness,'scope':'Menú v0.15.1, sin figuras humanas. Fundidos con reloj real; mapas y finales preparados para aislar presentación. No evalúa dificultad.'},ensure_ascii=False,indent=2)+'\n');b.close()

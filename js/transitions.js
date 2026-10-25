@@ -15,8 +15,9 @@ const SceneTransitions={
   if(!this.supported()||this.active)return action();this.init();
   const token=++this.serial,old=document.createElement('canvas');old.width=g.cv.width;old.height=g.cv.height;const ctx=old.getContext('2d');
   if(g.state==='menu'&&MenuScene.canvas){
-   const snapshot=UI.$('menu').cloneNode(true);snapshot.classList.add('menu-snapshot');snapshot.removeAttribute('id');snapshot.setAttribute('aria-hidden','true');for(const node of snapshot.querySelectorAll('[id]'))node.removeAttribute('id');
-   snapshot.querySelector('canvas').getContext('2d').drawImage(MenuScene.canvas,0,0);this.overlay.prepend(snapshot);this.menuSnapshot=snapshot;
+   const source=typeof PerspectiveChoice!=='undefined'&&PerspectiveChoice.visible?UI.$('perspectiveChoice'):UI.$('menu');
+   const snapshot=source.cloneNode(true);snapshot.classList.add('menu-snapshot');snapshot.removeAttribute('id');snapshot.setAttribute('aria-hidden','true');for(const node of snapshot.querySelectorAll('[id]'))node.removeAttribute('id');
+   const backdrop=snapshot.querySelector('canvas');if(backdrop)backdrop.getContext('2d').drawImage(MenuScene.canvas,0,0);this.overlay.prepend(snapshot);this.menuSnapshot=snapshot;
   }else {if(typeof POV3DRenderer!=='undefined'&&POV3DRenderer.visible&&POV3DRenderer.canvas)ctx.drawImage(POV3DRenderer.canvas,0,0,old.width,old.height);ctx.drawImage(g.cv,0,0);}
   this.active=true;g.mouse.down=false;g.mouse.rclick=false;g.mouse.clicked=false;g.keys={};this.overlay.classList.remove('hidden');document.body.classList.add('scene-changing');this.overlay.style.opacity='1';
   let result;try{result=action();}catch(e){this.finish();throw e;}

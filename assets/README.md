@@ -9,3 +9,5 @@ Las siluetas del HUD de armas se dibujan con SVG original integrado en `js/adven
 Los iconos de objetos, artefactos y materiales, la cartografía y los detalles físicos de adaptación se dibujan con SVG y Canvas originales en `js/fielddesk.js`. Las texturas del papel se generan con CSS local; no añaden imágenes externas.
 
 El generador auxiliar, los discos de sello, el enfoque y el banco de armas usan interfaces locales en `js/workshop.js` y `survival.css`. C-17 se dibuja con Canvas y sus avisos se generan durante el juego. No se añaden recursos externos.
+
+`perspective-pov.webp` y `perspective-topdown.webp`: capturas originales de las dos perspectivas del propio juego, generadas con `tests/generate_perspective_previews.py`. Se muestran en las tarjetas de Nueva partida y se integran como datos en el CSS del HTML de itch.io. No requieren red ni una segunda escena WebGL.

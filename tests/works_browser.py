@@ -4,7 +4,7 @@ Los enemigos se retiran solo de la comprobación geométrica. El ensayo se comba
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 ROOT=Path(__file__).resolve().parents[1];passed=[]
 def check(name,cond):
  assert cond,name
@@ -18,7 +18,7 @@ def pump_path():return page.evaluate("(()=>{const start=WorksPuzzles.values(Game
 def gear_path():return page.evaluate("(()=>{const start=WorksPuzzles.values(Game).v,q=[start],seen=new Map([[start.join(','),[]]]);while(q.length){const a=q.shift(),p=seen.get(a.join(','));if(a.every(v=>v===0))return p;for(let i=0;i<4;i++){const b=a.slice();b[i]=(b[i]+1)%8;b[(i+1)%4]=(b[(i+1)%4]+7)%8;const k=b.join(',');if(!seen.has(k)){seen.set(k,[...p,i]);q.push(b);}}}})()")
 with local_server(ROOT) as url,sync_playwright() as p:
  browser=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=browser.new_page(viewport={'width':1440,'height':900});errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
- page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);page.evaluate('SceneTransitions.enabled=false;SceneTransitions.finish()');page.click('#bNew');page.evaluate('Game.loop=()=>{};SceneTransitions.enabled=false;SceneTransitions.finish()');page.wait_for_timeout(70);page.evaluate((ROOT/'tests/walker.js').read_text())
+ page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);page.evaluate('SceneTransitions.enabled=false;SceneTransitions.finish()');start_new_game(page);page.evaluate('Game.loop=()=>{};SceneTransitions.enabled=false;SceneTransitions.finish()');page.wait_for_timeout(70);page.evaluate((ROOT/'tests/walker.js').read_text())
  page.evaluate("Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Game.story.seq='free';Game.pz['h:boss']=true;Game.killed.add(900);Game.resume();Hospital.goto(Game,'hospitalchem',[38,19]);Game.giveWeapon('pistol',24,true);Game.inv.expand();Game.inv.expand();Game.inv.expand();Game.inv.expand()")
  take('wx_down');walk_reset();page.evaluate('qa.step();Game.render()')
  check('La escalera tras el Carnicero conecta sin perder el equipo',page.evaluate("Game.lvl==='hospitalworks'&&WorksMap.safe()&&Game.player.weapon.id==='pistol'&&!Game.carn"))

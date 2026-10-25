@@ -4,7 +4,7 @@ La segunda mitad usa posiciones controladas para comprobar menús/guardado; no m
 from pathlib import Path
 import json, os
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 ROOT=Path(__file__).resolve().parents[1]
 RESULT=[]
 def record(name,value):
@@ -19,7 +19,7 @@ with local_server(ROOT) as base_url, sync_playwright() as p:
  page.on('response',lambda r:missing.append(r.url) if r.status>=400 else None)
  page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(base_url);page.evaluate('SceneTransitions.enabled=false;SceneTransitions.finish()')
  page.screenshot(path=str(ROOT/'artifacts/blue-menu.png'))
- page.click('#bNew');page.wait_for_timeout(100)
+ start_new_game(page);page.wait_for_timeout(100)
  page.evaluate('Game.loop=()=>{};SceneTransitions.enabled=false;SceneTransitions.finish()')
  page.wait_for_timeout(60)
  page.evaluate((ROOT/'tests/walker.js').read_text())

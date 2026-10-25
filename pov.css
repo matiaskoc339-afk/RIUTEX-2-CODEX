@@ -24,3 +24,35 @@ body.pov-enabled #fog{opacity:.55}
 body.pov-playing #prompt{max-width:min(620px,90vw);text-align:center;bottom:13vh}
 @media(max-height:720px){#pause>.pov-setting{padding:8px 14px}#pause{gap:7px}#pause .pause-help{margin:7px auto}#pause>.pov-setting p{font-size:12px!important}#povControlHint{bottom:9px;font-size:12px}}
 @media(max-width:700px){#povControlHint{width:90vw;max-width:90vw;font-size:11px}.pov-setting label{font-size:16px}}
+
+/* Elección inicial: fotografías del propio juego, sin una escena 3D extra. */
+.perspective-screen{z-index:80;overflow:auto;padding:40px 24px;background:radial-gradient(ellipse at 50% 15%,#142a34 0%,#09141d 42%,#03080c 85%);font-family:Rajdhani,sans-serif}
+.perspective-screen::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.13;background:repeating-linear-gradient(0deg,transparent 0 79px,#90afbd15 80px),repeating-linear-gradient(90deg,transparent 0 79px,#90afbd15 80px)}
+.perspective-panel{position:relative;width:min(960px,100%);text-align:center}
+.perspective-eyebrow{margin:0 0 13px;color:#849da9;font:500 11px/1.5 Rajdhani,sans-serif;letter-spacing:.27em}
+.perspective-eyebrow span{margin:0 12px;color:#476778}
+.perspective-screen .perspective-heading{margin:0;color:#e4e9e6;font:600 clamp(32px,4.5vw,54px)/1.08 Rajdhani,sans-serif;letter-spacing:.015em;text-transform:none}
+.perspective-intro{margin:13px 0 32px;color:#9eaeb6;font:400 17px/1.4 Rajdhani,sans-serif;letter-spacing:.02em}
+.perspective-grid{display:grid;grid-template-columns:1fr 1fr;gap:25px;text-align:left}
+.perspective-screen .perspective-panel button.perspective-card{display:block;position:relative;width:100%;min-width:0;padding:0;overflow:hidden;border:1px solid #607e8c63;border-radius:4px;background:#0a161e;color:#d7e2e3;font-family:Rajdhani,sans-serif;letter-spacing:0;text-align:left;box-shadow:0 20px 40px #0005;transition:border-color .2s,box-shadow .2s,transform .2s}
+.perspective-screen .perspective-panel button.perspective-card:hover,.perspective-screen .perspective-panel button.perspective-card:focus-visible{background:#0c1d28;border-color:#9ebfcb;box-shadow:0 20px 45px #0007,0 0 0 1px #8ab8ca33;transform:translateY(-4px);outline:2px solid #8ab8ca66;outline-offset:4px}
+.perspective-preview{display:block;position:relative;aspect-ratio:1.55;background-size:cover;background-position:center;overflow:hidden;border-bottom:1px solid #607e8c63}
+.perspective-preview::after{content:"";position:absolute;inset:0;background:linear-gradient(#04101b35,transparent 22%,transparent 55%,#061019e8);pointer-events:none}
+.perspective-preview-pov{background-image:url('assets/perspective-pov.webp')}
+.perspective-preview-topdown{background-image:url('assets/perspective-topdown.webp')}
+.perspective-frame-label{position:absolute;z-index:1;top:17px;left:18px;padding:5px 9px;border:1px solid #88a9b442;background:#071119d6;color:#b7cfd7;font-size:10px;line-height:1.1;letter-spacing:.16em}
+.perspective-frame-label i{display:inline-block;width:3px;height:3px;vertical-align:middle;margin:0 7px;background:#8cc8d6;box-shadow:0 0 6px #8cc8d670}
+.perspective-image-label{position:absolute;z-index:1;bottom:17px;left:21px;color:#c0ced2;font-size:10px;letter-spacing:.22em}
+.perspective-caption{display:flex;flex-direction:column;position:relative;min-height:126px;padding:21px 58px 25px 23px}
+.perspective-card-title{display:block;margin:0 0 7px;color:#e0e7e5;font-size:30px;font-weight:600;line-height:1.1;letter-spacing:.015em}
+.perspective-description{color:#9dafb8;font-size:15px;font-weight:400;line-height:1.45}
+.perspective-enter{display:flex;align-items:center;gap:10px;position:absolute;right:23px;top:29px;font-size:0;color:#96b9c7}
+.perspective-enter i{display:block;width:14px;height:14px;border-top:1px solid;border-right:1px solid;transform:rotate(45deg)}
+.perspective-note{display:flex;justify-content:center;align-items:center;gap:10px;margin:25px 0 9px;color:#a7b6bd;font:400 15px/1.5 Rajdhani,sans-serif;letter-spacing:.015em}
+.perspective-note>span{color:#88afc1;font-size:20px}
+.perspective-screen .perspective-panel button.perspective-back{min-width:0;margin:5px auto 0;padding:9px 15px;border:0;border-radius:2px;background:transparent;color:#8c9fa9;font:500 13px/1.4 Rajdhani,sans-serif;letter-spacing:.055em;text-transform:none}
+.perspective-back span{margin-left:9px;font-size:10px;color:#5f7785}
+.perspective-screen .perspective-panel button.perspective-back:hover,.perspective-screen .perspective-panel button.perspective-back:focus-visible{color:#d0e0e4;background:#14232d;outline:1px solid #658c9e}
+@media(max-height:700px) and (min-width:641px){.perspective-screen{padding:22px}.perspective-eyebrow{margin-bottom:9px}.perspective-intro{margin:9px 0 22px}.perspective-panel{width:min(850px,100%)}.perspective-preview{aspect-ratio:1.8}.perspective-caption{min-height:105px;padding-top:17px;padding-bottom:18px}.perspective-card-title{font-size:27px}.perspective-note{margin-top:19px}}
+@media(max-width:640px){.perspective-screen{padding:27px 20px;justify-content:flex-start}.perspective-grid{grid-template-columns:1fr;gap:17px}.perspective-intro{margin-bottom:23px}.perspective-preview{aspect-ratio:2.2}.perspective-caption{min-height:100px;padding:16px 55px 18px 19px}.perspective-card-title{font-size:27px}.perspective-frame-label{top:12px;left:13px}.perspective-image-label{bottom:12px;left:17px}.perspective-note{font-size:14px;margin-top:19px;align-items:flex-start}.perspective-panel{max-width:450px}}
+@media(prefers-reduced-motion:reduce){.perspective-screen .perspective-panel button.perspective-card{transition:none}.perspective-screen .perspective-panel button.perspective-card:hover,.perspective-screen .perspective-panel button.perspective-card:focus-visible{transform:none}}

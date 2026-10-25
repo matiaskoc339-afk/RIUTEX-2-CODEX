@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 root=Path(__file__).resolve().parents[1]
 passed=[]
 def check(name,ok):
@@ -15,7 +15,7 @@ with local_server(root) as base_url, sync_playwright() as p:
     errors=[]
     page.on('pageerror',lambda e:errors.append(str(e)))
     page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(base_url);page.evaluate('SceneTransitions.enabled=false;SceneTransitions.finish()')
-    page.click('#bNew')
+    start_new_game(page)
     page.evaluate('Game.loop=()=>{};SceneTransitions.enabled=false;SceneTransitions.finish()')
     page.wait_for_timeout(70)
     page.evaluate("Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Hospital.lobbyReached(Game);Game.player.x=38.5*32;Game.player.y=28.5*32;Game.player.angle=Math.PI;Game.cam.x=Game.player.x-Game.cv.width/2;Game.cam.y=Game.player.y-Game.cv.height/2;Level.openDoor(Level.doors.find(d=>d.id==='lob_w'));Game.story.visited={'hospital:Vestíbulo central':true};Game.story.mapTiles={};Game.render()")

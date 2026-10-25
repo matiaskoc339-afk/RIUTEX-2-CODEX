@@ -17,6 +17,25 @@
     <p class="ctl">WASD mover · Ratón apuntar · Clic disparar · R recargar · E interactuar · Shift correr · Clic derecho golpe · 1-5 armas · TAB maletín · J diario · K mutaciones · Q / teclas asignadas: poderes · F inyección · ESC pausa · guarda en las camillas con E · E en taquillas: esconderte · E junto a una puerta abierta: cerrarla (solo el Carnicero puede abrirlas)</p>
     <div class="menu-footer"><span>RIUTEX-X</span><span>NO HAY CURA CONFIRMADA</span><span class="footer-coords">SECTOR 09 / LIMA</span></div>
   </div></div>
+<section id="perspectiveChoice" class="screen perspective-screen hidden" role="dialog" aria-modal="true" aria-labelledby="perspectiveTitle" aria-describedby="perspectiveNote">
+  <div class="perspective-panel">
+    <p class="perspective-eyebrow">RIUTEX 2 <span>/</span> ANTES DE ENTRAR</p>
+    <h2 id="perspectiveTitle" class="perspective-heading">¿Cómo quieres jugar?</h2>
+    <p class="perspective-intro">Elige tu perspectiva para comenzar.</p>
+    <div class="perspective-grid">
+      <button id="bPerspectivePOV" class="perspective-card" type="button" aria-label="Jugar en primera persona">
+        <span class="perspective-preview perspective-preview-pov" aria-hidden="true"><span class="perspective-frame-label">01 <i></i> POV</span><span class="perspective-image-label">A TRAVÉS DE SUS OJOS</span></span>
+        <span class="perspective-caption"><span class="perspective-card-title">Primera persona</span><span class="perspective-description">Entra en el hospital a través de los ojos de Axel.</span><span class="perspective-enter" aria-hidden="true">ELEGIR <i></i></span></span>
+      </button>
+      <button id="bPerspectiveTopdown" class="perspective-card" type="button" aria-label="Jugar en topdown">
+        <span class="perspective-preview perspective-preview-topdown" aria-hidden="true"><span class="perspective-frame-label">02 <i></i> CLÁSICO</span><span class="perspective-image-label">UNA VISTA DESDE ARRIBA</span></span>
+        <span class="perspective-caption"><span class="perspective-card-title">Topdown</span><span class="perspective-description">Explora desde arriba con la perspectiva clásica.</span><span class="perspective-enter" aria-hidden="true">ELEGIR <i></i></span></span>
+      </button>
+    </div>
+    <p id="perspectiveNote" class="perspective-note"><span aria-hidden="true">↔</span> Puedes cambiar la perspectiva en Opciones o desde Pausa.</p>
+    <button id="bPerspectiveBack" class="perspective-back" type="button">Volver al menú <span aria-hidden="true">/ ESC</span></button>
+  </div>
+</section>
 <div id="pause" class="screen hidden"><h2>Pausa</h2><button id="bSessionSlots">Partidas y copias</button>
   <button id="bRes">Reanudar</button>
   <button id="bRst">Reiniciar capítulo</button><button id="bMenu">Menú principal</button></div>
@@ -66,6 +85,7 @@
 <script src="js/pov-enemy-motion.js"></script>
 <script src="js/pov3d-world.js"></script>
 <script src="js/pov.js"></script>
+<script src="js/pov-camera-motion.js"></script>
 <script src="js/pov-renderer.js"></script>
 <script src="js/pov-perception.js"></script>
 <script src="js/pov-viewmodel.js"></script>
@@ -75,5 +95,6 @@
 <script src="js/artifacts-lore.js"></script>
 <script src="js/loot-feedback.js"></script>
 <script src="js/persistence.js"></script>
+<script src="js/perspective-choice.js"></script>
 <script src="js/main.js"></script>
 </body></html>

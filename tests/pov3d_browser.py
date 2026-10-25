@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 ROOT=Path(__file__).resolve().parents[1];passed=[];errors=[];console_errors=[];maps=[]
 def check(name,ok):
  assert ok,name
@@ -12,7 +12,7 @@ with local_server(ROOT) as url,sync_playwright() as pw:
  page=browser.new_page(viewport={'width':1280,'height':800});page.on('pageerror',lambda e:errors.append(str(e)))
  page.on('console',lambda msg:console_errors.append(msg.text) if msg.type=='error' and '404' not in msg.text else None)
  page.add_init_script("addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});")
- page.goto(url);page.click('#bNew');page.evaluate("Game.loop=()=>{};Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Hospital.lobbyReached(Game);Game.story.seq='free';Game.state='play';UI.screen(null);FirstPerson.setEnabled(true);Game.keys={};Game.player.hidden=false;Game.player.hurtFlash=0;Game.render()")
+ page.goto(url);start_new_game(page);page.evaluate("Game.loop=()=>{};Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Hospital.lobbyReached(Game);Game.story.seq='free';Game.state='play';UI.screen(null);FirstPerson.setEnabled(true);Game.keys={};Game.player.hidden=false;Game.player.hurtFlash=0;Game.render()")
  check('Primera persona inicia WebGL con geometría real y sin billboards',page.evaluate("POV3DRenderer.ready&&!POV3DRenderer.failed&&POV3DRenderer.stats.realMeshes&&POV3DRenderer.stats.billboards===0&&POV3DRenderer.renderer.getContext() instanceof WebGL2RenderingContext"))
  check('El mundo y la mira se presentan a resolución de pantalla',page.evaluate("POV3DRenderer.canvas.width===1280&&POV3DRenderer.canvas.height===800&&Game.cv.width===1280&&Game.cv.height===800"))
  check('El lienzo de juego recibe el ratón y el de WebGL permite el paso',page.evaluate("getComputedStyle(POV3DRenderer.canvas).pointerEvents==='none'&&getComputedStyle(Game.cv).display!=='none'"))

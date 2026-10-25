@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 
 R=Path(__file__).resolve().parents[1];passed=[];errors=[]
 def check(name,ok):
@@ -20,7 +20,7 @@ with local_server(R) as url,sync_playwright() as pw:
     check('Mover la barra cambia el valor al instante y lo guarda',slider.input_value()=='250' and page.locator('#menuFirstPersonSensitivityValue').inner_text()=='250 %' and page.evaluate("JSON.parse(localStorage.getItem(FirstPerson.key)).sensitivityPercent===250"))
     page.locator('#menuFirstPerson').uncheck();page.reload();page.click('#bMenuOptions')
     check('Recargar conserva sensibilidad y el estado independiente de POV',slider.input_value()=='250' and not page.locator('#menuFirstPerson').is_checked())
-    page.locator('#menuFirstPerson').check();page.click('#bMenuOptionsClose');page.click('#bNew')
+    page.locator('#menuFirstPerson').check();page.click('#bMenuOptionsClose');start_new_game(page)
     page.evaluate('Game.loop=()=>{};SceneTransitions.finish();Game.enemies=[];Game.keys={}')
     page.wait_for_timeout(60)
     resources=page.evaluate('JSON.stringify([Game.player.hp,Game.player.stamina,Game.player.energy,Game.player.weapon.mag])')

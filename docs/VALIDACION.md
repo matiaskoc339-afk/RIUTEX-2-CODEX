@@ -1,3 +1,16 @@
+# Validación de v0.23.0 · Elección y cámara POV
+
+- **377 pruebas de motor**, **103 comprobaciones de integración** y **15 mapas**, sin fallos.
+- **141 comprobaciones de navegador**: elección 20, WebGL 52, captura nativa 26, HTML integrado 17 y persistencia 26. Sin errores JavaScript.
+- Nueva partida muestra dos tarjetas con capturas locales antes de crear al jugador. Se prueban cancelación, foco y flechas/Tab/Enter, clics, preferencia previa, fundido real y captura nativa. Continuar conserva partida y perspectiva sin repetir la elección. Esperar en la ventana no sobrescribe la sesión.
+- Se revisa el diseño a 1440, 1280 y 390 píxeles. En 720p se ven ambas tarjetas, aviso y regreso; en pantalla estrecha se apilan sin desbordamiento horizontal.
+- Balanceo con física real de movimiento: amplitud acotada, sprint, centrado al parar, pausa y reducción de movimiento. Empujar una pared o estar oculto no produce pasos. El eje de visión conserva su dirección y el ojo de cámara coincide con la altura del disparo.
+- La vista clásica, las quince escenas, geometría y manos siguen pasando. El guardado se recupera tras cerrar/reabrir el perfil y en iframe local de otro origen. El HTML final y el ZIP integran ambas imágenes, scripts, estilos y fuentes, sin solicitudes externas.
+
+Los recorridos son escenarios preparados con WebGL mediante SwiftShader; no miden una campaña humana ni FPS de una GPU física. La prueba de iframe usa orígenes locales y no publica el juego en itch.io. [Diseño y comportamiento](ELEGIR_PERSPECTIVA.md).
+
+---
+
 # Validación de v0.22.0 · Animaciones y presión de jefes
 
 - **370 pruebas de motor**, **103 comprobaciones de integración** y **15 mapas**, sin fallos.

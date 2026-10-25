@@ -6,7 +6,7 @@ const POV3DBallistics = {
   },
   ray(g, p) {
     const pitch = Math.max(-1.4, Math.min(1.4, Number(FirstPerson.pitch) || 0));
-    const configuredEye = Number(POV3DRenderer.eyeHeight);
+    const configuredEye = Number(typeof POVCameraMotion!=='undefined'?POVCameraMotion.eye(g):POV3DRenderer.eyeHeight);
     const eye = Number.isFinite(configuredEye) && configuredEye > 0 ? configuredEye : 35;
     return { g, pitch, eye, horizontalScale: Math.cos(pitch), verticalScale: -Math.sin(pitch) };
   },

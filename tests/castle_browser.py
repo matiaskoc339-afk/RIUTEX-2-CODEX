@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 R=Path(__file__).resolve().parents[1];passed=[]
 def check(n,v):
  assert v,n
@@ -23,7 +23,7 @@ def pour_path():return page.evaluate("""(()=>{const start=CastlePuzzles.values(G
 def gears_path():return page.evaluate("""(()=>{const q=[CastlePuzzles.values(Game).v],s=new Map([[q[0].join(','),[]]]);for(let pos=0;pos<q.length;pos++){const a=q[pos],p=s.get(a.join(','));if(a.every(v=>v===0))return p;for(let i=0;i<4;i++){const b=a.slice();b[i]=(b[i]+1)%6;b[(i+1)%4]=(b[(i+1)%4]+5)%6;const k=b.join(',');if(!s.has(k)){s.set(k,[...p,i]);q.push(b);}}}})()""")
 def slide_path():return page.evaluate("""(()=>{const q=[CastlePuzzles.values(Game).v],s=new Map([[q[0].join(','),[]]]);for(let pos=0;pos<q.length;pos++){const a=q[pos],p=s.get(a.join(','));if(a.every((n,i)=>n===i))return p;const h=a.indexOf(8);for(const i of [h-3,h-1,h+1,h+3])if(i>=0&&i<9&&Math.abs(i%3-h%3)+Math.abs(Math.floor(i/3)-Math.floor(h/3))===1){const b=a.slice();[b[i],b[h]]=[b[h],b[i]];const k=b.join(',');if(!s.has(k)){s.set(k,[...p,i]);q.push(b);}}}})()""")
 with local_server(R) as url,sync_playwright() as p:
- b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1440,'height':900});errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);page.evaluate('SceneTransitions.enabled=false;SceneTransitions.finish()');page.click('#bNew');page.evaluate('Game.loop=()=>{};SceneTransitions.enabled=false;SceneTransitions.finish()');page.wait_for_timeout(70);page.evaluate((R/'tests/walker.js').read_text())
+ b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1440,'height':900});errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);page.evaluate('SceneTransitions.enabled=false;SceneTransitions.finish()');start_new_game(page);page.evaluate('Game.loop=()=>{};SceneTransitions.enabled=false;SceneTransitions.finish()');page.wait_for_timeout(70);page.evaluate((R/'tests/walker.js').read_text())
  page.evaluate("Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Game.story.seq='free';Game.pz['h:boss']=Game.pz['h:ds_spider']=true;Game.killed.add(900);Game.resume();Hospital.goto(Game,'hospitalnest',[53,21]);Game.giveWeapon('pistol',24,true)")
  page.keyboard.down('d');page.evaluate("for(let i=0;i<30&&Game.lvl==='hospitalnest';i++)Game.update(1/30)");page.keyboard.up('d');page.evaluate('Game.update(.01);Game.render()');check('Caminar por la salida de la Matriarca sube al calabozo con el equipo',page.evaluate("Game.lvl==='hospitalcells'&&Game.state==='play'&&!!Game.player.weapon&&Depths.data().complete&&!Game.prisoner.active"));page.screenshot(path=str(R/'artifacts/castle-arrival-v013.png'))
  take('cl_silence');check('Advertencia explica suelo limpio, correr, cristales, ruido y contacto',page.evaluate("Game.inv.docs.includes('cl_silence')&&DOCS.cl_silence.text.includes('EL LUGAR DONDE SONÓ')"))

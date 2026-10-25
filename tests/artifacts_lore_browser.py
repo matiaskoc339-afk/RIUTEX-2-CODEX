@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 ROOT=Path(__file__).resolve().parents[1];passed=[];errors=[]
 def check(name,ok):
  assert ok,name
@@ -12,7 +12,7 @@ with local_server(ROOT) as url,sync_playwright() as pw:
  page.add_init_script("addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});")
  page.goto(url)
  if page.evaluate("typeof ArtifactLifecycle==='undefined'"):page.add_script_tag(content=(ROOT/'js/artifacts-lore.js').read_text())
- page.click('#bNew')
+ start_new_game(page)
  page.evaluate("""Game.loop=()=>{};Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Hospital.lobbyReached(Game);Game.story.seq='free';Game.state='play';UI.screen(null);Game.enemies=[];Game.carn=null;Game.inv.keys=['archivo'];
  window.atDoor=id=>{const d=Level.doors.find(d=>d.id===id),[x,y]=d.tiles[0];for(const[dx,dy]of [[0,1],[0,-1],[1,0],[-1,0]])if(Level.grid[y+dy]?.[x+dx]===0){Game.player.x=(x+dx+.5)*32;Game.player.y=(y+dy+.5)*32;break;}Game.items=Game.items.filter(i=>Math.hypot(i.x-Game.player.x,i.y-Game.player.y)>64);};atDoor('arch');""")
  page.keyboard.press('e')

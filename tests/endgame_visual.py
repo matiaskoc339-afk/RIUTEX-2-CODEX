@@ -2,13 +2,13 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
-from browser_server import local_server
+from browser_server import local_server, start_new_game
 R=Path(__file__).resolve().parents[1];passed=[]
 def check(n,v):
  assert v,n
  passed.append(n);print('PASS',n,flush=True)
 with local_server(R) as url,sync_playwright() as p:
- b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1440,'height':900});errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);page.click('#bNew');page.evaluate('Game.loop=()=>{};SceneTransitions.enabled=false;SceneTransitions.finish()');page.wait_for_timeout(70)
+ b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1440,'height':900});errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.add_init_script("window.addEventListener('load',()=>{SceneTransitions.enabled=false;SceneTransitions.finish();});");page.goto(url);start_new_game(page);page.evaluate('Game.loop=()=>{};SceneTransitions.enabled=false;SceneTransitions.finish()');page.wait_for_timeout(70)
  page.evaluate("Hospital.toHospital(Game);Game.story.restrained=false;Hospital.inject(Game);Game.story.seq='free';Game.pz['h:boss']=Game.pz['h:ds_spider']=Game.pz['h:cl_regent']=true;Game.killed.add(900);Game.resume();Hospital.goto(Game,'hospitalumbra',[68,40]);Game.enemies=[];Game.inv=new Inventory();for(let i=0;i<4;i++)Game.inv.expand();Game.player.weapons={};Game.player.weapon=null;Game.giveWeapon('gl6',5,true);Game.player.weapon=Game.player.weapons.gl6;Game.player.x=68.5*32;Game.player.y=40.5*32;Game.player.angle=0;Game.player.stamina=100;Game.cam.x=Game.player.x-Game.cv.width/2;Game.cam.y=Game.player.y-Game.cv.height/2;const e=new EndEnemy('lf_sentinel',78.5*32,40.5*32,11999);e.grace=20;Game.enemies=[e];Game.update(.01);Game.render()")
  point=page.evaluate('[(Game.enemies[0].x-Game.cam.x)*innerWidth/Game.cv.width,(Game.enemies[0].y-Game.cam.y)*innerHeight/Game.cv.height]');page.mouse.move(*point);page.mouse.down();page.evaluate('Game.update(1/30)');page.mouse.up();check('GL-6 dispara proyectil real y consume cargador y estamina',page.evaluate('Game.projectiles.some(p=>p.grenade)&&Game.player.weapon.mag===0&&Game.player.stamina<80'));page.evaluate('for(let i=0;i<32;i++)Game.update(1/30);Game.render()');check('La granada impacta a distancia y daña mediante explosión',page.evaluate('Game.enemies[0].hp<300&&Game.projectiles.length===0'));check('El HUD muestra GL-6 y su munición propia','GL-6' in page.inner_text('#weaponName'));page.screenshot(path=str(R/'artifacts/endgame-gl6-v014.png'))
  page.evaluate("Game.player.stamina=100;Game.player.reloading=0;Weapons.reload(Game.player);for(let i=0;i<100;i++)Game.update(1/30)");check('Recarga GL-6 consume una granada sin convertirse en combustible',page.evaluate("Game.player.weapon.mag===1&&Game.inv.reserve('gl6')===4&&Game.inv.reserve('flamethrower')===0"))
