@@ -1,12 +1,20 @@
-# RIUTEX 2 · Historia completa · v0.24.0
+# RIUTEX 2 · Historia completa · v0.25.0
 
 La campaña parte de tu base v0.2.2 y recorre mansión, hospital, cloacas/fábrica, museo-castillo y laboratorio UMBRAL, con cuatro jefes finales de tres formas y dos desenlaces.
 
 ## Jugar y publicar
 
-Abre `RIUTEX2_Historia_Completa_v0.24.0.html` en un navegador de escritorio con teclado y ratón. Para el proyecto fuente, ejecuta `npm start` y visita `http://localhost:8000`. El sonido comienza con la primera interacción. No hay dependencias de npm que instalar.
+Abre `RIUTEX2_Historia_Completa_v0.25.0.html` en un navegador de escritorio con teclado y ratón. Para el proyecto fuente, ejecuta `npm start` y visita `http://localhost:8000`. El sonido comienza con la primera interacción. No hay dependencias de npm que instalar.
 
-Para itch.io utiliza **RIUTEX2_itchio_v0.24.0.zip**, que contiene un `index.html` integrado en la raíz. Súbelo como juego HTML para navegador y permite pantalla completa. El HTML incluye código, estilos, fuentes, Three.js y recursos locales: no descarga modelos ni bibliotecas de una CDN. Los archivos se generan con `npm run build`.
+Para itch.io utiliza **RIUTEX2_itchio_v0.25.0.zip**, que contiene un `index.html` integrado en la raíz. Súbelo como juego HTML para navegador y permite pantalla completa. El HTML incluye código, estilos, fuentes, Three.js y recursos locales: no descarga modelos ni bibliotecas de una CDN. Los archivos se generan con `npm run build`.
+
+## Revisión general · v0.25.0
+
+Combate más fiable: golpes y explosiones respetan puertas y paredes, ataques anunciados con dirección fija y recargas sin transferencia de balas entre armas. El HUD muestra recuperación y coste de poderes, esfuerzo por disparo y progreso de recarga.
+
+El expediente incorpora búsqueda sin tildes, filtro de documentos pendientes, membretes por zona y equipamiento desde el inventario. El mapa mejora la lectura de conexiones y servicios conocidos. El POV añade rótulos físicos, luces que respetan habitaciones y arquitectura optimizada. El sonido distingue armas, superficies y regiones.
+
+**Opciones / Pausa → Imagen y comodidad** permite ajustar campo de visión, calidad 3D, tamaño del HUD, balanceo y sacudidas. La sesión web conserva los barriles destruidos de la planta actual y las cadenas pendientes con tregua al volver. [Cambios y alcance](docs/MEJORAS_v0.25.md).
 
 ## Primera persona 3D
 

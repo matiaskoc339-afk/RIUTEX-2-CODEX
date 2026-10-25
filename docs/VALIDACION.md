@@ -1,3 +1,18 @@
+# Validación de v0.25.0 · Revisión general
+
+- **436 pruebas de motor**, **103 comprobaciones de integración** y **15 mapas**, sin fallos. Los 50 casos nuevos cubren combate, audio, expediente, mundo 3D, opciones/HUD y persistencia de objetos. Navegación y puertas vuelven a pasar en las tres plantas del hospital.
+- **852 comprobaciones de navegador en 33 suites**: rutas y mecanismos de las cuatro fases, los cuatro jefes y sus mutaciones, arena de ocho oleadas, ambos finales, inventario, archivo, mapa, red de habilidades y transiciones. Cada suite dispone de informe. La ejecución se continuó por tramos tras adaptar dos escenarios históricos a la economía de EXP y al nuevo botón de imagen; sus comprobaciones se mantuvieron.
+- El combate verifica dirección anunciada, puertas, paredes, veneno, recarga, bono dorado, explosiones y cadenas. Los jefes conservan la presión y penalización a los puños de v0.22.0. La huida inicial vuelve a completarse en ambos modos y al reanudar durante el forcejeo.
+- El nuevo HUD compara costes y recuperación con las reglas reales, comprueba cinco poderes con escala al 120 % y evita solapar los monitores. Imagen y comodidad se prueba con teclado, 720p/pantalla estrecha, guardado de preferencias, reducción de movimiento y captura al regresar. La cámara y los disparos comparten el ojo al variar el balanceo.
+- El archivo prueba búsqueda, filtros, navegación, membretes, equipamiento y compatibilidad con RIUTEX 1. El mapa limita información a lo observado y conserva navegación por teclado. Se revisaron capturas del expediente, maletín, HUD y ajustes.
+- WebGL verifica geometría física, techo/suelo, puertas, objetos, criaturas y fases, mallas animadas, mira, luz, cambios de mapa y liberación de recursos. Cuatro cámaras de entrada envían 70–83 % menos triángulos; no se afirma un aumento de FPS. WebAudio real comprueba mezcla, timbres, silencio, límite de voces, limpieza y ambiente por zonas.
+- El guardado se verifica al cerrar pestaña y perfil, reabrir navegador y usar un iframe local de otro origen. La extensión opcional de la sesión conserva barriles destruidos, valida datos importados y concede tregua a cadenas pendientes; las sesiones antiguas siguen cargando. Camillas y cambios de planta conservan su alcance previo.
+- El **HTML final** volvió a pasar las 17 comprobaciones integradas después del último ajuste del HUD. Scripts, estilos y recursos son locales y el ZIP de itch.io contiene su `index.html` idéntico en la raíz. El paquete fuente se comprueba archivo por archivo y lleva manifiesto de commit y hashes.
+
+Son escenarios preparados, algunos con controladores que conocen los patrones y recursos finitos: no equivalen a una campaña humana. Chromium usa SwiftShader; no mide FPS de una GPU física. El entorno administrado bloquea `file://`, por lo que el HTML se verifica por HTTP sin recursos externos. El iframe local no supone publicación en el dominio real de itch.io. [Detalle de mejoras](MEJORAS_v0.25.md) · [Resultados por suite](RESULTADOS.json).
+
+---
+
 # Validación de v0.24.0 · Brazos y huida inicial
 
 - **386 pruebas de motor**, **103 comprobaciones de integración** y **15 mapas**, sin fallos.

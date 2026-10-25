@@ -109,11 +109,11 @@ const Game = {
     this.cinematic(['Emily está sentada en el suelo de la celda, pálida, con una bata de paciente.', 'Emily: "…I.? Eres tú. De verdad viniste."', 'Issac: "Siempre vengo."', 'Emily: "Todo lo que escribí… lo que te hice… ¿lo leíste?"', 'Issac: "Lo leí. Me da igual. Salgamos de aquí."', 'Emily: "Hay una salida al oeste. Vamos, antes de que todo esto se derrumbe."'], () => { this.pz.emily = true; Level.openDoor(Level.doors.find(d => d.id === 'calle')); UI.msg('Salgan por la puerta oeste, a la calle.', 6000); });
   },
   blast(x, y, damage) { // explosión de granada: daña a enemigos y a ti, rompe cristales y detona barriles
-    this.ring(x, y, 125, '#ffa050'); this.cam.shake = 12; this.sparks(x, y, 22, '#ff9040'); Sound.play('shot'); const p = this.player;
+    this.ring(x, y, 125, '#ffa050'); this.cam.shake = 12; this.sparks(x, y, 22, '#ff9040'); Sound.play('blast'); const p = this.player;
     for (const e of this.enemies) { const d = Math.hypot(e.x - x, e.y - y); if (!e.dead && d < 115 + e.r && Level.los(x, y, e.x, e.y)) e.hurt(damage == null ? (e.isBoss ? 120 : 150) : damage * (e.isBoss ? .8 : 1), Math.atan2(e.y - y, e.x - x), this, true); }
     if (Math.hypot(p.x - x, p.y - y) < 85 && Level.los(x, y, p.x, p.y)) p.hurt(28, Math.atan2(p.y - y, p.x - x), this);
-    for (const o of this.barrels) if (!o.dead && Math.hypot(o.x - x, o.y - y) < 110) setTimeout(() => this.explode(o), 120);
-    for (const c of this.crystals) if (!c.dead && Math.hypot(c.x - x, c.y - y) < 100) this.breakCrystal(c);
+    for (const o of this.barrels) if (!o.dead && Math.hypot(o.x - x, o.y - y) < 110 && Level.los(x, y, o.x, o.y)) o.chainDelay = Math.min(o.chainDelay ?? Infinity, .12);
+    for (const c of this.crystals) if (!c.dead && Math.hypot(c.x - x, c.y - y) < 100 && Level.los(x, y, c.x, c.y)) this.breakCrystal(c);
   },
   breakCrystal(c) { c.dead = true; c.respawn = 8; this.ring(c.x, c.y, 60, '#80e0ff'); this.sparks(c.x, c.y, 14, '#80e0ff'); const b = this.boss; if (b && b.active && !b.dead && b.vuln !== undefined) { b.vuln = 5; UI.msg('¡El escudo cae! Dispárale ahora.', 1800); } },
   showEnding() {
@@ -133,10 +133,10 @@ const Game = {
     UI.msg('Bajas por la escotilla. Las cloacas: aquí tiraban a los que "fallaron". Cuidado con el fango verde: es veneno.', 8000);
   },
   explode(b) { // barril explosivo o mina: daña a enemigos y a ti; explota en cadena
-    if (b.dead) return; b.dead = true; const R = b.mine ? 75 : 125; this.ring(b.x, b.y, R + 5, '#ff9040'); this.cam.shake = 14; this.sparks(b.x, b.y, 24, '#ff8030'); Sound.play('shot'); const p = this.player;
-    for (const e of this.enemies) { const d = Math.hypot(e.x - b.x, e.y - b.y); if (!e.dead && d < R + e.r) e.hurt(e.isBoss ? 110 : 160, Math.atan2(e.y - b.y, e.x - b.x), this, true); }
-    if (Math.hypot(p.x - b.x, p.y - b.y) < (b.mine ? 60 : 90)) p.hurt(b.mine ? 32 : 25, Math.atan2(p.y - b.y, p.x - b.x), this);
-    for (const o of this.barrels) if (!o.dead && Math.hypot(o.x - b.x, o.y - b.y) < 100) setTimeout(() => this.explode(o), 150);
+    if (!b || b.dead) return; b.dead = true; b.chainDelay = null; const R = b.mine ? 75 : 125; this.ring(b.x, b.y, R + 5, '#ff9040'); this.cam.shake = 14; this.sparks(b.x, b.y, 24, '#ff8030'); Sound.play('blast'); const p = this.player;
+    for (const e of this.enemies) { const d = Math.hypot(e.x - b.x, e.y - b.y); if (!e.dead && d < R + e.r && Level.los(b.x, b.y, e.x, e.y)) e.hurt(e.isBoss ? 110 : 160, Math.atan2(e.y - b.y, e.x - b.x), this, true); }
+    if (Math.hypot(p.x - b.x, p.y - b.y) < (b.mine ? 60 : 90) && Level.los(b.x, b.y, p.x, p.y)) p.hurt(b.mine ? 32 : 25, Math.atan2(p.y - b.y, p.x - b.x), this);
+    for (const o of this.barrels) if (!o.dead && Math.hypot(o.x - b.x, o.y - b.y) < 100 && Level.los(b.x, b.y, o.x, o.y)) o.chainDelay = Math.min(o.chainDelay ?? Infinity, .15);
   },
   save(slot = 0) {
     const p = this.player; try { const data = { lvl: this.lvl, x: p.x, y: p.y, hp: p.hp, maxHp: p.maxHp, xp: p.xp, cur: p.weapon && p.weapon.id, stash: this.stash, mods: p.mods, pz: this.pz, inv: this.inv.serialize(), drops: this.items.filter(i => i.id.startsWith('drop')).map(i => ({ id: i.id, type: i.type, x: i.x, y: i.y, carry: i.carry, amount: i.amount, count: i.count })), mut: this.mut.serialize(), energy: p.energy, lastCd: p.lastCd, story: this.story, doors: Level.doors.filter(d => d.open).map(d => d.id), picked: [...this.picked], killed: [...this.killed], savedAt: new Date().toISOString(), levelName: ({mansion:'RIUTEX 2 · Mansión',hospital:'RIUTEX 2 · Hospital (planta baja)',hospital1:'RIUTEX 2 · Hospital (primer piso)',hospitalb:'RIUTEX 2 · Hospital (sótano)',hospitalchem:'RIUTEX 2 · Contención C-0',hospitalworks:'RIUTEX 2 · Cloacas / Fábrica',hospitalpit:'RIUTEX 2 · Ensayo del almacén',hospitalnest:'RIUTEX 2 · Último colector',hospitalcells:'RIUTEX 2 · Calabozos de Valcárcel',hospitalcastle:'RIUTEX 2 · Castillo (planta baja)',hospitalcastle1:'RIUTEX 2 · Castillo (planta alta)',hospitalroyal:'RIUTEX 2 · Sala real',hospitalumbra:'RIUTEX 2 · Laboratorio UMBRAL',hospitalorigin:'RIUTEX 2 · Núcleo ORIGEN',hospitalstreet:'RIUTEX 2 · Epílogo San Gabriel',asylum:'Asilo',sewer:'Cloacas',base:'Instalaciones militares',lab:'Laboratorio'})[this.lvl] || this.lvl }; if (slot === null) return JSON.parse(JSON.stringify(data)); const slots = this.getSaveSlots(); slots[slot] = data; localStorage.setItem(SAVE_SLOTS_KEY, SaveCodec.encode(slots)); try { localStorage.setItem(SAVE_KEY, SaveCodec.encode(data)); } catch (e) {} return true; } catch (e) { UI.msg('No se pudo guardar. El navegador no permite almacenar la partida.'); return false; }
@@ -275,6 +275,10 @@ const Game = {
     if (this.state === 'play' || this.state === 'dead') this.update(this.state === 'play' ? dt : dt * .3); if (this.player) this.render(); 
   },
   update(dt) {
+    // La cadena avanza con la simulación: pausa y cambios de nivel no dejan temporizadores activos.
+    if (this.state === 'play') for (const b of this.barrels.filter(b => !b.dead && Number.isFinite(b.chainDelay))) {
+      b.chainDelay -= dt; if (b.chainDelay <= 0) this.explode(b);
+    }
     const p = this.player; this.t += dt; for (const k in this.mut.cd) this.mut.cd[k] -= dt; p.evo = Math.min(1, (this.mut.owned.size - 1) / 40); p.maxEnergy = 100 + this.mut.phases * 20 + this.mut.mod('en'); if (Math.random() < dt / 22) Sound.noise(0.8, 0.3, 120); if (p.evo > .4 && Math.random() < .08) this.particles.push({ x: p.x, y: p.y, vx: (Math.random() - .5) * 30, vy: -20, life: .5, c: '#38a9ff', sz: 2 }); if (this.state === 'play') { p.update(dt, this); const bz = this.curBoss && this.curBoss.active && !this.curBoss.dead ? (this.curBoss === this.boss2 ? Level.bossZone2 : Level.bossZone) : null; if (bz) { p.x = Math.max(bz[0] + p.r, Math.min(bz[2] - p.r, p.x)); p.y = Math.max(bz[1] + p.r, Math.min(bz[3] - p.r, p.y)); } } this.enemies.forEach(e => e.update(dt, this));
     for (const q of this.particles) { q.x += q.vx * dt; q.y += q.vy * dt; q.vx *= .93; q.vy *= .93; q.life -= dt; } this.particles = this.particles.filter(q => q.life > 0);
     for (const r of this.rings) r.life -= dt; this.rings = this.rings.filter(r => r.life > 0);
@@ -285,7 +289,7 @@ const Game = {
     for (const it of [...this.items]) if (it.pull) { const dx = p.x - it.x, dy = p.y - it.y, d = Math.hypot(dx, dy) || 1, s = Math.min(d, 420 * dt); it.x += dx / d * s; it.y += dy / d * s; if (d < 24) { it.pull = false; this.take(it); } } // telequinesis
     Level.t = this.t; for (const c of this.crystals) if (c.dead && (c.respawn -= dt) <= 0) { c.dead = false; c.hp = 60; } for (const b of this.barrels) if (b.mine && !b.dead && Math.hypot(b.x - p.x, b.y - p.y) < 15) this.explode(b);
     for (const q of this.eproj) { if (this.temporalField && Math.hypot(q.x-this.temporalField.x,q.y-this.temporalField.y)<280 && Level.los(this.temporalField.x,this.temporalField.y,q.x,q.y)) continue; q.x += q.vx * dt; q.y += q.vy * dt; q.life -= dt; if (Level.solid(q.x, q.y)) { q.life = 0; if (q.bullet) this.sparks(q.x, q.y, 3, '#ffd27a'); else this.pools.push({ x: q.x, y: q.y, r: 26, life: 4 }); continue; }
-      if (Math.hypot(q.x - p.x, q.y - p.y) < p.r + 5) { q.life = 0; p.hurt(q.dmg, Math.atan2(q.vy, q.vx), this); p.addPoison(q.poison); if (!q.bullet) this.pools.push({ x: q.x, y: q.y, r: 22, life: 3 }); } }
+      if (Math.hypot(q.x - p.x, q.y - p.y) < p.r + 5) { q.life = 0; const invuln = p.invuln; p.hurt(q.dmg, Math.atan2(q.vy, q.vx), this); if (p.invuln > invuln) p.addPoison(q.poison || 0); if (!q.bullet) this.pools.push({ x: q.x, y: q.y, r: 22, life: 3 }); } }
     this.eproj = this.eproj.filter(q => q.life > 0);
     for (const pl of this.pools) { pl.life -= dt; if (Math.hypot(pl.x - p.x, pl.y - p.y) < pl.r) p.addPoison(dt * 2.2); } this.pools = this.pools.filter(pl => pl.life > 0);
     for (const tr of this.tracers) tr.life -= dt; this.tracers = this.tracers.filter(tr => tr.life > 0);

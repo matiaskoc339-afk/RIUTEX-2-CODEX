@@ -3,7 +3,8 @@ from pathlib import Path
 import base64,re,mimetypes,json,zipfile
 ROOT=Path(__file__).resolve().parents[1]
 html=(ROOT/'index.html').read_text()
-css='\n'.join((ROOT/f).read_text() for f in ['style.css','blue.css','horror.css','revision.css','presentation.css','adventure.css','fielddesk.css','survival.css','finale.css','works.css','depths.css','castle.css','endgame.css','polish.css','pov.css'])
+styles=re.findall(r'<link rel="stylesheet" href="([^"]+)">',html)
+css='\n'.join((ROOT/f).read_text() for f in styles)
 def asset(match):
  path=ROOT/match[1]
  if not path.exists():raise FileNotFoundError(path)

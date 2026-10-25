@@ -1,20 +1,14 @@
-"""Regresión de campaña, guardado y POV WebGL.
-Las suites POV de Canvas anteriores quedan como referencia histórica; el render
-y la captura actuales se comprueban con pov3d_browser y controls_v020.
+"""Regresión de campaña, guardado, sonido y POV WebGL.
+--from-suite permite continuar después de reparar una suite histórica.
+Cada ejecución reconstruye el HTML para que las pruebas usen la fuente actual.
 """
 from pathlib import Path
-import subprocess,sys
+import argparse,subprocess,sys
 root=Path(__file__).resolve().parents[1]
-for path in ['scripts/build.py','tests/browser_blue.py','tests/horror_browser.py','tests/revision_browser.py','tests/presentation_browser.py','tests/adventure_browser.py','tests/fielddesk_browser.py','tests/survival_browser.py','tests/gold_browser.py','tests/finale_browser.py','tests/works_browser.py','tests/depths_browser.py','tests/depths_visual.py','tests/flamethrower_browser.py','tests/castle_combat_probe.py','tests/castle_browser.py','tests/castle_visual.py','tests/endgame_browser.py','tests/endgame_visual.py','tests/standalone_blue.py','tests/polish_browser.py','tests/pov_controls_v020_browser.py','tests/pov3d_browser.py','tests/artifacts_lore_browser.py','tests/experience_browser.py','tests/persistence_browser.py']:
+suites=['browser_blue.py','horror_browser.py','revision_browser.py','presentation_browser.py','adventure_browser.py','fielddesk_browser.py','survival_browser.py','gold_browser.py','finale_browser.py','works_browser.py','depths_browser.py','depths_visual.py','flamethrower_browser.py','castle_combat_probe.py','castle_browser.py','castle_visual.py','endgame_browser.py','endgame_visual.py','standalone_blue.py','polish_browser.py','pov_controls_v020_browser.py','pov3d_browser.py','artifacts_lore_browser.py','experience_browser.py','persistence_browser.py','enemy_motion_browser.py','perspective_choice_browser.py','intro_pursuit_browser.py','experience_settings_browser.py','fielddesk_polish_browser.py','audio_polish_browser.py','pov_world_polish_browser.py','persistence_world_browser.py']
+parser=argparse.ArgumentParser();parser.add_argument('--from-suite',choices=suites);args=parser.parse_args()
+paths=['scripts/build.py']+['tests/'+name for name in suites[(suites.index(args.from_suite) if args.from_suite else 0):]]
+for path in paths:
+    print('SUITE',path,flush=True)
     result=subprocess.run([sys.executable,str(root/path)],cwd=root)
-    if result.returncode:
-        raise SystemExit(result.returncode)
-result=subprocess.run([sys.executable,str(root/'tests/enemy_motion_browser.py')],cwd=root)
-if result.returncode:
-    raise SystemExit(result.returncode)
-result=subprocess.run([sys.executable,str(root/'tests/perspective_choice_browser.py')],cwd=root)
-if result.returncode:
-    raise SystemExit(result.returncode)
-result=subprocess.run([sys.executable,str(root/'tests/intro_pursuit_browser.py')],cwd=root)
-if result.returncode:
-    raise SystemExit(result.returncode)
+    if result.returncode:raise SystemExit(result.returncode)

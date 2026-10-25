@@ -11,7 +11,9 @@ const Weapons = {
   staminaCost(g,p,w) { return (w.stam || 6) * .55 * Math.pow(.85,p.mods.steady||0) * (p.focus>0?.5:1); },
   magSize(p, w) { return w.grenade ? w.mag : w.mag + 4 * p.mods.mag; }, // mejora: cargador extendido
   fire(g, p) {
+    if (!p.weapon || p.weapon.mag <= 0 || p.reloading > 0) return false;
     const w = Weapons.effective(p,p.weapon.id);
+    if (!w) return false;
     if (w.flame) return Flamethrower.fire(g,p,w);
     const effort = Weapons.staminaCost(g,p,w);
     if (isR2lvl(g.lvl) && p.stamina < effort) { p.fireCd=.2; if((p.exertionNotice||0)<=g.t){UI.msg('Sin aliento para disparar. Busca cobertura y recupera estamina.',1600);p.exertionNotice=g.t+2;} return false; }
@@ -19,7 +21,7 @@ const Weapons = {
     const wob = Math.max(0, 1 - p.stamina / 30) * (w.stam || 6) * .012; // sin aliento la puntería se descontrola (más con armas pesadas)
     p.stamina = Math.max(0, p.stamina - effort); if (p.stamina <= 0) p.tired = true; if(isR2lvl(g.lvl))p.exertion=1.1; p.spreadAdd = Math.min(0.12, p.spreadAdd + 0.025); // disparar cansa: Issac no está entrenado
     const sp = (w.spread + (p.spreadAdd + (p.running ? 0.04 : 0) + wob) * (w.bloomFactor == null ? 1 : w.bloomFactor)) * (p.focus > 0 ? 0.35 : 1) * Math.pow(.75, p.mods.prec);
-    if (w.grenade) { const a = p.angle + (Math.random() - .5) * 2 * sp; g.projectiles.push({ x: p.x + Math.cos(a) * 18, y: p.y + Math.sin(a) * 18, vx: Math.cos(a) * 430, vy: Math.sin(a) * 430, dmg: 0, damage: w.dmg * (1 + .3 * p.mods.pow) * (1 + g.mut.mod('gun')), life: 1.0, grenade: true }); Level.move(p, -Math.cos(p.angle) * w.recoil, -Math.sin(p.angle) * w.recoil); g.cam.shake = Math.max(g.cam.shake, 5); Sound.play('shot'); return; }
+    if (w.grenade) { const a = p.angle + (Math.random() - .5) * 2 * sp; g.projectiles.push({ x: p.x + Math.cos(a) * 18, y: p.y + Math.sin(a) * 18, vx: Math.cos(a) * 430, vy: Math.sin(a) * 430, dmg: 0, damage: w.dmg * (1 + .3 * p.mods.pow) * (1 + g.mut.mod('gun')), life: 1.0, grenade: true }); Level.move(p, -Math.cos(p.angle) * w.recoil, -Math.sin(p.angle) * w.recoil); g.cam.shake = Math.max(g.cam.shake, 5); Sound.play('shot', {weaponId:p.weapon.id}); return; }
     const ballistics = typeof POV3DBallistics !== 'undefined' && POV3DBallistics.active(g) ? POV3DBallistics : null;
     for (let k = 0; k < w.pellets; k++) {
       const a = p.angle + (Math.random() - .5) * 2 * sp, cx = Math.cos(a), cy = Math.sin(a);
@@ -39,16 +41,22 @@ const Weapons = {
     Level.move(p, -Math.cos(p.angle) * w.recoil * (p.focus > 0 ? .4 : 1), -Math.sin(p.angle) * w.recoil * (p.focus > 0 ? .4 : 1));
     g.cam.shake = Math.max(g.cam.shake, 3); p.flash = .06;
     for (const e of g.enemies) if (!e.dead && Math.hypot(e.x - p.x, e.y - p.y) < 380 && !e.def.latent && !e.isBoss) e.alert = true; // el ruido atrae enemigos
-    Sound.play('shot');
+    Sound.play('shot', {weaponId:p.weapon.id});
   },
   reload(p) {
     if (!p.weapon) return;
     const w = Weapons.effective(p,p.weapon.id);
-    if (p.reloading > 0 || p.weapon.mag >= Weapons.magSize(p, w) || Game.inv.reserve(p.weapon.id) <= 0) return;
-    p.reloading = w.reload * (p.focus > 0 ? .7 : 1) * (1 - Math.min(.5, Game.mut.mod('reload'))); Sound.play('reload');
+    if (!w || p.reloading > 0 || p.weapon.mag >= Weapons.magSize(p, w) || Game.inv.reserve(p.weapon.id) <= 0) return false;
+    p.reloadWeaponId = p.weapon.id;
+    p.reloadDuration = p.reloading = w.reload * (p.focus > 0 ? .7 : 1) * (1 - Math.min(.5, Game.mut.mod('reload')));
+    Sound.play('reload', {weaponId:p.weapon.id,duration:p.reloading}); return true;
   },
   finishReload(p) {
-    if (!p.weapon) return; const w = Weapons.effective(p,p.weapon.id), n = Math.min(Weapons.magSize(p, w) - p.weapon.mag, Game.inv.reserve(p.weapon.id));
-    Game.inv.takeAmmo(p.weapon.id, n); p.weapon.mag += n;
+    if (!p.weapon || (p.reloadWeaponId && p.reloadWeaponId !== p.weapon.id)) return false;
+    const w = Weapons.effective(p,p.weapon.id); if (!w) return false;
+    const need = Math.max(0, Weapons.magSize(p, w) - p.weapon.mag), n = Math.min(need, Math.max(0, Game.inv.reserve(p.weapon.id)));
+    p.reloading = 0; p.reloadDuration = 0; p.reloadWeaponId = '';
+    if (n <= 0) return false;
+    const loaded = Game.inv.takeAmmo(p.weapon.id, n); p.weapon.mag += loaded; return loaded > 0;
   }
 };

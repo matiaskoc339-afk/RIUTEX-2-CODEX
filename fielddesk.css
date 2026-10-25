@@ -1283,3 +1283,162 @@
     font-size: 16px;
   }
 }
+
+/* Archivo recuperado: buscar sin abandonar la pausa ni perder el documento abierto. */
+.desk-open #jList {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.desk-open #jHead {
+  margin: 0 0 12px;
+  flex: none;
+}
+.journal-tools {
+  flex: none;
+  margin: 0 0 9px;
+}
+.journal-tools label {
+  display: block;
+  font: 10px var(--ui-font);
+  letter-spacing: .12em;
+  color: #9eadaa;
+  margin-bottom: 7px;
+}
+.journal-search-row {
+  display: flex;
+  gap: 5px;
+}
+#journalSearch {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #536a70;
+  border-radius: 3px;
+  padding: 9px 11px;
+  font: 15px var(--ui-font);
+  color: #e0e5d8;
+  background: #0c181d;
+}
+#journalSearch::placeholder { color: #91a39f; }
+.desk-open .journal-tools button {
+  min-width: 0;
+  padding: 7px 9px;
+  font: 14px var(--ui-font);
+  letter-spacing: .01em;
+}
+.journal-navigation {
+  display: flex;
+  gap: 6px;
+  margin: 7px 0 0;
+}
+.journal-navigation button { flex: 1; }
+#journalCount {
+  min-height: 16px;
+  margin: 8px 0 2px;
+  font: 12px/1.4 var(--ui-font);
+  color: #a9b6ac;
+}
+.desk-open #jTabs {
+  display: flex;
+  flex-wrap: wrap;
+  flex: none;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+.desk-open #jTabs button {
+  font-size: 13px;
+  padding: 6px 10px;
+}
+.desk-open #jItems {
+  flex: 1;
+  min-height: 70px;
+  overflow-y: auto;
+}
+.desk-open button.journal-entry {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-start;
+  width: 100%;
+  min-width: 0;
+  margin: 0 0 7px;
+  text-align: left;
+  text-transform: none;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 15px;
+  min-height: 66px;
+  white-space: normal;
+  border-radius: 2px;
+}
+.journal-entry small {
+  display: block;
+  color: #93a9ab;
+  font: 11px/1.5 var(--ui-font);
+  margin-top: 5px;
+}
+.journal-entry i { white-space: nowrap; }
+.desk-open #jPaper.worn-paper[data-archive]:after {
+  content: attr(data-archive);
+}
+.desk-open #jPaper[data-sector="castle"] {
+  background-color: #d7cdb4;
+  border-color: #8c7656;
+}
+.desk-open #jPaper[data-sector="castle"] .clinical-letterhead,
+.desk-open #jPaper[data-sector="castle"] .clinical-letterhead > b {
+  color: #69513c;
+  border-color: #8c7656;
+}
+.desk-open #jPaper[data-sector="umbra"] {
+  background-color: #d3dbd5;
+}
+.desk-open #jPaper[data-sector="works"] {
+  background-color: #d4d1b8;
+}
+.inventory-weapon-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin: 0 0 12px;
+}
+.inventory-weapon-stats div {
+  border: 1px solid #51636a66;
+  background: #1e2c3180;
+  padding: 7px 10px;
+}
+.inventory-weapon-stats div:last-child { grid-column: 1 / -1; }
+.inventory-weapon-stats dt {
+  font: 10px var(--ui-font);
+  letter-spacing: .06em;
+  color: #99aaaa;
+}
+.inventory-weapon-stats dd {
+  margin: 3px 0 0;
+  font: 500 18px var(--ui-font);
+  color: #d8ddce;
+}
+.desk-open #invSide #bEquip {
+  background: linear-gradient(100deg, #32484b, #20373d);
+  border-color: #7f9c97;
+  color: #e1e6d5;
+}
+.desk-open button:disabled { cursor: default; }
+.desk-open #jList button:focus-visible,
+.desk-open #journalSearch:focus-visible,
+.desk-open #invSide button:focus-visible,
+.desk-open #mapDrawing svg:focus-visible {
+  outline: 2px solid #cfbb91;
+  outline-offset: 3px;
+}
+.atlas-sidebar .map-legend { white-space: pre-line; }
+@media (max-height: 780px) {
+  .desk-open #jHead { margin-bottom: 8px; font-size: 22px; }
+  .journal-tools label { margin-bottom: 4px; font-size: 9px; }
+  #journalSearch { padding: 7px 9px; font-size: 14px; }
+  .desk-open .journal-tools button { padding: 5px 8px; font-size: 13px; }
+  .inventory-weapon-stats { gap: 4px; margin-bottom: 7px; }
+  .inventory-weapon-stats div { padding: 4px 9px; }
+  .inventory-weapon-stats div:last-child { grid-column: auto; }
+  .inventory-weapon-stats { grid-template-columns: repeat(3, 1fr); }
+  .inventory-weapon-stats dd { font-size: 16px; }
+}

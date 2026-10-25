@@ -1,21 +1,48 @@
 {
-  "version": "0.24.0",
+  "version": "0.25.0",
   "date": "2026-10-25",
   "scope": "RIUTEX 2 completo: mansión, hospital, fábrica, castillo, laboratorio UMBRAL, Wren/ORIGEN y dos epílogos",
-  "system_tests": 386,
+  "system_tests": 436,
   "system_failures": 0,
   "integration_checks": 103,
   "map_validations": 15,
   "browser_groups": {
-    "intro_pursuit": 18,
-    "revision": 14,
-    "pov_webgl": 52,
-    "capture_native": 26,
-    "persistence": 26,
-    "standalone": 17
+    "browser_blue": 24,
+    "horror_browser": 18,
+    "revision_browser": 14,
+    "presentation_browser": 18,
+    "adventure_browser": 29,
+    "fielddesk_browser": 42,
+    "survival_browser": 38,
+    "gold_browser": 11,
+    "finale_browser": 38,
+    "works_browser": 61,
+    "depths_browser": 29,
+    "depths_visual": 7,
+    "flamethrower_browser": 16,
+    "castle_combat_probe": 4,
+    "castle_browser": 76,
+    "castle_visual": 17,
+    "endgame_browser": 63,
+    "endgame_visual": 12,
+    "standalone_blue": 17,
+    "polish_browser": 41,
+    "pov_controls_v020_browser": 26,
+    "pov3d_browser": 52,
+    "artifacts_lore_browser": 13,
+    "experience_browser": 34,
+    "persistence_browser": 26,
+    "enemy_motion_browser": 14,
+    "perspective_choice_browser": 20,
+    "intro_pursuit_browser": 18,
+    "experience_settings_browser": 21,
+    "fielddesk_polish_browser": 18,
+    "audio_polish_browser": 11,
+    "pov_world_polish_browser": 17,
+    "persistence_world_browser": 7
   },
-  "browser_checks_total": 153,
-  "validation_scope": "386 pruebas de motor, 103 comprobaciones de integración y 15 mapas sin fallos. 153 comprobaciones de navegador: huida/brazos 18, revisión 14, WebGL 52, captura nativa 26, persistencia 26 y HTML integrado 17. Huida con IA activa y colisiones reales en ambos modos: cierre trasero, objetivo permanente, forcejeo, golpe único, llegada e inyección. Reanudar durante el forcejeo conserva la posición y permite avanzar; las camillas antiguas en run reconstruyen al Carnicero en suelo válido. Motor recorre las tres filas de la puerta en ambos modos. Brazos más gruesos, siete armas, dos manos, materiales, amputación/cura, golpe y línea central libre en reposo. HTML integra scripts e imágenes locales, sin recursos externos. Son escenarios preparados con SwiftShader; no miden una campaña humana ni FPS de GPU física.",
+  "browser_checks_total": 852,
+  "validation_scope": "436 pruebas de motor, 103 comprobaciones de integración y 15 mapas, sin fallos. 852 comprobaciones declaradas en 33 suites de navegador. Campaña, rutas y mecanismos de cuatro fases; los cuatro jefes, arena de ocho oleadas y ambos finales con escenarios preparados y recursos finitos. HUD, archivo, ajustes, físicas de combate, captura nativa, WebGL, audio, guardado entre pestañas/perfiles e iframe y HTML integrado. Suites históricas ejecutadas por tramos tras adaptar dos fixtures a la EXP y al nuevo control de imagen; cada informe procede de una ejecución satisfactoria. La suite de ajustes y el HTML final se repitieron después del ajuste de distribución del HUD. No mide una campaña humana ni FPS de GPU física.",
   "new_map": {
     "factory_dimensions": [
       148,
@@ -1269,5 +1296,167 @@
     "idle_center_aim_unobstructed": true,
     "two_hands_maximum": true,
     "infection_amputation_cure_preserved": true
-  }
+  },
+  "browser_reports": {
+    "browser_blue": "browser-blue-results.json",
+    "horror_browser": "horror-browser-results.json",
+    "revision_browser": "revision-browser-results.json",
+    "presentation_browser": "presentation-browser-results.json",
+    "adventure_browser": "adventure-browser-results.json",
+    "fielddesk_browser": "fielddesk-browser-results.json",
+    "survival_browser": "survival-browser-results.json",
+    "gold_browser": "gold-browser-results.json",
+    "finale_browser": "finale-browser-results.json",
+    "works_browser": "works-browser-results.json",
+    "depths_browser": "depths-browser-results.json",
+    "depths_visual": "depths-visual-results.json",
+    "flamethrower_browser": "flamethrower-browser-results.json",
+    "castle_combat_probe": "castle-combat-results.json",
+    "castle_browser": "castle-browser-results.json",
+    "castle_visual": "castle-visual-results.json",
+    "endgame_browser": "endgame-browser-results.json",
+    "endgame_visual": "endgame-visual-results.json",
+    "standalone_blue": "standalone-blue-results.json",
+    "polish_browser": "polish-browser-results.json",
+    "pov_controls_v020_browser": "pov-controls-v020-browser-results.json",
+    "pov3d_browser": "pov3d-browser-results.json",
+    "artifacts_lore_browser": "artifacts-lore-browser-results.json",
+    "experience_browser": "experience-browser-results.json",
+    "persistence_browser": "persistence-browser-results.json",
+    "enemy_motion_browser": "enemy-motion-browser-results.json",
+    "perspective_choice_browser": "perspective-choice-browser-results.json",
+    "intro_pursuit_browser": "intro-pursuit-browser-results.json",
+    "experience_settings_browser": "experience-settings-browser-results.json",
+    "fielddesk_polish_browser": "fielddesk-polish-browser-results.json",
+    "audio_polish_browser": "audio-polish-browser-results.json",
+    "pov_world_polish_browser": "pov-world-polish-browser-results.json",
+    "persistence_world_browser": "persistence-world-browser-results.json"
+  },
+  "previous_validation_v0240": {
+    "version": "0.24.0",
+    "system_tests": 386,
+    "system_failures": 0,
+    "integration_checks": 103,
+    "map_validations": 15,
+    "browser_groups": {
+      "intro_pursuit": 18,
+      "revision": 14,
+      "pov_webgl": 52,
+      "capture_native": 26,
+      "persistence": 26,
+      "standalone": 17
+    },
+    "browser_checks_total": 153,
+    "validation_scope": "386 pruebas de motor, 103 comprobaciones de integración y 15 mapas sin fallos. 153 comprobaciones de navegador: huida/brazos 18, revisión 14, WebGL 52, captura nativa 26, persistencia 26 y HTML integrado 17. Huida con IA activa y colisiones reales en ambos modos: cierre trasero, objetivo permanente, forcejeo, golpe único, llegada e inyección. Reanudar durante el forcejeo conserva la posición y permite avanzar; las camillas antiguas en run reconstruyen al Carnicero en suelo válido. Motor recorre las tres filas de la puerta en ambos modos. Brazos más gruesos, siete armas, dos manos, materiales, amputación/cura, golpe y línea central libre en reposo. HTML integra scripts e imágenes locales, sin recursos externos. Son escenarios preparados con SwiftShader; no miden una campaña humana ni FPS de GPU física."
+  },
+  "general_polish": {
+    "combat": [
+      "melee y ráfagas con dirección anunciada",
+      "LOS en golpes y explosiones",
+      "veneno de contacto solo al recibir impacto",
+      "recarga ligada al arma y bono dorado condicionado",
+      "tregua al cargar"
+    ],
+    "archive": [
+      "búsqueda sin tildes entre documentos recuperados",
+      "filtro sin leer",
+      "membretes por procedencia",
+      "equipar desde inventario",
+      "conexiones y servicios conocidos en el mapa"
+    ],
+    "hud": [
+      "hasta cinco habilidades, prioridad de equipada y contador del resto",
+      "costes y recuperación reales",
+      "condiciones y coste por disparo",
+      "barra de recarga",
+      "distribución según espacio disponible entre monitores"
+    ],
+    "experience": {
+      "fov": [
+        60,
+        85
+      ],
+      "fov_default": 68,
+      "hud": [
+        85,
+        120
+      ],
+      "sway": [
+        0,
+        100
+      ],
+      "shake": [
+        0,
+        100
+      ],
+      "quality": [
+        "economy",
+        "balanced",
+        "high"
+      ],
+      "local_settings": "riutex_experience_v1",
+      "pause_volume_persists": true
+    },
+    "audio": {
+      "families": 5,
+      "regional_profiles": 6,
+      "refuge_profile": true,
+      "voice_limit": 40,
+      "noise_cache_limit": 24,
+      "real_audio_context_tested": true,
+      "changes_ai_noise": false
+    },
+    "pov_world": {
+      "chunk_tiles": 24,
+      "flat_inner_floor_and_ceiling": true,
+      "physical_door_signs": true,
+      "occluded_room_lights": true,
+      "stable_light_identity": true,
+      "map_resources_disposed": true,
+      "ultrawide_frustum": true,
+      "entrance_triangles": [
+        56126,
+        64020,
+        66440,
+        72252
+      ],
+      "comparison_v0240": [
+        190176,
+        256432,
+        261342,
+        416444
+      ],
+      "fps_claim": false
+    },
+    "session_world": {
+      "schema": 1,
+      "optional_field": "runtime.world",
+      "scope": "planta actual al continuar sesión web",
+      "barrels": true,
+      "crystals": true,
+      "chain_grace_seconds": 1,
+      "validates_import": true,
+      "old_sessions_supported": true,
+      "manual_saves_changed": false,
+      "transient_projectiles_and_pools_restored": false
+    }
+  },
+  "release_artifacts": [
+    "unit-v0250-final.txt",
+    "pov-world-polish-unit.txt",
+    "experience-unit-v0250-final.txt",
+    "combat-polish-v0250-integrated.txt",
+    "persistence-world-v0250-final.txt",
+    "browser-suite-v0250-final.txt",
+    "browser-suite-v0250-continued.txt",
+    "browser-suite-v0250-finish.txt",
+    "experience-settings-browser-v0250-final.txt",
+    "standalone-v0250-final.txt",
+    "survival-hud-pov-v0250.png",
+    "survival-hud-topdown-v0250.png",
+    "experience-settings-v0250.png",
+    "archivo-v0250.png",
+    "maletin-v0250.png",
+    "world-hospital-v025-after.png"
+  ]
 }

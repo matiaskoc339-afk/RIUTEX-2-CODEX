@@ -2,7 +2,7 @@
 class Player {
   constructor(x, y) {
     Object.assign(this, { x, y, r: 10, hp: 100, maxHp: 100, stamina: 100, maxStamina:100, tired: false, angle: 0, xp: 0, invuln: 0, hurtFlash: 0,
-      weapon: null, fireCd: 0, reloading: 0, spreadAdd: 0, flash: 0, running: false, stepT: 0, focus: 0, weapons: {}, mods: { mag: 0, pow: 0, prec: 0, rate: 0, mask: 0 }, poison: 0, resist: 0, energy: 100, maxEnergy: 100, blade: 0, sense: 0, over: 0, dashT: 0, dashVx: 0, dashVy: 0, meleeCd: 0, slash: 0, slashR: 42, lastCd: 0, regenPool: 24, evo: 0, knx: 0, kny: 0, walkT: 0 });
+      weapon: null, fireCd: 0, reloading: 0, reloadDuration: 0, reloadWeaponId: '', spreadAdd: 0, flash: 0, running: false, stepT: 0, focus: 0, weapons: {}, mods: { mag: 0, pow: 0, prec: 0, rate: 0, mask: 0 }, poison: 0, resist: 0, energy: 100, maxEnergy: 100, blade: 0, sense: 0, over: 0, dashT: 0, dashVx: 0, dashVy: 0, meleeCd: 0, slash: 0, slashR: 42, lastCd: 0, regenPool: 24, evo: 0, knx: 0, kny: 0, walkT: 0 });
   }
   update(dt, g) {
     this.exertion=Math.max(0,(this.exertion||0)-dt);
@@ -29,7 +29,10 @@ class Player {
     if (g.mouse.rclick) { g.mouse.rclick = false; this.melee(g); }
     this.fireCd = Math.max(0, this.fireCd - dt);
     this.spreadAdd = Math.max(0, this.spreadAdd - 0.12 * dt);
-    if (this.reloading > 0) { this.reloading -= dt; if (this.reloading <= 0) Weapons.finishReload(this); }
+    if (this.reloading > 0) {
+      if (this.reloadWeaponId && this.reloadWeaponId !== this.weapon?.id) { this.reloading = 0; this.reloadDuration = 0; this.reloadWeaponId = ''; }
+      else { this.reloading = Math.max(0, this.reloading - dt); if (this.reloading <= 0) Weapons.finishReload(this); }
+    }
     const wp = this.weapon;
     if (wp && this.reloading <= 0 && this.fireCd <= 0 && (g.mouse.clicked || (g.mouse.down && WEAPONS[wp.id].auto))) {
       if (wp.mag > 0) Weapons.fire(g, this); else { Sound.play('empty'); this.fireCd = .3; Weapons.reload(this); }

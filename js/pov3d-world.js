@@ -1,6 +1,26 @@
 // Arquitectura tridimensional: superficies sólidas, materiales locales y puertas sin planos duplicados.
 const POV3DWorld = {
   height: 62,
+  // Sectorizar mantiene el detalle de cada baldosa y permite descartar arquitectura lejana.
+  chunkSize: 24*TILE,
+  batchArchitecture(state,boxes,material,kind){
+    const chunks=new Map(),size=this.chunkSize;
+    for(const b of boxes){const key=Math.floor(b.x/size)+','+Math.floor(b.z/size);if(!chunks.has(key))chunks.set(key,[]);chunks.get(key).push(b);}
+    for(const [cell,instances]of chunks){
+      let mesh;
+      if(kind==='floor'||kind==='ceiling'){
+        // Suelo y techo solo requieren la cara interior: 2 triángulos frente a los 12 de un cubo.
+        const T=state.T;state.surfaceGeometry??=new Map();let geometry=state.surfaceGeometry.get(kind);
+        if(!geometry){geometry=new T.PlaneGeometry(1,1);state.surfaceGeometry.set(kind,geometry);state.resources.push(geometry);}
+        mesh=new T.InstancedMesh(geometry,material,instances.length);const dummy=new T.Object3D();
+        instances.forEach((b,i)=>{dummy.position.set(b.x,b.y+(kind==='floor'?b.sy/2:-b.sy/2),b.z);dummy.rotation.x=kind==='floor'?-Math.PI/2:Math.PI/2;dummy.scale.set(b.sx,b.sz,1);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);});
+        mesh.instanceMatrix.needsUpdate=true;state.root.add(mesh);
+      }else mesh=state.kit.batchBox(state.root,instances,material);
+      if(!mesh)continue;
+      mesh.name='architecture:'+kind+':'+cell;mesh.receiveShadow=true;mesh.castShadow=kind==='wall';mesh.computeBoundingBox?.();mesh.computeBoundingSphere?.();
+      state.resources.push(mesh);state.staticBatches.push(mesh);state.meshesCount++;
+    }
+  },
   hash(text){let n=2166136261;for(const ch of String(text))n=Math.imul(n^ch.charCodeAt(0),16777619);return n>>>0;},
   rng(seed){let n=seed>>>0;return()=>{n=(Math.imul(n,1664525)+1013904223)>>>0;return n/4294967296;};},
   theme(g){return g.lvl==='hospitalnest'?'cave':typeof POVArt!=='undefined'?POVArt.theme(g):'hospital';},
@@ -53,7 +73,7 @@ const POV3DWorld = {
     return {map:make(cv,true),normalMap:make(normal,false),roughnessMap:make(rough,false)};
   },
   build(root,g,kit){
-    const T=kit.THREE,theme=this.theme(g),ceilingHeight=/hospital(?:origin|royal|nest)$/.test(g.lvl)?128:/hospital(?:chem|pit)$/.test(g.lvl)?92:this.height,state={T,root,kit,theme,ceilingHeight,doors:new Map(),lamps:[],textures:[],materials:[],resources:[],fluids:[],meshesCount:0,ambient:{color:0xa5b5ac,ground:0x101a1e,intensity:.42}};
+    const T=kit.THREE,theme=this.theme(g),ceilingHeight=/hospital(?:origin|royal|nest)$/.test(g.lvl)?128:/hospital(?:chem|pit)$/.test(g.lvl)?92:this.height,state={T,root,kit,theme,ceilingHeight,doors:new Map(),lamps:[],textures:[],materials:[],resources:[],fluids:[],staticBatches:[],signs:[],meshesCount:0,ambient:{color:0xa5b5ac,ground:0x101a1e,intensity:.42}};
     const material=(kind,settings={})=>{const maps=this.textureSet(state,theme,kind),m=new T.MeshStandardMaterial({color:0xffffff,...maps,roughness:.82,metalness:theme==='lab'?.12:.03,normalScale:new T.Vector2(.18,.18),...settings});state.materials.push(m);return m;};
     const floor=material('floor',{roughness:theme==='lab'?.5:theme==='works'?.68:.8,metalness:theme==='works'?.58:.03}),wall=material('wall'),ceiling=material('ceiling',{roughness:.95}),trim=kit.mat(theme==='mansion'?'#594831':theme==='castle'?'#666759':'#667a78',.63,theme==='castle'?.05:.32),dark=kit.mat('#1a2a2b',.8,.2);
     if(g.lvl==='hospitalchem'){
@@ -80,10 +100,10 @@ const POV3DWorld = {
         }
       }
     }
-    for(const [boxes,m]of [[floors,floor],[roofs,ceiling],[walls,wall],[skirting,dark],[rails,trim],[ledges,trim]])if(boxes.length){const mesh=kit.batchBox(root,boxes,m);if(mesh){mesh.receiveShadow=true;mesh.castShadow=boxes===walls;state.meshesCount++;}}
+    for(const [boxes,m,kind]of [[floors,floor,'floor'],[roofs,ceiling,'ceiling'],[walls,wall,'wall'],[skirting,dark,'skirting'],[rails,trim,'rail'],[ledges,trim,'ledge']])if(boxes.length)this.batchArchitecture(state,boxes,m,kind);
     const waters=[new T.MeshStandardMaterial({color:0x314d4b,metalness:.25,roughness:.24,transparent:true,opacity:.72}),new T.MeshStandardMaterial({color:0x536c35,emissive:0x192b0a,emissiveIntensity:.28,metalness:.1,roughness:.3,transparent:true,opacity:.72})];
     state.materials.push(...waters);
-    for(let i=0;i<2;i++)if(fluidBoxes[i].length){const mesh=kit.batchBox(root,fluidBoxes[i],waters[i]);if(mesh){mesh.receiveShadow=true;state.fluids.push({mesh,material:waters[i],toxic:i===1,type:i+1,cells:fluidBoxes[i],active:fluidBoxes[i].map(()=>true)});state.meshesCount++;}}
+    for(let i=0;i<2;i++)if(fluidBoxes[i].length){const mesh=kit.batchBox(root,fluidBoxes[i],waters[i]);if(mesh){mesh.receiveShadow=true;state.resources.push(mesh);state.fluids.push({mesh,material:waters[i],toxic:i===1,type:i+1,cells:fluidBoxes[i],active:fluidBoxes[i].map(()=>true)});state.meshesCount++;}}
     state.fluidTick=-1;state.fluidMatrix=new T.Matrix4();state.fluidPosition=new T.Vector3();state.fluidScale=new T.Vector3();state.fluidQuaternion=new T.Quaternion();
     this.buildDoors(state,g);this.buildFixtures(state,g);this.buildArchitecture(state,g);
     if(theme==='lab')state.ambient={color:0xb8c7c5,ground:0x111f29,intensity:.46};
@@ -108,7 +128,34 @@ const POV3DWorld = {
       }
       const signalMat=new T.MeshStandardMaterial({color:d.key?0xb87c55:0x76a997,emissive:d.key?0x7c3320:0x305f52,emissiveIntensity:.6,roughness:.6});state.materials.push(signalMat);kit.box(group,span/2-1.2,41,4.1,1,3.8,.6,signalMat);
       const progress=d.open?1:0,leftBase=0,rightBase=0;left.position.x=-progress*(leafWidth+3.3);right.position.x=progress*(leafWidth+3.3);
-      state.doors.set(d.id,{door:d,group,left,right,leafWidth,progress,signalMat,leftBase,rightBase,span,horizontal});state.meshesCount+=group.children.length;
+      this.buildDoorSigns(state,d,group,span,horizontal);
+      state.doors.set(d.id,{door:d,group,left,right,leafWidth,progress,signalMat,leftBase,rightBase,span,horizontal,tileKeys:new Set(d.tiles.map(t=>t[0]+','+t[1]))});state.meshesCount+=group.children.length;
+    }
+  },
+  buildDoorSigns(state,door,group,span,horizontal){
+    const {T,kit,theme}=state;if(theme==='cave'||theme==='street')return;
+    const width=Math.min(49,span-9);if(width<18)return;
+    const wood=theme==='mansion'||theme==='castle',plate=kit.mat(wood?'#332e23':'#1d363b',.65,wood?.15:.48);
+    const cx=group.position.x/TILE,cz=group.position.z/TILE;
+    const labelFor=face=>{
+      // El letrero señala el recinto del otro lado; nunca contiene objetos ni soluciones.
+      for(let offset=.8;offset<=6;offset+=.5){
+        const x=cx+(horizontal?0:-face*offset),z=cz+(horizontal?-face*offset:0),tile=Level.grid[Math.floor(z)]?.[Math.floor(x)];if(tile===1||tile===undefined)break;
+        const rooms=(Level.rooms||[]).filter(r=>x>=r.x&&x<r.x+r.w&&z>=r.y&&z<r.y+r.h).sort((a,b)=>a.w*a.h-b.w*b.h);
+        if(rooms[0]?.n)return rooms[0].n;
+      }
+      return '';
+    };
+    for(const face of [-1,1]){
+      const label=labelFor(face);if(!label)continue;
+      const backplate=kit.box(group,0,57.4,face*3.72,width,5.8,.65,plate);backplate.castShadow=false;
+      const cv=this.canvas(256);cv.height=64;const c=cv.getContext('2d');
+      c.fillStyle=wood?'#c2ad7b':'#cbdbd2';c.textAlign='center';c.textBaseline='middle';
+      const text=label.toLocaleUpperCase('es'),font=Math.min(29,Math.max(16,Math.floor(420/text.length)));c.font='600 '+font+'px Rajdhani, sans-serif';c.fillText(text,128,33,238);
+      c.strokeStyle=wood?'#867147':'#5d9294';c.lineWidth=2;c.beginPath();c.moveTo(10,5);c.lineTo(246,5);c.moveTo(10,59);c.lineTo(246,59);c.stroke();
+      const texture=new T.CanvasTexture(cv);texture.colorSpace=T.SRGBColorSpace;texture.anisotropy=2;state.textures.push(texture);
+      const material=new T.MeshStandardMaterial({map:texture,transparent:true,alphaTest:.03,roughness:.8,emissive:wood?0x2a2318:0x1e3033,emissiveIntensity:.28,depthWrite:false});state.materials.push(material);
+      const geometry=new T.PlaneGeometry(width-1,5.1);state.resources.push(geometry);const sign=new T.Mesh(geometry,material);sign.name='door-sign:'+door.id+':'+face;sign.userData.roomLabel=label;sign.position.set(0,57.4,face*4.08);if(face<0)sign.rotation.y=Math.PI;group.add(sign);state.signs.push(sign);
     }
   },
   buildFixtures(state,g){
@@ -123,7 +170,7 @@ const POV3DWorld = {
       }else{
         kit.box(root,l.x,y+1,l.y,22,2.4,7.6,housing);kit.box(root,l.x,y-.4,l.y,19,.5,5.3,isWarm?warm:glass);kit.box(root,l.x-8,y-.9,l.y,.6,.5,5.3,housing);kit.box(root,l.x+8,y-.9,l.y,.6,.5,5.3,housing);
       }
-      fixtures.push({x:l.x,y:exterior?48:state.ceilingHeight-8.5,z:l.y,color:isWarm?0xffc891:theme==='lab'?0xc6e2df:theme==='works'?0xb7ccb3:0xc8decf,intensity:isWarm?3100:4400,distance:Math.min(260,Math.max(150,l.r||180)),decay:1.6,flicker:!!l.flicker,seed:i*.83});
+      fixtures.push({id:i,x:l.x,y:exterior?48:state.ceilingHeight-8.5,z:l.y,color:isWarm?0xffc891:theme==='lab'?0xc6e2df:theme==='works'?0xb7ccb3:0xc8decf,intensity:isWarm?3100:4400,distance:Math.min(260,Math.max(150,l.r||180)),decay:1.6,flicker:!!l.flicker,seed:i*.83});
     });
     state.lamps=fixtures;
   },
@@ -151,8 +198,9 @@ const POV3DWorld = {
   },
   update(state,g,time,dt){
     const blend=1-Math.exp(-24*Math.min(.1,Math.max(0,dt||1/60)));
+    if(state.doorSource!==Level.doors){state.doorSource=Level.doors;state.doorLookup=new Map(Level.doors.map(d=>[d.id,d]));}
     for(const d of state.doors.values()){
-      const current=Level.doors.find(o=>o.id===d.door.id)||d.door,target=current.open?1:0;d.progress+=(target-d.progress)*blend;if(Math.abs(d.progress-target)<.001)d.progress=target;
+      const current=state.doorLookup.get(d.door.id)||d.door,target=current.open?1:0;d.progress+=(target-d.progress)*blend;if(Math.abs(d.progress-target)<.001)d.progress=target;
       const offset=d.progress*(d.leafWidth+3.3);d.left.position.x=d.leftBase-offset;d.right.position.x=d.rightBase+offset;
       const locked=!!current.key&&!current.open;d.signalMat.color.setHex(locked?0xb87c55:0x76a997);d.signalMat.emissive.setHex(locked?0x7c3320:0x305f52);
     }

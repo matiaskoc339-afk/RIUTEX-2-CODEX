@@ -42,7 +42,7 @@ const POV3DRenderer={
     }catch(error){this.failed=true;this.failure=String(error);UI.msg('Este navegador no pudo iniciar 3D. La vista clásica sigue disponible.',7000);return false;}
   },
   resize(g){
-    const width=Math.max(320,innerWidth),height=Math.max(240,innerHeight),ratio=Math.min(1.5,window.devicePixelRatio||1);
+    const width=Math.max(320,innerWidth),height=Math.max(240,innerHeight),ratio=typeof ExperienceSettings!=='undefined'?ExperienceSettings.pixelRatio():Math.min(1.5,window.devicePixelRatio||1);
     if(this.width!==width||this.height!==height||this.ratio!==ratio){this.width=width;this.height=height;this.ratio=ratio;this.renderer.setPixelRatio(ratio);this.renderer.setSize(width,height,false);this.camera3D.aspect=width/height;this.camera3D.updateProjectionMatrix();}
     // La capa de mira/avisos también se presenta a resolución completa.
     if(g.cv.width!==width||g.cv.height!==height){g.cv.width=width;g.cv.height=height;g.lc.width=width;g.lc.height=height;g.cam.x=g.player.x-width/2;g.cam.y=g.player.y-height/2;}
@@ -63,9 +63,11 @@ const POV3DRenderer={
     for(const [cell,type]of Object.entries(Level.props||{})){const [x,z]=cell.split(',').map(Number);if(Level.grid[z]?.[x]!==4)continue;const root=POV3DAssets.prop(type,g);root.position.set((x+.5)*TILE,0,(z+.5)*TILE);this.world.add(root);this.props.push({root,x:root.position.x,z:root.position.z});}
     for(const barrel of g.barrels||[]){const root=POV3DAssets.prop('barrel',g);root.position.set(barrel.x,0,barrel.y);this.world.add(root);this.props.push({root,x:barrel.x,z:barrel.y,barrel});}
     this.levelGrid=Level.grid;this.level=g.lvl;this.renderer.renderLists.dispose();
+    for(const light of this.localLights){light.userData.sourceId=null;light.intensity=0;}
+    this.lightScanTime=-Infinity;this.lightCandidates=[];
     const ambient=this.worldState.ambient;if(typeof ambient==='object'){this.ambient.intensity=ambient.intensity??.6;this.ambient.color.set(ambient.color||'#a5bdcf');this.ambient.groundColor.set(ambient.ground||'#1b1b20');}else this.ambient.intensity=ambient??.75;
-    this.scene.fog.color.set(g.lvl==='hospitalstreet'?'#192a38':'#101b24');
-    this.stats={backend:this.renderer.capabilities.isWebGL2?'WebGL 2':'WebGL',level:g.lvl,realMeshes:true,billboards:0,roomMask:false,ceilingHeight:this.worldState.ceilingHeight||62};
+    const mood={hospital:'#101b24',works:'#15201d',cave:'#16201a',castle:'#1b1c20',mansion:'#1c1b19',lab:'#11212a',street:'#192a38'};this.scene.fog.color.set(mood[this.worldState.theme]||'#101b24');
+    this.stats={backend:this.renderer.capabilities.isWebGL2?'WebGL 2':'WebGL',level:g.lvl,realMeshes:true,billboards:0,roomMask:false,ceilingHeight:this.worldState.ceilingHeight||62,architectureBatches:this.worldState.staticBatches.length,doorSigns:this.worldState.signs.length};
     this.lastTime=g.t||0;
   },
   propHeight(type){return /pillar|bars/.test(type)?62:/shelf|locker|wardrobe|book/.test(type)?47:/machine|cabinet/.test(type)?43:/bed|bench|table|desk|counter/.test(type)?22:28;},
@@ -78,12 +80,22 @@ const POV3DRenderer={
   },
   lineVisible(x,z,r=0){
     const p=Game.player,dx=x-p.x,dz=z-p.y,d=Math.hypot(dx,dz);if(d>1100)return false;
-    if(d>r+70){const a=Math.atan2(dz,dx)-p.angle;if(Math.abs(Math.atan2(Math.sin(a),Math.cos(a)))>1.25)return false;}
+    if(d>r+70){const a=Math.atan2(dz,dx)-p.angle,halfFov=this.camera3D?Math.atan(Math.tan(this.camera3D.fov*Math.PI/360)*this.camera3D.aspect):1.07;if(Math.abs(Math.atan2(Math.sin(a),Math.cos(a)))>halfFov+.18)return false;}
     // Solo ocultan muros y puertas; una mesa puede cubrir las piernas sin borrar la cabeza.
     for(const side of [0,-1,1]){const nx=d?(-dz/d*r*side):0,nz=d?(dx/d*r*side):0,steps=Math.ceil(d/14);let clear=true;
       for(let i=1;i<steps;i++){const tx=Math.floor((p.x+(dx+nx)*i/steps)/TILE),ty=Math.floor((p.y+(dz+nz)*i/steps)/TILE),v=Level.grid[ty]?.[tx];if(v===1||v===2||v===3||v===undefined){clear=false;break;}}
       if(clear)return true;
     }return false;
+  },
+  doorVisible(view,g){
+    const p=g.player,cx=view.group.position.x,cz=view.group.position.z,d=Math.hypot(cx-p.x,cz-p.y);if(d<view.span+24)return true;if(d>1300)return false;
+    // El propio umbral cerrado sigue siendo visible; solo ocultan tabiques y otras puertas.
+    for(const side of [0,-1,1]){
+      const x=cx+(view.horizontal?side*view.span*.42:0),z=cz+(view.horizontal?0:side*view.span*.42),steps=Math.ceil(Math.hypot(x-p.x,z-p.y)/12);let clear=true;
+      for(let i=1;i<steps;i++){const tx=Math.floor((p.x+(x-p.x)*i/steps)/TILE),tz=Math.floor((p.y+(z-p.y)*i/steps)/TILE),tile=Level.grid[tz]?.[tx];if(view.tileKeys.has(tx+','+tz))break;if(tile===1||tile===2||tile===3||tile===undefined){clear=false;break;}}
+      if(clear)return true;
+    }
+    return false;
   },
   syncActors(g,time,dt){
     const present=new Set();let visible=0;
@@ -132,11 +144,32 @@ const POV3DRenderer={
     for(const [id,e]of this.items)if(!present.has(id)){this.disposeObject(e.root);this.items.delete(id);}
     this.stats.visibleItems=visible;
   },
+  lampVisible(lamp,p){
+    const dx=lamp.x-p.x,dz=lamp.z-p.y,d=Math.hypot(dx,dz),steps=Math.max(1,Math.ceil(d/12));
+    // Las luces locales sin mapa de sombras no deben atravesar tabiques ni puertas cerradas.
+    for(let i=1;i<steps;i++){const cell=Level.grid[Math.floor((p.y+dz*i/steps)/TILE)]?.[Math.floor((p.x+dx*i/steps)/TILE)];if(cell===1||cell===2||cell===3||cell===undefined)return false;}
+    return true;
+  },
   lights(g,time){
     const p=g.player,c=this.camera3D;this.flashlight.position.copy(c.position);this.flashlight.position.y-=2;
     this.flashlight.target.position.copy(c.position).addScaledVector(this.forward,300);this.flashlight.intensity=p.hidden?0:140;
-    const lights=(this.worldState.lamps||[]).map(l=>({l,d:(l.x-p.x)**2+(l.z-p.y)**2})).filter(v=>v.d<650**2).sort((a,b)=>a.d-b.d);
-    for(let i=0;i<this.localLights.length;i++){const light=this.localLights[i],source=lights[i]?.l;if(!source){light.intensity=0;continue;}light.position.set(source.x,source.y??54,source.z);light.color.set(source.color||'#c4d5d4');light.distance=source.distance||200;light.decay=source.decay||1.6;light.intensity=(source.intensity||26)*(source.flicker?(.87+.13*Math.sin(time*9+i*1.9)):1);}
+    const elapsed=Math.max(0,time-(this.lastLightTime??time));this.lastLightTime=time;
+    if(!this.lightCandidates||Math.abs(time-this.lightScanTime)>.1){
+      this.lightScanTime=time;
+      this.lightCandidates=(this.worldState.lamps||[]).map(l=>({l,d:(l.x-p.x)**2+(l.z-p.y)**2})).filter(v=>v.d<(v.l.distance+32)**2&&this.lampVisible(v.l,p)).sort((a,b)=>a.d-b.d).slice(0,this.localLights.length).map(v=>v.l);
+    }
+    const remaining=new Map(this.lightCandidates.map(l=>[l.id,l]));
+    // Conservar la identidad de cada foco evita que toda la iluminación salte al reordenar distancias.
+    for(const light of this.localLights)if(remaining.has(light.userData.sourceId)){light.userData.source=remaining.get(light.userData.sourceId);remaining.delete(light.userData.sourceId);}else light.userData.source=null;
+    for(const light of this.localLights)if(!light.userData.source&&remaining.size){const source=remaining.values().next().value;remaining.delete(source.id);light.userData.source=source;light.userData.sourceId=source.id;light.intensity=0;}
+    const blend=elapsed>0?1-Math.exp(-10*Math.min(.1,elapsed)):1;let used=0;
+    for(const light of this.localLights){
+      const source=light.userData.source;
+      if(!source){light.intensity+=(0-light.intensity)*blend;if(light.intensity<.1)light.intensity=0;continue;}
+      light.position.set(source.x,source.y??54,source.z);light.color.set(source.color||'#c4d5d4');light.distance=source.distance||200;light.decay=source.decay||1.6;
+      const target=(source.intensity||26)*(source.flicker?(.92+.08*Math.sin(time*6+(source.seed||0))):1);light.intensity+=(target-light.intensity)*blend;used++;
+    }
+    this.stats.activeRoomLights=used;
   },
   cueStyle(css,alpha=1){
     let opacity=alpha,color=css||'#e0ba89';if(typeof color==='string'&&color.startsWith('rgba')){const v=color.match(/[\d.]+/g);if(v?.length>=4){opacity*=Number(v[3]);color='rgb('+v.slice(0,3).join(',')+')';}}
@@ -205,7 +238,7 @@ const POV3DRenderer={
       if(this.levelGrid!==Level.grid||this.level!==g.lvl)this.rebuild(g);
       const time=g.t||0,dt=Math.min(.1,Math.max(0,time-this.lastTime));this.lastTime=time;const p=g.player,pitch=-(FirstPerson.pitch||0),motion=POVCameraMotion.pose(g);
       this.eyeHeight=35+motion.y;this.camera3D.position.set(p.x,this.eyeHeight,p.y);this.forward.set(Math.cos(p.angle)*Math.cos(pitch),Math.sin(pitch),Math.sin(p.angle)*Math.cos(pitch));this.camera3D.lookAt(this.camera3D.position.clone().add(this.forward));this.camera3D.rotateZ(motion.roll);this.camera3D.updateMatrixWorld();
-      POV3DWorld.update(this.worldState,g,time,dt);this.syncActors(g,time,dt);this.syncRemains(g,time,dt);this.syncItems(g,time,dt);this.lights(g,time);this.cues(g);this.effects(g,time);
+      POV3DWorld.update(this.worldState,g,time,dt);let shownDoors=0;for(const view of this.worldState.doors.values()){view.group.visible=this.doorVisible(view,g);if(view.group.visible)shownDoors++;}this.stats.visibleDoorGroups=shownDoors;this.syncActors(g,time,dt);this.syncRemains(g,time,dt);this.syncItems(g,time,dt);this.lights(g,time);this.cues(g);this.effects(g,time);
       for(const p of this.props)p.root.visible=(!p.barrel||!p.barrel.dead)&&this.lineVisible(p.x,p.z,20);
       this.renderer.info.reset();this.renderer.clear();this.renderer.render(this.scene,this.camera3D);
       if(typeof POV3DViewmodel!=='undefined')POV3DViewmodel.render(this,g,time,dt);

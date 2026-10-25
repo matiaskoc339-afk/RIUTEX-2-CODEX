@@ -29,7 +29,7 @@ with local_server(root) as url,sync_playwright() as p:
  check('Salud baja cambia el pulso a rojo y señala CRÍTICO',page.locator('#vitalStatus').inner_text()=='CRÍTICO' and page.locator('#vitalMonitor').evaluate('e=>getComputedStyle(e).color')!=green)
  check('La reserva naranja cae en altura y Riutex cae en anchura',page.evaluate("parseFloat(UI.$('st').style.height)<40&&UI.$('st').style.width==='100%'&&parseFloat(UI.$('en').style.width)<45"))
  page.screenshot(path=str(root/'artifacts/hud-low-v060.png'))
- page.keyboard.press('k');page.wait_for_timeout(250)
+ page.evaluate('Game.player.xp=20');page.keyboard.press('k');page.wait_for_timeout(250)
  page.evaluate("window.savedReactor=document.querySelector('.riutex-reactor');window.savedAnimation=savedReactor.querySelector('i').getAnimations()[0];window.fluidTime=savedAnimation.currentTime")
  page.locator('[data-skill="vigor"]').click();page.click('#bBuy');page.wait_for_timeout(100)
  check('Seleccionar y comprar conservan el fondo y su fase de animación',page.evaluate("document.querySelector('.riutex-reactor')===savedReactor&&savedReactor.querySelector('i').getAnimations()[0]===savedAnimation&&savedAnimation.currentTime>fluidTime"))

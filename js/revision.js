@@ -921,11 +921,12 @@ RevisionTree.configure();
   };
   const reload = Weapons.finishReload;
   Weapons.finishReload = function (p) {
-    reload.call(this, p);
-    if (Game.mut.has("gold_reload")) {
+    const mag = p.weapon?.mag, loaded = reload.call(this, p);
+    if (Game.mut.has("gold_reload") && p.weapon?.mag > mag) {
       p.stamina = Math.min(p.maxStamina || 100, p.stamina + 12);
       p.focus = Math.max(p.focus, 3);
     }
+    return loaded;
   };
   const use = Inventory.prototype.use;
   Inventory.prototype.use = function (g) {

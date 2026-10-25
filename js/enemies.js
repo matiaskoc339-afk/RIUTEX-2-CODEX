@@ -21,7 +21,7 @@ const ENEMY_TYPES = {
 };
 class Enemy {
   constructor(type, x, y, id) {
-    Object.assign(this, { type, def: ENEMY_TYPES[type], id, x, y, r: ENEMY_TYPES[type].r || 11, hp: ENEMY_TYPES[type].hp, mhp: ENEMY_TYPES[type].hp, lastHit: 9, alert: false, dead: false, stagger: 0, frozen: 0, cd: 0, windup: 0, face: Math.random() * 6.28, t: Math.random() * 10, hitFlash: 0 });
+    Object.assign(this, { type, def: ENEMY_TYPES[type], id, x, y, r: ENEMY_TYPES[type].r || 11, hp: ENEMY_TYPES[type].hp, mhp: ENEMY_TYPES[type].hp, lastHit: 9, alert: false, dead: false, stagger: 0, frozen: 0, cd: 0, windup: 0, shots: 0, shotT: 0, attackFace: 0, attackLocked: false, face: Math.random() * 6.28, t: Math.random() * 10, hitFlash: 0, grace: 0 });
   }
   hurt(dmg, angle, g) {
     if (this.dead) return;
@@ -35,15 +35,18 @@ class Enemy {
     Level.decals.push({ x: this.x, y: this.y, r: 17, c: 'rgba(90,10,16,.6)' }); g.sparks(this.x, this.y, 18, '#6a0810'); g.bodies.push({ x: this.x, y: this.y, a: this.face }); if (this.def.cloud) g.pools.push({ x: this.x, y: this.y, r: this.def.cloud, life: 6 });
   }
   spitterAI(dt, g, d, dx, dy) { // ataque a distancia genérico: sapo ácido, soldados y torretas (def.rng ajusta distancia, ráfaga y proyectil)
+    d = Math.max(1, d);
     const R = this.def.rng || { min: 130, max: 240, speed: 230, burst: 1, wind: .55, range: 280, poison: 3 };
-    if (this.shots > 0) { this.shotT -= dt; if (this.shotT <= 0) { const a = this.face + (Math.random() - .5) * (R.spread || 0); g.eproj.push({ x: this.x, y: this.y, vx: Math.cos(a) * R.speed, vy: Math.sin(a) * R.speed, life: 2.2, dmg: this.def.dmg, poison: R.poison || 0, bullet: !!R.bullet }); this.shots--; this.shotT = R.gap || .12; Sound.play('attack'); } return; }
-    if (this.windup > 0) { this.windup -= dt; if (this.windup <= 0) { this.shots = R.burst; this.shotT = 0; this.cd = this.def.cooldown; } return; }
+    if (this.shots > 0) { if (this.attackLocked) this.face = this.attackFace; this.shotT -= dt; if (this.shotT <= 0) { const a = this.face + (Math.random() - .5) * (R.spread || 0); g.eproj.push({ x: this.x, y: this.y, vx: Math.cos(a) * R.speed, vy: Math.sin(a) * R.speed, life: 2.2, dmg: this.def.dmg, poison: R.poison || 0, bullet: !!R.bullet }); this.shots--; this.shotT = R.gap || .12; Sound.play('attack'); } return; }
+    if (this.windup > 0) { if (this.attackLocked) this.face = this.attackFace; this.windup -= dt; if (this.windup <= 0) { this.shots = R.burst; this.shotT = 0; this.cd = this.def.cooldown; } return; }
     if (!R.fixed) { const sp = this.def.speed * dt; if (d < R.min) Level.move(this, -dx / d * sp, -dy / d * sp); else if (d > R.max) Level.move(this, dx / d * sp, dy / d * sp); }
-    if (d < R.range && this.cd <= 0 && Level.los(this.x, this.y, g.player.x, g.player.y)) this.windup = R.wind;
+    if (d < R.range && this.cd <= 0 && Level.los(this.x, this.y, g.player.x, g.player.y)) { this.windup = R.wind; this.attackFace = this.face; this.attackLocked = true; }
   }
   update(dt, g) {
     if (this.dead) return; const p = g.player; this.t += dt; this.lastHit += dt; if (this.def.regen && this.lastHit > 2 && this.hp < this.mhp) this.hp = Math.min(this.mhp, this.hp + this.def.regen * dt); // el Regenerador se cura si no lo atacas
     this.hitFlash = Math.max(0, this.hitFlash - dt);
+    // Reanudar una sesión devuelve un aviso completo, no un golpe invisible ya terminado.
+    if (this.grace > 0) { this.grace = Math.max(0, this.grace - dt); this.windup = 0; this.shots = 0; this.attackLocked = false; return; }
     const dx = p.x - this.x, dy = p.y - this.y, d = Math.hypot(dx, dy) || 1;
     if (this.frozen > 0) { this.frozen -= dt; return; }
     if (this.stagger > 0) { this.stagger -= dt; return; }
@@ -51,12 +54,22 @@ class Enemy {
     const pov=typeof POVPerception!=='undefined'&&POVPerception.active(g),seen=pov?POVPerception.notice(this,g,dt):d<this.def.detect&&Level.los(this.x,this.y,p.x,p.y);
     if (this.def.latent && !this.alert && (pov?seen:d<this.def.detect)) { this.alert = true; this.stagger = .7; Sound.play('attack'); return; } // el Latente despierta
     if (seen) this.alert = true; else if (pov?!(this.povMemory>0):d>this.def.detect*2.2) this.alert = false;
-    if (!this.alert) return;
+    if (!this.alert) { this.windup = 0; this.shots = 0; this.attackLocked = false; return; }
     if (this.def.howler) { this.shriek = (this.shriek || 3) - dt; if (this.shriek <= 0) { this.shriek = 7; g.ring(this.x, this.y, 300, '#c04040'); Sound.play('attack'); for (const o of g.enemies) if (!o.dead && !o.isBoss && Math.hypot(o.x - this.x, o.y - this.y) < 420) o.alert = true; UI.msg('¡Un aullido atrae a los demás!', 2200); } } // el Aullador llama a los vecinos
-    this.face = Math.atan2(dy, dx);
+    if (!this.attackLocked || (this.windup <= 0 && this.shots <= 0)) { this.face = Math.atan2(dy, dx); this.attackLocked = false; }
     if (this.def.spitter || this.def.rng) return this.spitterAI(dt, g, d, dx, dy);
-    if (this.windup > 0) { this.windup -= dt; if (this.windup <= 0) { if (d < this.def.range + 12) { p.hurt(this.def.dmg, this.face, g); if (this.def.poison) p.addPoison(this.def.poison); } this.cd = this.def.cooldown; } return; }
-    if (d < this.def.range && this.cd <= 0) { this.windup = .38; Sound.play('attack'); return; }
+    if (this.windup > 0) {
+      this.windup -= dt;
+      if (this.windup <= 0) {
+        const a = Math.atan2(dy, dx), arc = Math.abs(Math.atan2(Math.sin(a-this.face), Math.cos(a-this.face)));
+        if (d < this.def.range + 12 && arc < 1.25 && Level.los(this.x, this.y, p.x, p.y)) {
+          const invuln = p.invuln; p.hurt(this.def.dmg, a, g);
+          if (this.def.poison && p.invuln > invuln) p.addPoison(this.def.poison);
+        }
+        this.cd = this.def.cooldown; this.attackLocked = false;
+      } return;
+    }
+    if (d < this.def.range && this.cd <= 0 && Level.los(this.x, this.y, p.x, p.y)) { this.windup = .38; this.attackFace = this.face; this.attackLocked = true; Sound.play('attack'); return; }
     if (d > this.def.range * .8) {
       const sp = this.def.speed * dt, ox = this.x, oy = this.y; const lat = this.def.flank ? Math.sin(this.t * 4 + this.id) * .9 : 0; Level.move(this, (dx / d - dy / d * lat) * sp, (dy / d + dx / d * lat) * sp);
       if (Math.hypot(this.x - ox, this.y - oy) < sp * .3) { const s = this.id % 2 ? 1 : -1; Level.move(this, -dy / d * sp * s, dx / d * sp * s); } // rodea obstáculos

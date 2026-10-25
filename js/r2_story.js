@@ -312,7 +312,7 @@ const Hospital = {
   // brazo cortado: sin golpe, puntería floja y recarga lenta (solo hasta inyectarte)
   const cut = () => G.story && G.story.armCut && !G.story.armHealed;
   const _fire = W.fire; W.fire = function (g, p) { if (cut()) { p.spreadAdd = Math.max(p.spreadAdd, .1); p.stamina = Math.max(0, p.stamina - 5); } const sn = p.sniper > 0; if (sn) { p.mods.pow += 6; p.sniper = 0; } try { return _fire.call(this, g, p); } finally { if (sn) p.mods.pow -= 6; } };
-  const _rel = W.reload; W.reload = function (p) { const was = p.reloading; _rel.call(this, p); if (cut() && p.reloading > 0 && was <= 0) p.reloading *= 1.8; };
+  const _rel = W.reload; W.reload = function (p) { const was = p.reloading, result = _rel.call(this, p); if (cut() && p.reloading > 0 && was <= 0) { p.reloading *= 1.8; p.reloadDuration = p.reloading; } return result; };
   const _mel = PP.melee; PP.melee = function (g) { if (cut()) return UI.msg('Te falta un brazo.', 1500); return _mel.call(this, g); };
   const _pu = PP.update; PP.update = function (dt, g) { if (this.hidden || (g.story && g.story.restrained)) { this.hurtFlash = Math.max(0, this.hurtFlash - dt); this.fireCd = Math.max(0, this.fireCd - dt); g.mouse.clicked = false; g.mouse.rclick = false; this.stamina = Math.min(this.maxStamina||100, this.stamina + 6 * dt); if (!this.hidden) this.angle = Math.atan2(g.mouse.y + g.cam.y - this.y, g.mouse.x + g.cam.x - this.x); return; } _pu.call(this, dt, g); };
   const _pd = PP.draw; PP.draw = function (ctx) {

@@ -215,7 +215,7 @@ const FieldDesk = {
     nav.id = "fieldDesk";
     nav.className = "hidden";
     nav.innerHTML =
-      '<div class="desk-brand"><b>R / II</b><span>EXPEDIENTE DE CAMPO<small>PAUSA TÁCTICA · FASE 1</small></span></div><nav aria-label="Secciones del expediente">' +
+      '<div class="desk-brand"><b>R / II</b><span>EXPEDIENTE DE CAMPO<small>PAUSA TÁCTICA · RIUTEX 2</small></span></div><nav aria-label="Secciones del expediente">' +
       this.tabs
         .map(
           ([id, n, k]) =>
@@ -233,6 +233,15 @@ const FieldDesk = {
       .querySelectorAll("[data-desk]")
       .forEach((b) => (b.onclick = () => this.open(g, b.dataset.desk)));
     UI.$("deskClose").onclick = () => g.resume();
+    const equip = document.createElement("button");
+    equip.id = "bEquip";
+    equip.className = "hidden";
+    equip.textContent = "Equipar arma";
+    equip.onclick = () => this.equipSelected(g);
+    const side = UI.$("invSide");
+    if (side.insertBefore) side.insertBefore(equip, UI.$("bUse"));
+    else side.appendChild(equip);
+    FieldArchive.init(g);
     for (const [id, body] of [
       [
         "craft",
@@ -261,6 +270,15 @@ const FieldDesk = {
     addEventListener(
       "keydown",
       (e) => {
+        // Escribir en el archivo no puede activar J/K/M/F ni los atajos de juego.
+        if (g.state === "doc" && e.target?.id === "journalSearch") {
+          e.stopImmediatePropagation();
+          if (e.code === "Escape") {
+            e.preventDefault();
+            if (!e.repeat) g.resume();
+          }
+          return;
+        }
         if (
           !isR2lvl(g.lvl) ||
           g.mut?.bindingTarget ||
@@ -312,9 +330,13 @@ const FieldDesk = {
       UI.renderTree(g);
     }
     if (tab === "doc") {
+      FieldArchive.prepare(g);
       id = id || g.jSel || g.inv.docs[g.inv.docs.length - 1];
-      if (id && g.inv.docs.includes(id)) UI.renderJournal(g, id);
+      if (!DOCS[id] || !g.inv.docs.includes(id))
+        id = g.inv.docs.slice().reverse().find((key) => DOCS[key]);
+      if (id) UI.renderJournal(g, id);
       else {
+        g.jSel = null;
         UI.$("jHead").textContent = "Documentos · 0";
         UI.$("jItems").innerHTML =
           '<p class="desk-empty">Aún no has recuperado documentos. Examina notas, expedientes y cartas con E.</p>';
@@ -324,12 +346,15 @@ const FieldDesk = {
           "Aquí podrás volver a leer las pistas y registros que encuentres.";
         UI.$("jStamp").textContent = "ARCHIVO VACÍO";
         UI.$("jPaper").className = "document-sheet";
+        UI.$("jPaper").querySelector(".clinical-letterhead")?.remove();
+        FieldArchive.renderList(g);
       }
     }
     UI.screen(tab);
   },
   screen(name) {
     if (!UI.$("fieldDesk")) return;
+    UI.$("journalTools")?.classList.toggle("hidden", !isR2lvl(Game.lvl));
     const open = this.isOpen(name);
     UI.$("fieldDesk").classList.toggle("hidden", !open);
     for (const id of ["craft", "artifacts"])
@@ -401,7 +426,10 @@ const FieldDesk = {
     if (stash) return;
     const used = inv.items.reduce((n, it) => n + it.w * it.h, 0),
       s = inv.selItem(),
-      df = s && ITEMS[s.type];
+      df = s && ITEMS[s.type],
+      gun = s?.type.startsWith("w_") && WEAPONS[s.id]
+        ? Weapons.effective(g.player, s.id)
+        : null;
     UI.$("invCap").textContent =
       inv.cols * inv.rows -
       used +
@@ -441,12 +469,36 @@ const FieldDesk = {
           " casillas" +
           (g.player.weapon === s ? " · EQUIPADA" : "")
         : "Escoge qué llevar y qué guardar en un baúl.") +
-      "</div>";
+      "</div>" +
+      (gun
+        ? '<dl class="inventory-weapon-stats"><div><dt>CARGADOR</dt><dd>' +
+          s.mag + " / " + Weapons.magSize(g.player, gun) +
+          '</dd></div><div><dt>RESERVA</dt><dd>' + inv.reserve(s.id) +
+          '</dd></div><div><dt>ESFUERZO / DISPARO</dt><dd>' +
+          Math.round(Weapons.staminaCost(g, g.player, gun) * 10) / 10 +
+          '</dd></div></dl>'
+        : "");
     UI.$("invKeys").textContent = "";
     UI.$("invDocs").innerHTML = "";
     UI.$("bUse").disabled = !df?.use;
+    UI.$("bUse").classList.toggle("hidden", !!gun);
     UI.$("bRot").disabled = !s || s.w === s.h;
     UI.$("bDrop").disabled = !s;
+    UI.$("bEquip").classList.toggle("hidden", !gun);
+    UI.$("bEquip").disabled = !gun || g.player.weapon === s;
+    UI.$("bEquip").textContent = g.player.weapon === s ? "Arma equipada" : "Equipar arma";
+  },
+  equipSelected(g) {
+    const it = g.inv.selItem();
+    if (g.state !== "inv" || !it?.type.startsWith("w_") || !WEAPONS[it.id])
+      return false;
+    g.inv.syncWeapons(g.player);
+    if (g.player.weapon === it) return false;
+    g.player.weapon = it;
+    g.player.reloading = 0;
+    UI.renderInv(g);
+    UI.msg(WEAPONS[it.id].name + " equipada.", 1600);
+    return true;
   },
   renderCraft(g) {
     UI.$("craftStock").innerHTML = [
@@ -679,7 +731,11 @@ const FieldDesk = {
   };
   const inventory = UI.renderInv;
   UI.renderInv = function (g) {
-    if (!isR2lvl(g.lvl)) return inventory.call(this, g);
+    if (!isR2lvl(g.lvl)) {
+      UI.$("bEquip").classList.add("hidden");
+      UI.$("bUse").classList.remove("hidden");
+      return inventory.call(this, g);
+    }
     FieldDesk.renderInventory(g);
   };
   const stash = UI.renderStash;
@@ -744,8 +800,19 @@ const FieldDesk = {
   };
   const journal = UI.renderJournal;
   UI.renderJournal = function (g, id) {
+    const archive = isR2lvl(g.lvl);
+    if (archive) FieldArchive.prepare(g);
+    const listScroll = archive ? this.$("jItems").scrollTop || 0 : 0;
     journal.call(this, g, id);
     if (!DOCS[g.jSel]) return;
+    if (!archive) {
+      this.$("jPaper").querySelector(".clinical-letterhead")?.remove();
+      delete this.$("jPaper").dataset.sector;
+      delete this.$("jPaper").dataset.archive;
+      return;
+    }
+    FieldArchive.renderList(g);
+    this.$("jItems").scrollTop = listScroll;
     const paper = this.$("jPaper");
     paper.classList.add("worn-paper");
     paper.dataset.kind = g.jSel.startsWith("m")
@@ -759,27 +826,180 @@ const FieldDesk = {
       head.className = "clinical-letterhead";
       paper.insertBefore(head, paper.firstChild);
     }
+    const source = FieldArchive.source(g.jSel),
+      sector = FieldArchive.sector(source?.lvl || g.lvl);
+    paper.dataset.sector = sector.id;
+    paper.dataset.archive = sector.name + " / ARCHIVO RECUPERADO · NO DESTRUIR";
     head.innerHTML =
-      "<b>✚</b><div>" +
-      (paper.dataset.kind === "wren"
-        ? "WREN / ARCHIVO PRIVADO"
-        : "HOSPITAL SAN GABRIEL") +
+      "<b>" + sector.mark + "</b><div>" +
+      (paper.dataset.kind === "wren" ? "WREN / ARCHIVO PRIVADO" : sector.name) +
       "<small>" +
-      (paper.dataset.kind === "service"
+      (sector.id === "castle"
+        ? "VALCÁRCEL · COLECCIÓN DOCUMENTAL"
+        : sector.id === "umbra"
+          ? "PROYECTO UMBRAL · CIRCULACIÓN RESTRINGIDA"
+          : sector.id === "works"
+            ? "AGUAS Y ENSAYOS · ARCHIVO INDUSTRIAL"
+            : paper.dataset.kind === "service"
         ? "MANTENIMIENTO · CIRCULACIÓN INTERNA"
         : paper.dataset.kind === "wren"
           ? "CORRESPONDENCIA RECUPERADA"
           : "REGISTRO CLÍNICO · COPIA DE ARCHIVO") +
-      "</small></div><span>SG / " +
+      "</small></div><span>" + ({ mansion: "WR", hospital: "SG", works: "AG", castle: "VC", umbra: "UM" }[sector.id]) + " / " +
       FieldDesk.escape(g.jSel.toUpperCase().replace(/_/g, "–")) +
       "</span>";
+    this.$("jStamp").textContent =
+      sector.name + " / " + (CLUES.has(g.jSel) ? "PISTA RECUPERADA" : "ARCHIVO RECUPERADO");
   };
 })();
+
+// El archivo solo busca entre papeles recuperados; nunca consulta pistas pendientes.
+const FieldArchive = {
+  query: "",
+  inventory: null,
+  origins: null,
+  normalize(s) {
+    return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  },
+  sector(lvl) {
+    if (["hospitalworks", "hospitalpit", "hospitalnest"].includes(lvl))
+      return { id: "works", name: "PLANTA DE AGUAS / SAN GABRIEL", label: "Cloacas / Fábrica", mark: "≋" };
+    if (["hospitalcells", "hospitalcastle", "hospitalcastle1", "hospitalroyal"].includes(lvl))
+      return { id: "castle", name: "MUSEO VALCÁRCEL", label: "Castillo / Museo", mark: "♜" };
+    if (["hospitalumbra", "hospitalorigin"].includes(lvl))
+      return { id: "umbra", name: "LABORATORIO UMBRAL", label: "Laboratorio UMBRAL", mark: "⌬" };
+    if (lvl === "mansion")
+      return { id: "mansion", name: "RESIDENCIA WREN", label: "Mansión Wren", mark: "W" };
+    return { id: "hospital", name: "HOSPITAL SAN GABRIEL", label: "Hospital San Gabriel", mark: "✚" };
+  },
+  source(id) {
+    if (!this.origins) {
+      this.origins = new Map();
+      for (const lvl of ["mansion", "hospital", "hospital1", "hospitalb", "hospitalchem", "hospitalworks", "hospitalpit", "hospitalnest", "hospitalcells", "hospitalcastle", "hospitalcastle1", "hospitalroyal", "hospitalumbra", "hospitalorigin", "hospitalstreet"]) {
+        const data = R2_DATA(lvl);
+        for (const row of data?.items || []) {
+          if (row[1] !== "doc") continue;
+          const room = data.rooms.find((r) => row[2] >= r[1] && row[2] < r[1] + r[3] && row[3] >= r[2] && row[3] < r[2] + r[4]);
+          this.origins.set(row[4]?.doc || row[0], { lvl, room: room?.[0] || "" });
+        }
+      }
+      this.origins.set("wx_radio_log", { lvl: "hospitalworks", room: "Transmisión de radio" });
+    }
+    return this.origins.get(id);
+  },
+  prepare(g) {
+    if (this.inventory === g.inv) return;
+    this.inventory = g.inv;
+    this.query = "";
+    UI.jTab = "all";
+    UI.$("journalSearch").value = "";
+  },
+  matches(g) {
+    const words = this.normalize(this.query).trim().split(/\s+/).filter(Boolean),
+      read = g.story.read || [];
+    return g.inv.docs.slice().reverse().filter((id) => {
+      if (!DOCS[id]) return false;
+      if (UI.jTab === "pista" && !CLUES.has(id)) return false;
+      if (UI.jTab === "historia" && CLUES.has(id)) return false;
+      if (UI.jTab === "unread" && read.includes(id)) return false;
+      const source = this.source(id),
+        text = this.normalize(DOCS[id].title + " " + DOCS[id].text + " " + (source ? this.sector(source.lvl).label + " " + source.room : ""));
+      return words.every((word) => text.includes(word));
+    });
+  },
+  init(g) {
+    const controls = document.createElement("div");
+    controls.id = "journalTools";
+    controls.className = "journal-tools";
+    controls.innerHTML = '<label for="journalSearch">BUSCAR EN LO RECUPERADO</label><div class="journal-search-row"><input id="journalSearch" type="search" placeholder="Título, palabra o lugar…" autocomplete="off" maxlength="120"><button id="journalClear" aria-label="Limpiar búsqueda">×</button></div><div class="journal-navigation"><button id="journalPrev" aria-label="Documento anterior">← Anterior</button><button id="journalNext" aria-label="Documento siguiente">Siguiente →</button></div><p id="journalCount" role="status" aria-live="polite"></p>';
+    const list = UI.$("jList");
+    if (list.insertBefore) list.insertBefore(controls, UI.$("jTabs"));
+    else list.appendChild(controls);
+    UI.$("journalSearch").oninput = (e) => {
+      this.query = e.target.value;
+      this.renderList(g);
+    };
+    UI.$("journalClear").onclick = () => {
+      this.query = "";
+      UI.$("journalSearch").value = "";
+      this.renderList(g);
+      UI.$("journalSearch").focus?.();
+    };
+    for (const [id, delta] of [["journalPrev", -1], ["journalNext", 1]])
+      UI.$(id).onclick = () => {
+        const docs = this.matches(g), index = docs.indexOf(g.jSel), next = index + delta;
+        if (index >= 0 && docs[next]) UI.renderJournal(g, docs[next]);
+      };
+  },
+  renderList(g) {
+    const read = g.story.read || [],
+      unread = g.inv.docs.filter((id) => DOCS[id] && !read.includes(id)).length,
+      docs = this.matches(g),
+      box = UI.$("jItems"),
+      scroll = box.scrollTop || 0;
+    UI.$("jHead").textContent = "ARCHIVO · " + g.inv.docs.filter((id) => DOCS[id]).length;
+    const tabs = UI.$("jTabs");
+    tabs.innerHTML = "";
+    for (const [id, name] of [["all", "Todos"], ["pista", "Pistas"], ["historia", "Historia"], ["unread", "Sin leer · " + unread]]) {
+      const b = document.createElement("button");
+      b.textContent = name;
+      b.className = UI.jTab === id ? "on" : "";
+      b.setAttribute("aria-pressed", UI.jTab === id ? "true" : "false");
+      b.onclick = () => { UI.jTab = id; this.renderList(g); };
+      tabs.appendChild(b);
+    }
+    box.innerHTML = "";
+    for (const id of docs) {
+      const b = document.createElement("button"), source = this.source(id);
+      b.className = "jit journal-entry" + (g.jSel === id ? " sel" : "");
+      b.dataset.doc = id;
+      b.setAttribute("aria-pressed", g.jSel === id ? "true" : "false");
+      b.innerHTML = '<span>' + (!read.includes(id) ? '<u class="nw" aria-label="Sin leer">● </u>' : "") + FieldDesk.escape(DOCS[id].title) + '<small>' + FieldDesk.escape(source ? this.sector(source.lvl).label : "Archivo recuperado") + '</small></span><i>' + (CLUES.has(id) ? "PISTA" : "HISTORIA") + "</i>";
+      b.onclick = () => UI.renderJournal(g, id);
+      box.appendChild(b);
+    }
+    if (!docs.length)
+      box.innerHTML = '<p class="desk-empty">' + (UI.jTab === "unread" && !this.query ? "Ya has leído todos los documentos recuperados." : "No hay documentos recuperados que coincidan. Prueba otra palabra o cambia el filtro.") + "</p>";
+    box.scrollTop = scroll;
+    UI.$("journalCount").textContent = docs.length + " resultado" + (docs.length === 1 ? "" : "s") + " · " + unread + " sin leer";
+    UI.$("journalClear").disabled = !this.query;
+    const index = docs.indexOf(g.jSel);
+    UI.$("journalPrev").disabled = index <= 0;
+    UI.$("journalNext").disabled = index < 0 || index >= docs.length - 1;
+  },
+};
+
 const MapAtlas = {
   view: null,
   floor: null,
   pinning: false,
   layers: "all",
+  services: { savebed: "Guardado", caja: "Baúl", h_stairs: "Escalera", h_hide: "Escondite", h_workbench: "Mesa de mejoras" },
+  knowledge(g, lvl, D = R2_DATA(lvl)) {
+    const visits = g.story.visited || {}, tiles = new Set(g.story.mapTiles?.[lvl] || []),
+      roomAt = (x, y) => D.rooms.find((r) => x >= r[1] && x < r[1] + r[3] && y >= r[2] && y < r[2] + r[4]),
+      knownRoom = (r) => !!visits[lvl + ":" + r[0]],
+      known = (x, y) => { const r = roomAt(x, y); return tiles.has(x + "," + y) && (!r || knownRoom(r)); };
+    return { tiles, roomAt, knownRoom, known };
+  },
+  doorKnown(row, known) {
+    const [, x, y, w, h] = row;
+    for (let b = y - 2; b < y + h + 2; b++)
+      for (let a = x - 2; a < x + w + 2; a++) if (known(a, b)) return true;
+    return false;
+  },
+  roomSummary(g, lvl, index) {
+    const D = R2_DATA(lvl), r = D.rooms[index], knowledge = this.knowledge(g, lvl, D);
+    if (!r || !knowledge.knownRoom(r)) return null;
+    const rows = D.doors.filter((d) => d[1] + d[3] > r[1] - 1 && d[1] <= r[1] + r[3] && d[2] + d[4] > r[2] - 1 && d[2] <= r[2] + r[4] && this.doorKnown(d, knowledge.known));
+    const doors = rows.map((row) => {
+      const actual = lvl === g.lvl ? Level.doors.find((d) => d.id === row[0]) : null,
+        open = actual ? actual.open : (g.story.doors?.[lvl] || []).includes(row[0]);
+      return open ? "open" : (actual ? !!actual.key : !!row[5]) ? "locked" : "closed";
+    });
+    const items = D.items.filter(([id, , x, y, extra]) => knowledge.roomAt(x, y) === r && knowledge.known(x, y) && !g.picked.has(id) && (!extra?.rewardFor || g.pz[extra.rewardFor]));
+    return { name: r[0], doors: doors.length, open: doors.filter((d) => d === "open").length, locked: doors.filter((d) => d === "locked").length, services: [...new Set(items.map((row) => this.services[row[1]]).filter(Boolean))], remaining: items.filter((row) => !row[1].startsWith("h_") && !["savebed", "caja"].includes(row[1])).length };
+  },
   tools() {
     if (UI.$("mapTools")) return;
     const el = document.createElement("div");
@@ -792,6 +1012,7 @@ const MapAtlas = {
     readout.innerHTML =
       "<b>Tu memoria dibuja el camino.</b><span>Arrastra para explorar · rueda para acercar · selecciona una sala visitada.</span>";
     UI.$("mapDrawing").after(readout);
+    UI.$("map").querySelector(".map-legend").textContent = "● Tú · ◆ Llave · ◇ Mecanismo · ✚ Guardado · ▣ Baúl · ↕ Escalera · ⚒ Mejoras\nAzul: abierto · Ámbar: cierre con llave · Verde: refugio";
     const panel = UI.$("map").querySelector(".map-panel"),
       side = document.createElement("aside"),
       workspace = document.createElement("div");
@@ -881,7 +1102,8 @@ const MapAtlas = {
       D = R2_DATA(lvl),
       current = lvl === g.lvl,
       visits = g.story.visited || {},
-      tiles = new Set(g.story.mapTiles?.[lvl] || []),
+      knowledge = this.knowledge(g, lvl, D),
+      tiles = knowledge.tiles,
       esc = FieldDesk.escape;
     if (this.floor !== lvl || !this.view) {
       const found = D.rooms.filter((r) => visits[lvl + ":" + r[0]]);
@@ -906,15 +1128,7 @@ const MapAtlas = {
     }
     this.W = D.W * 10;
     this.H = D.H * 10;
-    const roomAt = (x, y) =>
-      D.rooms.find(
-        (r) => x >= r[1] && x < r[1] + r[3] && y >= r[2] && y < r[2] + r[4],
-      );
-    const knownRoom = (r) => !!visits[lvl + ":" + r[0]];
-    const known = (x, y) => {
-      const r = roomAt(x, y);
-      return tiles.has(x + "," + y) && (!r || knownRoom(r));
-    };
+    const { knownRoom, known } = knowledge;
     let s =
       '<svg viewBox="' +
       this.view.join(" ") +
@@ -985,10 +1199,7 @@ const MapAtlas = {
         "</text></g>";
     });
     for (const [id, x, y, w, h, key] of D.doors) {
-      let seen = false;
-      for (let b = y - 2; b < y + h + 2; b++)
-        for (let a = x - 2; a < x + w + 2; a++) if (known(a, b)) seen = true;
-      if (!seen) continue;
+      if (!this.doorKnown([id, x, y, w, h, key], known)) continue;
       const d = current ? Level.doors.find((d) => d.id === id) : null,
         opened = d ? d.open : (g.story.doors?.[lvl] || []).includes(id),
         locked = d ? !!d.key : !!key;
@@ -1019,9 +1230,7 @@ const MapAtlas = {
           (extra?.rewardFor && !g.pz[extra.rewardFor])
         )
           continue;
-        const service = ["savebed", "caja", "h_stairs", "h_hide"].includes(
-          type,
-        );
+        const service = !!this.services[type];
         if (this.layers === "services" && !service) continue;
         const symbol =
           {
@@ -1029,6 +1238,7 @@ const MapAtlas = {
             caja: "▣",
             h_stairs: "↕",
             h_hide: "▥",
+            h_workbench: "⚒",
             key: "◆",
             doc: "▤",
           }[type] || (type.startsWith("h_") ? "◇" : "•");
@@ -1071,6 +1281,8 @@ const MapAtlas = {
         ')"/>';
     UI.$("mapDrawing").innerHTML =
       s + '</svg><div class="atlas-north">N<span>↑</span></div>';
+    UI.$("map").querySelector(".panel-title .eyebrow").textContent = FieldArchive.sector(lvl).label.toUpperCase();
+    UI.$("mapReadout").innerHTML = '<b>Tu memoria dibuja el camino.</b><span>Arrastra para explorar · rueda o +/− para acercar · selecciona una sala visitada para revisar sus accesos y servicios.</span>';
     const count = D.rooms.filter(knownRoom).length;
     UI.$("mapStatus").innerHTML =
       "<span>EXPLORACIÓN <b>" +
@@ -1088,6 +1300,7 @@ const MapAtlas = {
       "Mostrar: " +
       { all: "todo", services: "servicios", none: "solo plano" }[this.layers];
     UI.$("mapCenter").disabled = !current;
+    UI.$("mapErase").disabled = !g.story.mapPin;
     this.pinButton();
     UI.$("mapFloors")
       .querySelectorAll("button")
@@ -1114,6 +1327,18 @@ const MapAtlas = {
       );
     const svg = UI.$("mapDrawing").querySelector("svg");
     if (!svg.createSVGPoint) return; // El arnés de lógica no simula geometría DOM.
+    svg.setAttribute("tabindex", "0");
+    svg.onkeydown = (e) => {
+      if (e.target !== svg) return;
+      const pan = this.view[2] * 0.08;
+      if (["Equal", "NumpadAdd", "Minus", "NumpadSubtract", "Home", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.code)) {
+        e.preventDefault(); e.stopPropagation();
+        if (["Equal", "NumpadAdd"].includes(e.code)) this.zoom(.8);
+        else if (["Minus", "NumpadSubtract"].includes(e.code)) this.zoom(1.25);
+        else if (e.code === "Home") { this.view = [0, 0, this.W, this.H]; this.apply(); }
+        else { this.view[0] += e.code === "ArrowLeft" ? -pan : e.code === "ArrowRight" ? pan : 0; this.view[1] += e.code === "ArrowUp" ? -pan : e.code === "ArrowDown" ? pan : 0; this.apply(); }
+      }
+    };
     const point = (e) => {
       const p = svg.createSVGPoint();
       p.x = e.clientX;
@@ -1121,21 +1346,16 @@ const MapAtlas = {
       return p.matrixTransform(svg.getScreenCTM().inverse());
     };
     const select = (i) => {
-      const r = D.rooms[i];
-      if (!r || !knownRoom(r)) return;
-      const doors = D.doors.filter(
-        (d) =>
-          d[1] >= r[1] - 1 &&
-          d[1] <= r[1] + r[3] &&
-          d[2] >= r[2] - 1 &&
-          d[2] <= r[2] + r[4],
-      ).length;
+      const r = D.rooms[i], summary = this.roomSummary(g, lvl, i);
+      if (!summary) return;
       UI.$("mapReadout").innerHTML =
         "<b>" +
         esc(r[0]) +
         "</b><span>SALA VISITADA · " +
-        doors +
-        " conexiones en su perímetro. Las cerraduras y los documentos pueden ayudarte a volver.</span>";
+        summary.doors +
+        " conexiones observadas · " + summary.open + " abiertas · " + summary.locked + " con cierre. " +
+        (summary.services.length ? "Servicios: " + summary.services.map(esc).join(" · ") + ". " : "") +
+        (summary.remaining ? "Objetos vistos sin recoger: " + summary.remaining + "." : "No recuerdas suministros pendientes a la vista.") + "</span>";
       svg
         .querySelectorAll(".atlas-room")
         .forEach((el) =>

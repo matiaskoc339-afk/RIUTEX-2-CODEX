@@ -15,9 +15,46 @@ const SessionSave = {
       d.xp>=0 && d.inv.cols>=1 && d.inv.cols<=20 && d.inv.rows>=1 && d.inv.rows<=20 &&
       d.inv.items.every(i=>i && Object.hasOwn(ITEMS,i.type)) &&
       d.inv.docs.every(id=>Object.hasOwn(DOCS,id)) &&
-      (!s.runtime || (typeof s.runtime==='object' && Array.isArray(s.runtime.actors) &&
+      (!s.runtime || (typeof s.runtime==='object' && Array.isArray(s.runtime.actors) && this.validWorld(s.runtime.world,f) &&
         s.runtime.player && [s.runtime.player.x,s.runtime.player.y,s.runtime.player.hp].every(Number.isFinite) &&
         s.runtime.player.hp===d.hp && s.runtime.player.x===d.x && s.runtime.player.y===d.y)));
+  },
+  // Extensión opcional de schema 1: las sesiones antiguas siguen siendo válidas.
+  validWorld(world,f) {
+    if(world===undefined)return true;
+    if(!world||typeof world!=='object'||Array.isArray(world)||!f)return false;
+    const point=row=>row&&Number.isSafeInteger(row.index)&&row.index>=0&&row.index<4096&&
+      [row.x,row.y].every(Number.isFinite)&&row.x>=0&&row.y>=0&&row.x<f.W*TILE&&row.y<f.H*TILE&&typeof row.dead==='boolean';
+    const rows=(list,extra)=>Array.isArray(list)&&list.length<=Math.min(4096,f.W*f.H)&&
+      new Set(list.map(r=>r?.index)).size===list.length&&list.every(r=>point(r)&&extra(r));
+    return rows(world.barrels,r=>typeof r.mine==='boolean'&&(r.chainDelay===null||Number.isFinite(r.chainDelay)&&r.chainDelay>=0&&r.chainDelay<=10))&&
+      rows(world.crystals,r=>Number.isFinite(r.hp)&&r.hp>=0&&r.hp<=1000&&Number.isFinite(r.respawn)&&r.respawn>=0&&r.respawn<=60);
+  },
+  captureWorld(g) {
+    return {
+      barrels:(g.barrels||[]).map((b,index)=>({index,x:b.x,y:b.y,dead:!!b.dead,mine:!!b.mine,
+        chainDelay:!b.dead&&Number.isFinite(b.chainDelay)?Math.max(0,Math.min(10,b.chainDelay)):null})),
+      crystals:(g.crystals||[]).map((c,index)=>({index,x:c.x,y:c.y,dead:!!c.dead,
+        hp:Math.max(0,Math.min(1000,c.hp)),respawn:Math.max(0,Math.min(60,c.respawn||0))}))
+    };
+  },
+  restoreWorld(g,world) {
+    const f=g.lvl==='mansion'?MANSION:FLOORS[g.lvl];
+    if(!world||!this.validWorld(world,f))return;
+    const target=(list,row)=>{
+      const same=o=>o&&o.x===row.x&&o.y===row.y;
+      return same(list[row.index])?list[row.index]:list.find(same);
+    };
+    for(const row of world.barrels){
+      const b=target(g.barrels||[],row);if(!b||!!b.mine!==row.mine)continue;
+      b.dead=row.dead;
+      // Una cadena queda pendiente; al volver da tiempo a orientarse antes de detonar.
+      b.chainDelay=!b.dead&&row.chainDelay!==null?Math.max(1,row.chainDelay):null;
+    }
+    for(const row of world.crystals){
+      const c=target(g.crystals||[],row);if(!c)continue;
+      c.dead=row.dead;c.hp=row.hp;c.respawn=row.respawn;
+    }
   },
   read() {
     for (const key of [this.key,this.backupKey]) {
@@ -49,7 +86,7 @@ const SessionSave = {
       squad:(g.squad||[]).map(e=>this.fields(e)),custodio:g.custodio&&this.clone(g.custodio),
       hospital:{q:Hospital.q,seen:[...Hospital.seen],ft:Hospital.ft||0,hb:Hospital.hb,msgT:Hospital.msgT},
       collapse:g.collapse&&this.clone(g.collapse),carnT:g.carnT||0,povPitch:FirstPerson.pitch,
-      doors:Level.doors.map(d=>({id:d.id,key:d.key||null,open:!!d.open}))};
+      doors:Level.doors.map(d=>({id:d.id,key:d.key||null,open:!!d.open})),world:this.captureWorld(g)};
     if(g.state==='end')runtime.ending={title:UI.$('endH').textContent,subtitle:UI.$('endS').textContent,body:UI.$('endB').textContent};
     return this.clone({format:'RIUTEX2-session',schema:1,savedAt:data.savedAt,data,runtime,retry:g.getSaveSlots()[3]});
   },
@@ -92,6 +129,7 @@ const SessionSave = {
     if(g.squad)r.squad?.forEach((s,i)=>{if(g.squad[i])this.applyFields(g.squad[i],s);});
     g.custodio=r.custodio&&this.clone(r.custodio);g.collapse=r.collapse&&this.clone(r.collapse);g.carnT=r.carnT||0;
     for(const row of r.doors||[]){const d=Level.doors.find(d=>d.id===row.id);if(!d)continue;d.key=typeof row.key==='string'?row.key:null;if(row.open)Level.openDoor(d);else Level.closeDoor(d,true);}
+    this.restoreWorld(g,r.world);
     if(g.lvl==='mansion'&&g.story.finale)Level.lamps=[];
     // Los proyectiles transitorios se limpian al reconstruir; las reservas y heridas no.
     // No reanudamos un golpe invisible: cada jefe vuelve a un aviso o recuperación.
