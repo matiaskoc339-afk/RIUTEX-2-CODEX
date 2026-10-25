@@ -42,7 +42,8 @@ class Enemy {
     if (d < R.range && this.cd <= 0 && Level.los(this.x, this.y, g.player.x, g.player.y)) this.windup = R.wind;
   }
   update(dt, g) {
-    if (this.dead) return; const p = g.player; this.t += dt; this.lastHit += dt; if (this.def.regen && this.lastHit > 2 && this.hp < this.mhp) this.hp = Math.min(this.mhp, this.hp + this.def.regen * dt); // el Regenerador se cura si no lo atacas this.hitFlash = Math.max(0, this.hitFlash - dt);
+    if (this.dead) return; const p = g.player; this.t += dt; this.lastHit += dt; if (this.def.regen && this.lastHit > 2 && this.hp < this.mhp) this.hp = Math.min(this.mhp, this.hp + this.def.regen * dt); // el Regenerador se cura si no lo atacas
+    this.hitFlash = Math.max(0, this.hitFlash - dt);
     const dx = p.x - this.x, dy = p.y - this.y, d = Math.hypot(dx, dy) || 1;
     if (this.frozen > 0) { this.frozen -= dt; return; }
     if (this.stagger > 0) { this.stagger -= dt; return; }

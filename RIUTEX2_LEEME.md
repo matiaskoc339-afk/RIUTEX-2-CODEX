@@ -1,12 +1,12 @@
-# RIUTEX 2 · Historia completa · v0.21.0
+# RIUTEX 2 · Historia completa · v0.22.0
 
 La campaña parte de tu base v0.2.2 y recorre mansión, hospital, cloacas/fábrica, museo-castillo y laboratorio UMBRAL, con cuatro jefes finales de tres formas y dos desenlaces.
 
 ## Jugar y publicar
 
-Abre `RIUTEX2_Historia_Completa_v0.21.0.html` en un navegador de escritorio con teclado y ratón. Para el proyecto fuente, ejecuta `npm start` y visita `http://localhost:8000`. El sonido comienza con la primera interacción. No hay dependencias de npm que instalar.
+Abre `RIUTEX2_Historia_Completa_v0.22.0.html` en un navegador de escritorio con teclado y ratón. Para el proyecto fuente, ejecuta `npm start` y visita `http://localhost:8000`. El sonido comienza con la primera interacción. No hay dependencias de npm que instalar.
 
-Para itch.io utiliza **RIUTEX2_itchio_v0.21.0.zip**, que contiene un `index.html` integrado en la raíz. Súbelo como juego HTML para navegador y permite pantalla completa. El HTML incluye código, estilos, fuentes, Three.js y recursos locales: no descarga modelos ni bibliotecas de una CDN. Los archivos se generan con `npm run build`.
+Para itch.io utiliza **RIUTEX2_itchio_v0.22.0.zip**, que contiene un `index.html` integrado en la raíz. Súbelo como juego HTML para navegador y permite pantalla completa. El HTML incluye código, estilos, fuentes, Three.js y recursos locales: no descarga modelos ni bibliotecas de una CDN. Los archivos se generan con `npm run build`.
 
 ## Primera persona 3D
 
@@ -66,3 +66,7 @@ La fábrica tiene 58 enemigos ambientales (16 más), con cuatro patrullas, grupo
 ## Personajes de v0.21.0
 
 Solo en primera persona: enemigos, personajes y brazos adoptan un estilo de píxel 3D, con anatomía facetada, rostros dibujados, ropa con costuras y equipo propio. Se reconstruyen las patas y mandíbulas de las criaturas y las alas de la polilla. Las manos sujetan el arma con una postura nueva y conservan la mutación azul y los dos desenlaces. El escenario y la presentación topdown mantienen su estilo.
+
+## Animación y presión · v0.22.0
+
+Animaciones de reposo, marcha, preparación, golpe, recuperación y mutación exclusivas del POV. Jefes más exigentes en ambos modos: respuesta cercana, menos pausa entre ataques y puños menos eficaces. Carnicero más rápido, con corte desplazado, resistencia al bloqueo y carga recta con aviso; respeta paredes, refugios y ocultación. No aumenta vida de jefes ni XP. Detalles en docs/COMBATE_ANIMACIONES.md.

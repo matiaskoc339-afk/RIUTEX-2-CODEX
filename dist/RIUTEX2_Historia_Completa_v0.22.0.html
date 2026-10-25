@@ -5493,7 +5493,8 @@ class Enemy {
     if (d < R.range && this.cd <= 0 && Level.los(this.x, this.y, g.player.x, g.player.y)) this.windup = R.wind;
   }
   update(dt, g) {
-    if (this.dead) return; const p = g.player; this.t += dt; this.lastHit += dt; if (this.def.regen && this.lastHit > 2 && this.hp < this.mhp) this.hp = Math.min(this.mhp, this.hp + this.def.regen * dt); // el Regenerador se cura si no lo atacas this.hitFlash = Math.max(0, this.hitFlash - dt);
+    if (this.dead) return; const p = g.player; this.t += dt; this.lastHit += dt; if (this.def.regen && this.lastHit > 2 && this.hp < this.mhp) this.hp = Math.min(this.mhp, this.hp + this.def.regen * dt); // el Regenerador se cura si no lo atacas
+    this.hitFlash = Math.max(0, this.hitFlash - dt);
     const dx = p.x - this.x, dy = p.y - this.y, d = Math.hypot(dx, dy) || 1;
     if (this.frozen > 0) { this.frozen -= dt; return; }
     if (this.stagger > 0) { this.stagger -= dt; return; }
@@ -8050,7 +8051,7 @@ const Nav = {
 class Carnicero extends Carcelero {
   constructor(id, x, y) {
     super(id, x, y); this.def = { name: 'El Carnicero', hp: 900, speed: 92, dmg: 34, detect: 9999, range: 52, cooldown: 1.3, xp: 200, small: false };
-    Object.assign(this, { hp: 900, maxHp: 900, r: 14, state: 'patrol', mt: 0, dormant: true, path: null, pathT: 0, wp: 0, hookCd: 4, hooks: [], stuckT: 0, tgt: null, lostT: 0, searchT: 0, atkCd: 0, growlT: 3, hunt: false, openT: 0, opening: null, scripted: false });
+    Object.assign(this, { hp: 900, maxHp: 900, r: 14, state: 'patrol', mt: 0, dormant: true, path: null, pathT: 0, wp: 0, hookCd: 4, hooks: [], stuckT: 0, tgt: null, lostT: 0, searchT: 0, atkCd: 0, growlT: 3, hunt: false, openT: 0, opening: null, scripted: false, burstCd: 0, rushHit: false });
   }
   get active() { return !!this._act; }
   set active(v) { if (v && !this._act) { this._act = true; this.onBoss(); } else if (!v) this._act = false; }
@@ -8058,7 +8059,12 @@ class Carnicero extends Carcelero {
     if (Math.hypot(this.x - g.player.x, this.y - g.player.y) < 300 || Level.blocked(this.x, this.y, 20)) { this.x = 60 * TILE; this.y = 41 * TILE; } }
   hurt(dmg, angle, g) {
     if (this.dead) return; if (this.active) return super.hurt(dmg, angle, g);
-    this.hitFlash = .08; this.stagger = Math.max(this.stagger, .25); g.sparks(this.x, this.y, 5, '#7a0a14'); Sound.play('enemyhit'); // en acecho es imparable: solo lo frenas
+    this.hitFlash = .08;
+    // Resiste el bloqueo por golpes repetidos; preparar un corte no se cancela.
+    if ((this.braceUntil || 0) <= g.t && !['windup', 'rushWind', 'rush'].includes(this.state)) {
+      this.stagger = Math.max(this.stagger, .16); this.braceUntil = g.t + 1.6;
+    }
+    g.sparks(this.x, this.y, 5, '#7a0a14'); Sound.play('enemyhit');
     if (!this.hunt && !this.dormant) { this.hunt = true; this.state = 'chase'; this.tgt = [g.player.x, g.player.y]; }
   }
   die(g) { this.dead = true; g.killed.add(this.id); g.player.xp += mutationXPReward(this.def, true, g.mut); g.player.onKill(g); g.bodies.push({ x: this.x, y: this.y, a: 0 }); g.ring(this.x, this.y, 220, '#c2eeff'); g.cam.shake = 18; Sound.play('enemydie');
@@ -8091,7 +8097,7 @@ class Carnicero extends Carcelero {
     const dx = p.x - this.x, dy = p.y - this.y, d = Math.hypot(dx, dy) || 1, inSafe = Nav.safe((p.x / TILE) | 0, (p.y / TILE) | 0) && !this.scripted, hid = p.hidden; this.atkCd -= dt; this.pathT -= dt;
     if (this.state === 'windup') { this.mt -= dt; if (this.mt <= 0) { if (Math.hypot(p.x - this.x, p.y - this.y) < this.def.range + 26 && !inSafe && Level.los(this.x,this.y,p.x,p.y)) this.hitPlayer(g); this.atkCd = 1.2; this.state = 'recover'; this.mt = .55; } return; }
     if (this.state === 'recover') { this.mt -= dt; if (this.mt <= 0) this.state = this.hunt ? 'chase' : 'search'; return; }
-    const sees = !hid && !inSafe && (this.scripted || (d < 360 && Level.los(this.x, this.y, p.x, p.y))), n = g.noise, spd = this.scripted ? .55 : 1; // en la persecución inicial va más lento que tú: fácil de superar
+    const sees = !hid && !inSafe && (this.scripted || (d < 360 && Level.los(this.x, this.y, p.x, p.y))), n = g.noise, spd = this.scripted ? .93 : 1; // Caminar ya no basta: correr conserva ventaja y el golpe de la puerta sigue siendo guionizado.
     if (sees) { this.hunt = true; this.state = 'chase'; this.tgt = [p.x, p.y]; this.lostT = 0; }
     else if (n && !inSafe && !hid && Math.hypot(n.x - this.x, n.y - this.y) < n.r && this.state !== 'chase') { this.state = 'investigate'; this.tgt = [n.x, n.y]; this.pathT = 0; if (!this.hunt) Sound.play('attack'); }
     if (this.state === 'chase') {
@@ -8117,6 +8123,7 @@ class Carnicero extends Carcelero {
     if (this.active && this.mode === 'windS') { ctx.strokeStyle = 'rgba(255,60,60,.6)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, 175, 0, 6.283); ctx.stroke(); }
     if (this.active && this.mode === 'windH') { ctx.strokeStyle = 'rgba(255,190,60,.55)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(this.face) * 440, Math.sin(this.face) * 440); ctx.stroke(); }
     if (this.state === 'windup') { ctx.strokeStyle = 'rgba(255,60,60,.55)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, this.def.range + 26, this.face - .8, this.face + .8); ctx.stroke(); }
+    if (this.state === 'rushWind' || this.state === 'rush') { ctx.save(); ctx.rotate(this.dir); ctx.fillStyle = 'rgba(214,114,68,.16)'; ctx.strokeStyle = '#d9aa82'; ctx.lineWidth = 2; ctx.fillRect(0, -22, 180, 44); ctx.strokeRect(0, -22, 180, 44); ctx.restore(); }
     ctx.rotate(this.face); const wu = this.state === 'windup' || this.mode === 'windM', lunge = wu ? 10 : 0, stun = this.mode === 'stun';
     ctx.fillStyle = this.hitFlash > 0 ? '#fff' : stun ? '#8a7a9a' : '#5b5048'; ctx.beginPath(); ctx.ellipse(0, 0, 21, 28, 0, 0, 6.283); ctx.fill();
     ctx.fillStyle = '#b7aea0'; ctx.beginPath(); ctx.ellipse(-1, 0, 15, 22, 0, 0, 6.283); ctx.fill(); ctx.fillStyle = 'rgba(120,10,16,.75)'; ctx.fillRect(-10, -14, 20, 10); ctx.fillRect(-6, 4, 14, 9);
@@ -10716,7 +10723,7 @@ const StalkerMind = {
     ) {
       c.metalT = c.state === "routine" ? 5 : 1.8;
       if (d < 600) {
-        const vol = 0.045 * (1 - d / 600);
+        const vol = 0.075 * (1 - d / 600);
         Sound.noise(0.2, vol, 360);
         Sound.tone(74, 0.18, vol * 0.5, "triangle");
       }
@@ -10724,7 +10731,7 @@ const StalkerMind = {
     const a = Math.atan2(p.y - c.y, p.x - c.x),
       safe = Nav.safe(Math.floor(p.x / 32), Math.floor(p.y / 32)),
       inView =
-        c.state === "chase" ||
+        ["chase", "rushWind", "rush", "windup"].includes(c.state) ||
         Math.abs(Math.atan2(Math.sin(a - c.face), Math.cos(a - c.face))) < 1.35;
     const sees =
       !p.hidden && !safe && d < 340 && inView && (typeof POVPerception!=='undefined'&&POVPerception.active(g)?POVPerception.line(c,p):Level.los(c.x,c.y,p.x,p.y));
@@ -10733,15 +10740,42 @@ const StalkerMind = {
       c.tgt = c.lastSeen.slice();
       c.lostT = 0;
       c.hunt = true;
-      if (!["windup", "recover"].includes(c.state)) c.state = "chase";
+      if (!["windup", "recover", "rushWind", "rush"].includes(c.state)) c.state = "chase";
+    }
+    c.burstCd = Math.max(0, (c.burstCd || 0) - dt);
+    if (c.state === "rushWind") {
+      c.mt -= dt;
+      if (c.mt <= 0) { c.state = "rush"; c.mt = .5; c.rushHit = false; }
+      return;
+    }
+    if (c.state === "rush") {
+      c.mt -= dt;
+      const ox = c.x, oy = c.y, step = 330 * dt;
+      const nx = c.x + Math.cos(c.dir) * step, ny = c.y + Math.sin(c.dir) * step;
+      const sanctuary = Nav.safe(Math.floor(nx / 32), Math.floor(ny / 32));
+      if (!sanctuary) Level.move(c, Math.cos(c.dir) * step, Math.sin(c.dir) * step);
+      const wall = sanctuary || Math.hypot(c.x - ox, c.y - oy) < step * .6;
+      if (!c.rushHit && !safe && !p.hidden && Level.los(c.x, c.y, p.x, p.y) &&
+          FinalEncounter.segmentDistance(p.x, p.y, ox, oy, c.x, c.y) < c.r + p.r + 6) {
+        c.hitPlayer(g); c.rushHit = true;
+      }
+      if (wall || c.mt <= 0) {
+        c.state = "recover"; c.mt = wall ? 1.3 : .65; c.atkCd = .65;
+        if (wall) { g.cam.shake = Math.max(g.cam.shake, 4); Sound.noise(.18, .08, 100); }
+      }
+      return;
     }
     if (c.state === "windup") {
       c.mt -= dt;
+      // Adelanta el peso antes del corte; después mantiene la dirección.
+      if (c.mt > .22 && sees && d > c.r + p.r + 8)
+        Level.move(c, Math.cos(c.dir) * 110 * dt, Math.sin(c.dir) * 110 * dt);
       if (c.mt <= 0) {
-        if (sees && d < c.def.range + 20) c.hitPlayer(g);
-        c.atkCd = 1.4;
+        const reach = Math.hypot(p.x - c.x, p.y - c.y), arc = Math.abs(Math.atan2(Math.sin(a - c.dir), Math.cos(a - c.dir)));
+        if (sees && reach < c.def.range + 30 && arc < 1.2) c.hitPlayer(g);
+        c.atkCd = 1.05;
         c.state = "recover";
-        c.mt = 0.7;
+        c.mt = 0.5;
       }
       return;
     }
@@ -10770,18 +10804,23 @@ const StalkerMind = {
           return;
         }
       }
-      if (sees && d < c.def.range + 5 && c.atkCd <= 0) {
+      if (sees && d < c.def.range + 24 && c.atkCd <= 0) {
         c.state = "windup";
-        c.mt = 0.6;
-        c.face = a;
+        c.mt = .48;
+        c.dir = c.face = a;
         Sound.play("attack");
+        return;
+      }
+      if (sees && d > 140 && d < 310 && c.burstCd <= 0 && Nav.fatLos(c.x, c.y, p.x, p.y, c.r)) {
+        c.state = "rushWind"; c.mt = .7; c.dir = c.face = a; c.burstCd = 6.5;
+        Sound.tone(65, .45, .12, "sawtooth");
         return;
       }
       if (c.pathT <= 0 && c.tgt) c.setPath(...c.tgt);
       if (sees && d < 125 && Nav.fatLos(c.x, c.y, p.x, p.y, c.r - 1)) {
-        Level.move(c, Math.cos(a) * 150 * dt, Math.sin(a) * 150 * dt);
+        Level.move(c, Math.cos(a) * 184 * dt, Math.sin(a) * 184 * dt);
         c.face = a;
-      } else c.follow(dt, 132);
+      } else c.follow(dt, 158);
       return;
     }
     if (c.hideWitness && p.hidden) {
@@ -15141,7 +15180,7 @@ const CombatPressure = {
         Math.abs(Math.atan2(Math.sin(a - p.angle), Math.cos(a - p.angle))) <
           1.15
       )
-        e.hurt(dmg, a, g);
+        e.hurt(BossPressure.meleeDamage(e, dmg, blade), a, g);
     }
     Sound.play("enemyhit");
     return true;
@@ -16846,7 +16885,7 @@ class FinalCarnicero extends Carnicero {
     const deck = decks[this.phase];
     let attack = deck[this.step++ % deck.length];
     if (attack === 'cleave' && d > 165) attack = this.phase === 1 ? 'hook' : 'leap';
-    this.begin(attack, g);
+    this.begin(BossPressure.closeAttack(this, attack, g), g);
   }
   hitPlayer(g, dmg, angle = this.dir) {
     if (Level.los(this.x, this.y, g.player.x, g.player.y)) g.player.hurt(dmg, angle, g);
@@ -16855,7 +16894,7 @@ class FinalCarnicero extends Carnicero {
     const p = g.player, d = Math.hypot(p.x - this.x, p.y - this.y);
     if (this.attack === 'cleave') {
       const a = Math.atan2(p.y - this.y, p.x - this.x), arc = Math.abs(Math.atan2(Math.sin(a - this.dir), Math.cos(a - this.dir)));
-      if (d < 120 + p.r && arc < 1.12) this.hitPlayer(g, this.phase === 1 ? 26 : 30);
+      if (d < 120 + p.r && arc < 1.12) this.hitPlayer(g, this.phase === 1 ? 30 : 35);
       g.ring(this.x, this.y, 125, '#cc865c'); Sound.play('attack');
       if (this.combo === 2) {
         this.combo = 1; this.dir = this.face = a; this.clock = this.windMax = .85; return;
@@ -16912,7 +16951,7 @@ class FinalCarnicero extends Carnicero {
       const hitWall = Math.hypot(this.x - ox, this.y - oy) < speed * dt * .75 || cx !== this.x || cy !== this.y;
       this.x = cx; this.y = cy;
       if (!this.chargeHit && FinalEncounter.segmentDistance(p.x, p.y, ox, oy, this.x, this.y) < this.r + p.r) {
-        this.hitPlayer(g, this.phase === 3 ? 36 : 32); this.chargeHit = true;
+        this.hitPlayer(g, this.phase === 3 ? 41 : 36); this.chargeHit = true;
       }
       if (hitWall || this.clock <= 0) {
         this.recover(hitWall ? 2.5 : 1.75, hitWall);
@@ -16926,7 +16965,7 @@ class FinalCarnicero extends Carnicero {
       this.y = this.origin[1] + (this.target[1] - this.origin[1]) * k;
       if (this.clock <= 0) {
         [this.x, this.y] = this.target;
-        if (Math.hypot(p.x - this.x, p.y - this.y) < 115 + p.r) this.hitPlayer(g, this.phase === 3 ? 36 : 32);
+        if (Math.hypot(p.x - this.x, p.y - this.y) < 115 + p.r) this.hitPlayer(g, this.phase === 3 ? 41 : 36);
         g.ring(this.x, this.y, 125, '#db9571'); g.cam.shake = 10; Sound.play('attack');
         this.recover(1.8);
       }
@@ -17295,7 +17334,7 @@ class WorksEnemy extends Enemy {
  wind(kind,g) {
   this.mode='wind';this.attack=kind;this.dir=this.face=Math.atan2((this.target?.[1]??g.player.y)-this.y,(this.target?.[0]??g.player.x)-this.x);
   this.clock=this.windMax=kind==='spit'?.85:kind==='charge'?1.05:kind==='roar'?1.15:kind==='lunge'?.6:.65;
-  if(this.isBoss&&this.enraged)this.clock=this.windMax*=.88;
+  if(this.isBoss){this.clock=this.windMax=Math.max(.6,this.clock*(this.enraged?.82:.92));}
  }
  execute(g) {
   const p=g.player,d=Math.hypot(p.x-this.x,p.y-this.y),a=Math.atan2(p.y-this.y,p.x-this.x),arc=Math.abs(Math.atan2(Math.sin(a-this.dir),Math.cos(a-this.dir)));
@@ -17306,7 +17345,7 @@ class WorksEnemy extends Enemy {
    if(d<175&&Level.los(this.x,this.y,p.x,p.y))p.hurt(25,a,g);
    g.ring(this.x,this.y,175,'#d2b487');g.cam.shake=7;
   } else if(d<this.def.range+22&&arc<1.2&&Level.los(this.x,this.y,p.x,p.y))p.hurt(this.def.dmg,a,g);
-  this.mode='recover';this.clock=this.isBoss?1.4:1.2;this.skillCd=2.1;Sound.play('attack');
+  this.mode='recover';this.clock=this.isBoss?1.05:1.2;this.skillCd=2.1;Sound.play('attack');
  }
  update(dt,g) {
   if(this.dead||g.state!=='play')return;
@@ -17327,7 +17366,7 @@ class WorksEnemy extends Enemy {
    const p=g.player;
    if(!this.rushHit&&FinalEncounter.segmentDistance(p.x,p.y,ox,oy,this.x,this.y)<this.r+p.r&&Level.los(this.x,this.y,p.x,p.y)){p.hurt(this.def.dmg,this.dir,g);this.rushHit=true;}
    const wall=Math.hypot(this.x-ox,this.y-oy)<dist*.65;
-   if(wall||this.clock<=0){this.mode='recover';this.clock=wall?1.9:1.3;this.skillCd=this.isBoss?1.3:2.7;if(wall)g.ring(this.x,this.y,55,'#b8ab89');}
+   if(wall||this.clock<=0){this.mode='recover';this.clock=this.isBoss?(wall?1.65:1):wall?1.9:1.3;this.skillCd=this.isBoss?1.3:2.7;if(wall)g.ring(this.x,this.y,55,'#b8ab89');}
    return;
   }
   if(this.mode==='recover'){if(this.clock<=0){this.mode='stalk';this.clock=this.isBoss?.5:.7;}return;}
@@ -17788,11 +17827,11 @@ class SpiderMatriarch extends WorksEnemy {
  hurt(d,a,g){if(this.dead||!this.active||['intro','mutate'].includes(this.mode)||!Number.isFinite(d)||d<=0)return;const floor=(3-this.phase)*600;this.hp=Math.max(floor,this.hp-d*(this.mode==='recover'?1.2:1));this.hitFlash=.13;g.sparks(this.x,this.y,5,'#a97674');if(this.hp<=floor){if(this.phase===3)return this.die(g);this.phase++;this.r=39+this.phase*3;this.mode='mutate';this.clock=3;this.step=0;this.shots=[];this.brood=[];g.eproj=[];g.pools=[];this.summonClock=3.5;g.cam.shake=15;Sound.tone(49,1,.24,'sawtooth');UI.msg(this.phase===2?'El abdomen se abre. Sus patas ya no buscan apoyo: buscan carne.':'Las placas revientan. El veneno vuelve a llenar sus mandíbulas.',5000);}}
  die(g){if(this.dead)return;this.dead=true;this.hp=0;this.active=false;this.mode='dead';this.shots=[];this.brood=[];g.killed.add(this.id);g.pz['h:ds_spider']=true;const q=Depths.data(g);q.nest={active:false,won:true,hp:0,phase:3};g.player.xp+=mutationXPReward(this.def,true,g.mut);g.player.onKill(g);for(const e of g.enemies)if(e instanceof MutantSpider&&e.colony)e.dead=true;g.eproj=[];g.pools=[];g.projectiles=[];g.curBoss=null;for(const d of Level.doors)Level.openDoor(d);g.ring(this.x,this.y,200,'#cbbd92');g.cam.shake=17;Sound.play('enemydie');g.save(3);UI.msg('La colonia calla. El cierre de emergencia del este se abre.',6500);}
  begin(kind,g){const p=g.player;this.attack=kind;this.mode='wind';this.target=Depths.clamp(p.x,p.y,85);this.dir=this.face=Math.atan2(this.target[1]-this.y,this.target[0]-this.x);this.origin=[this.x,this.y];this.clock=this.windMax=kind==='venom'?.9:kind==='pounce'?1.15:kind==='rush'?.95:.8;Sound.tone(kind==='venom'?190:85,.18,.13,'triangle');}
- choose(g){const deck=this.phase===1?['venom','venom']:this.phase===2?['rush','pounce','claw']:['venom','rush','pounce','venom','claw'];let k=deck[this.step++%deck.length];if(k==='claw'&&Math.hypot(g.player.x-this.x,g.player.y-this.y)>165)k='pounce';this.begin(k,g);}
+ choose(g){const deck=this.phase===1?['venom','venom']:this.phase===2?['rush','pounce','claw']:['venom','rush','pounce','venom','claw'];let k=deck[this.step++%deck.length];if(k==='claw'&&Math.hypot(g.player.x-this.x,g.player.y-this.y)>165)k='pounce';this.begin(BossPressure.closeAttack(this,k,g),g);}
  execute(g){const p=g.player;if(this.attack==='venom'){this.shots=[{clock:0,dir:this.dir},{clock:.2,dir:this.dir+.025}];this.recover(1.45);}
  else if(this.attack==='rush'){this.mode='rush';this.clock=.85;this.rushHit=false;}
  else if(this.attack==='pounce'){this.mode='air';this.clock=.34;}
- else{const a=Math.atan2(p.y-this.y,p.x-this.x),arc=Math.abs(Math.atan2(Math.sin(a-this.dir),Math.cos(a-this.dir)));if(Math.hypot(p.x-this.x,p.y-this.y)<145&&arc<1.2&&Level.los(this.x,this.y,p.x,p.y))p.hurt(this.phase===3?34:29,a,g);g.ring(this.x,this.y,140,'#cca88b');this.recover(1.55);}}
+ else{const a=Math.atan2(p.y-this.y,p.x-this.x),arc=Math.abs(Math.atan2(Math.sin(a-this.dir),Math.cos(a-this.dir)));if(Math.hypot(p.x-this.x,p.y-this.y)<145&&arc<1.2&&Level.los(this.x,this.y,p.x,p.y))p.hurt(this.phase===3?39:34,a,g);g.ring(this.x,this.y,140,'#cca88b');this.recover(1.55);}}
  scheduleBrood(g){const alive=g.enemies.filter(e=>e instanceof MutantSpider&&e.colony&&!e.dead).length,cap=this.phase===3?9:7,n=Math.min(this.phase===1?3:4,cap-alive-this.brood.length);if(n<=0)return;const mouths=[[19,10],[44,10],[16,28],[47,28]].map(([x,y])=>({x:(x+.5)*32,y:(y+.5)*32})).filter(s=>Math.hypot(s.x-g.player.x,s.y-g.player.y)>250).sort((a,b)=>Math.hypot(b.x-g.player.x,b.y-g.player.y)-Math.hypot(a.x-g.player.x,a.y-g.player.y));if(!mouths.length)return;for(let i=0;i<n;i++){const s=mouths[i%mouths.length];this.brood.push({x:s.x+(i%2?12:-12),y:s.y,clock:1.8});}Sound.noise(.25,.1,520);}
  update(dt,g){if(this.dead||!this.active||g.state!=='play')return;dt*=Specializations.fieldFactor(this,g);if(dt<=0)return;this.t+=dt;this.hitFlash=Math.max(0,this.hitFlash-dt);this.frozen=this.stagger=0;this.clock-=dt;
   if(['intro','mutate'].includes(this.mode)){if(this.clock<=0)this.recover(1.2);return;}
@@ -17801,7 +17840,7 @@ class SpiderMatriarch extends WorksEnemy {
   for(const s of this.brood){s.clock-=dt;if(s.clock<=0){const q=Depths.data(g),e=new MutantSpider(s.x,s.y,++q.nextId,true);e.target=[g.player.x,g.player.y];e.memory=9;g.enemies.push(e);}}this.brood=this.brood.filter(s=>s.clock>0);
   const p=g.player;if(this.mode==='recover'){if(this.clock<=0){this.mode='stalk';this.clock=this.phase===1?.65:.45;}return;}
   if(this.mode==='wind'){if(this.clock<=0)this.execute(g);return;}
-  if(this.mode==='rush'){const ox=this.x,oy=this.y,speed=this.phase===3?600:550,dist=speed*dt;Level.move(this,Math.cos(this.dir)*dist,Math.sin(this.dir)*dist);const wall=Math.hypot(this.x-ox,this.y-oy)<dist*.65;if(!this.rushHit&&FinalEncounter.segmentDistance(p.x,p.y,ox,oy,this.x,this.y)<this.r+p.r&&Level.los(this.x,this.y,p.x,p.y)){p.hurt(this.phase===3?36:32,this.dir,g);this.rushHit=true;}if(wall||this.clock<=0){this.recover(wall?2.4:1.75);if(wall){g.ring(this.x,this.y,70,'#c7bb98');g.cam.shake=10;}}return;}
+  if(this.mode==='rush'){const ox=this.x,oy=this.y,speed=this.phase===3?600:550,dist=speed*dt;Level.move(this,Math.cos(this.dir)*dist,Math.sin(this.dir)*dist);const wall=Math.hypot(this.x-ox,this.y-oy)<dist*.65;if(!this.rushHit&&FinalEncounter.segmentDistance(p.x,p.y,ox,oy,this.x,this.y)<this.r+p.r&&Level.los(this.x,this.y,p.x,p.y)){p.hurt(this.phase===3?41:36,this.dir,g);this.rushHit=true;}if(wall||this.clock<=0){this.recover(wall?2.4:1.75,wall);if(wall){g.ring(this.x,this.y,70,'#c7bb98');g.cam.shake=10;}}return;}
   if(this.mode==='air'){const k=Math.max(0,Math.min(1,1-this.clock/.34));this.x=this.origin[0]+(this.target[0]-this.origin[0])*k;this.y=this.origin[1]+(this.target[1]-this.origin[1])*k;if(this.clock<=0){[this.x,this.y]=this.target;if(Math.hypot(p.x-this.x,p.y-this.y)<95+p.r&&Level.los(this.x,this.y,p.x,p.y))p.hurt(this.phase===3?35:30,this.dir,g);g.ring(this.x,this.y,100,'#c4a28d');g.cam.shake=9;this.recover(1.8);}return;}
   const dx=p.x-this.x,dy=p.y-this.y,d=Math.hypot(dx,dy)||1;this.face=Math.atan2(dy,dx);const sp=this.phase===1?65:this.phase===2?152:160;if(this.phase===1&&d<230)Level.move(this,-dx/d*sp*dt,-dy/d*sp*dt);else if(d>(this.phase===1?310:125))Level.move(this,dx/d*sp*dt,dy/d*sp*dt);if(this.clock<=0)this.choose(g);
  }
@@ -18236,7 +18275,7 @@ class BlindCarver extends WorksEnemy{
    if(dist<110||this.clock<=0){this.mode='wind';this.dir=this.face;this.clock=.8;return;}
    this.moveToward(x,y,340*dt);return;
   }
-  if(this.mode==='wind'){if(this.clock<=0){const a=Math.atan2(p.y-this.y,p.x-this.x),arc=Math.abs(Math.atan2(Math.sin(a-this.dir),Math.cos(a-this.dir)));if(d<155+p.r&&arc<1.35&&Level.los(this.x,this.y,p.x,p.y))p.hurt(34,a,g);g.ring(this.x,this.y,150,'#d4ad88');Sound.play('attack');this.mode='recover';this.clock=2.2;this.target=null;}return;}
+  if(this.mode==='wind'){if(this.clock<=0){const a=Math.atan2(p.y-this.y,p.x-this.x),arc=Math.abs(Math.atan2(Math.sin(a-this.dir),Math.cos(a-this.dir)));if(d<155+p.r&&arc<1.35&&Level.los(this.x,this.y,p.x,p.y))p.hurt(38,a,g);g.ring(this.x,this.y,150,'#d4ad88');Sound.play('attack');this.mode='recover';this.clock=1.65;this.target=null;}return;}
   if(this.mode==='recover'){if(this.clock<=0){this.mode='patrol';this.patrolTarget=null;}return;}
   this.mode='patrol';if(!this.patrolTarget||Math.hypot(this.patrolTarget[0]-this.x,this.patrolTarget[1]-this.y)<22){this.patrolIndex=(this.patrolIndex+1)%6;this.patrolTarget=this.anchors()[this.patrolIndex];}
   this.face=Math.atan2(this.patrolTarget[1]-this.y,this.patrolTarget[0]-this.x);this.moveToward(...this.patrolTarget,73*dt);
@@ -18254,13 +18293,13 @@ class RoyalRegent extends WorksEnemy{
  die(g){if(this.dead)return;this.dead=true;this.hp=0;this.active=false;this.mode='dead';this.marks=[];g.killed.add(this.id);g.pz['h:cl_regent']=true;Castle.data(g).regent={won:true,active:false,hp:0,phase:3};g.player.xp+=mutationXPReward(this.def,true,g.mut);g.player.onKill(g);g.eproj=[];g.pools=[];g.projectiles=[];g.curBoss=null;for(const d of Level.doors)Level.openDoor(d);g.ring(this.x,this.y,210,'#d6c398');g.cam.shake=18;g.save(3);UI.msg('El Regente cae. La puerta tras el trono se libera.',6500);}
  recover(t){this.mode='recover';this.clock=t;}
  begin(kind,g){const p=g.player;this.attack=kind;this.mode='wind';this.dir=this.face=Math.atan2(p.y-this.y,p.x-this.x);this.target=Castle.clamp(p.x,p.y,90);this.origin=[this.x,this.y];this.clock=this.windMax=kind==='quake'?1.15:kind==='leap'?1.1:kind==='charge'?.95:this.phase===2?1.15:.75;this.combo=kind==='slash'?(this.phase===3?3:this.phase===1?2:1):0;Sound.tone(kind==='charge'?80:150,.14,.12,'triangle');}
- choose(g){const decks={1:['charge','slash','bash'],2:['hammer','quake','charge'],3:['slash','charge','leap','quake']};let k=decks[this.phase][this.step++%decks[this.phase].length];if((k==='slash'||k==='bash'||k==='hammer')&&Math.hypot(g.player.x-this.x,g.player.y-this.y)>195)k='charge';this.begin(k,g);}
+ choose(g){const decks={1:['charge','slash','bash'],2:['hammer','quake','charge'],3:['slash','charge','leap','quake']};let k=decks[this.phase][this.step++%decks[this.phase].length];if((k==='slash'||k==='bash'||k==='hammer')&&Math.hypot(g.player.x-this.x,g.player.y-this.y)>195)k='charge';this.begin(BossPressure.closeAttack(this,k,g),g);}
  execute(g){const p=g.player,a=Math.atan2(p.y-this.y,p.x-this.x),d=Math.hypot(p.x-this.x,p.y-this.y),arc=Math.abs(Math.atan2(Math.sin(a-this.dir),Math.cos(a-this.dir)));
   if(this.attack==='charge'){this.mode='rush';this.clock=this.phase===1?.7:.9;this.rushHit=false;return;}
   if(this.attack==='leap'){this.mode='air';this.clock=.35;return;}
   if(this.attack==='quake'){const [x,y]=this.target;this.marks=[[x,y],[x-165,y],[x+165,y]].map(([a,b])=>{const [xx,yy]=Castle.clamp(a,b,65);return {x:xx,y:yy,r:68,warning:1.25,life:.8};});this.recover(3);return;}
   const reach=this.attack==='hammer'?185:this.attack==='bash'?115:155,spread=this.attack==='hammer'?1.5:1.1;
-  if(d<reach+p.r&&arc<spread&&Level.los(this.x,this.y,p.x,p.y)){p.hurt(this.phase===2?38:this.phase===3?33:28,a,g);if(this.attack==='bash')p.stamina=Math.max(0,p.stamina-20);}
+  if(d<reach+p.r&&arc<spread&&Level.los(this.x,this.y,p.x,p.y)){p.hurt(this.phase===2?43:this.phase===3?38:32,a,g);if(this.attack==='bash')p.stamina=Math.max(0,p.stamina-20);}
   g.ring(this.x,this.y,reach,'#d2b18d');Sound.play('attack');
   if(this.attack==='slash'&&this.combo>1){this.combo--;this.dir=this.face=a;this.clock=this.windMax=this.phase===3?.62:.78;return;}
   this.combo=0;this.recover(this.phase===2?2.1:1.5);
@@ -18272,7 +18311,7 @@ class RoyalRegent extends WorksEnemy{
   if(this.mode==='wind'){if(this.clock<=0)this.execute(g);return;}
   if(this.mode==='rush'){const ox=this.x,oy=this.y,speed=this.phase===3?560:this.phase===2?375:490,dist=speed*dt;Level.move(this,Math.cos(this.dir)*dist,Math.sin(this.dir)*dist);const [x,y]=Castle.clamp(this.x,this.y,this.r);const wall=Math.hypot(this.x-ox,this.y-oy)<dist*.65||x!==this.x||y!==this.y;this.x=x;this.y=y;
    if(!this.rushHit&&FinalEncounter.segmentDistance(p.x,p.y,ox,oy,this.x,this.y)<this.r+p.r&&Level.los(this.x,this.y,p.x,p.y)){p.hurt(this.phase===2?40:this.phase===3?36:30,this.dir,g);this.rushHit=true;}
-   if(wall||this.clock<=0){this.recover(wall?2.5:1.65);if(wall){g.cam.shake=11;g.ring(this.x,this.y,75,'#ccbea0');}}return;}
+   if(wall||this.clock<=0){this.recover(wall?2.5:1.65,wall);if(wall){g.cam.shake=11;g.ring(this.x,this.y,75,'#ccbea0');}}return;}
   if(this.mode==='air'){const k=Math.max(0,Math.min(1,1-this.clock/.35));this.x=this.origin[0]+(this.target[0]-this.origin[0])*k;this.y=this.origin[1]+(this.target[1]-this.origin[1])*k;if(this.clock<=0){[this.x,this.y]=this.target;if(Math.hypot(p.x-this.x,p.y-this.y)<105+p.r&&Level.los(this.x,this.y,p.x,p.y))p.hurt(37,this.dir,g);g.ring(this.x,this.y,110,'#d3b799');g.cam.shake=10;this.recover(1.9);}return;}
   const dx=p.x-this.x,dy=p.y-this.y,d=Math.hypot(dx,dy)||1;this.face=Math.atan2(dy,dx);const speed=this.phase===2?88:this.phase===3?165:155;if(d>120)Level.move(this,dx/d*speed*dt,dy/d*speed*dt);if(this.clock<=0)this.choose(g);
  }
@@ -18590,14 +18629,14 @@ class OriginWren extends WorksEnemy{
  die(g){if(this.dead)return;this.dead=true;this.hp=0;this.active=false;this.marks=[];this.waves=[];g.killed.add(this.id);g.pz['h:lf_wren']=true;const q=Endgame.data(g);q.boss={won:true,active:false,phase:3,hp:0};q.cureWait=3;g.player.xp+=mutationXPReward(this.def,true,g.mut);g.player.onKill(g);g.eproj=[];g.pools=[];g.projectiles=[];g.curBoss=null;g.temporalField=g.gravityWell=g.fleshEcho=null;g.ring(this.x,this.y,220,'#a8d7c0');g.cam.shake=18;Hospital.checkpoint(g);UI.msg('Wren cae. La síntesis completa su último ciclo. La cura está a punto de salir.',5500);}
  recover(t){this.mode='recover';this.clock=t;}
  begin(kind,g){const p=g.player;this.attack=kind;this.mode='wind';this.dir=this.face=Math.atan2(p.y-this.y,p.x-this.x);this.target=Endgame.clamp(p.x,p.y,110);this.origin=[this.x,this.y];this.combo=kind==='chain'?(this.phase===3?3:2):0;this.clock=this.windMax=kind==='leap'?1.15:kind==='marks'?1.2:kind==='wave'?1.15:kind==='charge'?.95:this.phase===2?1.1:.82;Sound.tone(100,.15,.12,'triangle');}
- choose(g){const decks={1:['needles','charge','chain'],2:['slam','marks','charge','wave'],3:['chain','leap','needles','charge','marks','wave']};let kind=decks[this.phase][this.step++%decks[this.phase].length];if(['chain','slam'].includes(kind)&&Math.hypot(g.player.x-this.x,g.player.y-this.y)>270)kind='charge';this.begin(kind,g);}
+ choose(g){const decks={1:['needles','charge','chain'],2:['slam','marks','charge','wave'],3:['chain','leap','needles','charge','marks','wave']};let kind=decks[this.phase][this.step++%decks[this.phase].length];if(['chain','slam'].includes(kind)&&Math.hypot(g.player.x-this.x,g.player.y-this.y)>270)kind='charge';this.begin(BossPressure.closeAttack(this,kind,g),g);}
  execute(g){const p=g.player,d=Math.hypot(p.x-this.x,p.y-this.y),a=Math.atan2(p.y-this.y,p.x-this.x),arc=Math.abs(Math.atan2(Math.sin(a-this.dir),Math.cos(a-this.dir)));
   if(this.attack==='charge'){this.mode='rush';this.clock=this.phase===3?.9:.8;this.rushHit=false;return;}
   if(this.attack==='leap'){this.mode='air';this.clock=.4;return;}
   if(this.attack==='needles'){const n=this.phase===3?7:5;for(let j=0;j<n;j++){const ang=this.dir+(j-(n-1)/2)*.16;g.eproj.push({x:this.x,y:this.y,vx:Math.cos(ang)*(this.phase===3?470:395),vy:Math.sin(ang)*(this.phase===3?470:395),life:2.1,dmg:this.phase===3?28:23,poison:0,bullet:true});}this.recover(1.8);return;}
   if(this.attack==='marks'){const [x,y]=this.target;this.marks=[[x,y],[x-185,y],[x+185,y],[x,y-185]].map(([a,b])=>{const [x,y]=Endgame.clamp(a,b,100);return {x,y,r:88,warning:1.3,life:.55,hit:false};});this.recover(2.9);return;}
   if(this.attack==='wave'){this.waves.push({x:this.x,y:this.y,r:65,life:2.5,hit:false});this.recover(2.1);return;}
-  const reach=this.attack==='slam'?255:this.phase===3?235:195,spread=this.attack==='slam'?1.5:1.12;if(d<reach+p.r&&arc<spread&&Level.los(this.x,this.y,p.x,p.y))p.hurt(this.phase===1?33:this.phase===2?44:42,a,g);g.ring(this.x,this.y,reach,'#a7c7b6');Sound.play('attack');
+  const reach=this.attack==='slam'?255:this.phase===3?235:195,spread=this.attack==='slam'?1.5:1.12;if(d<reach+p.r&&arc<spread&&Level.los(this.x,this.y,p.x,p.y))p.hurt(this.phase===1?38:this.phase===2?49:47,a,g);g.ring(this.x,this.y,reach,'#a7c7b6');Sound.play('attack');
   if(this.attack==='chain'&&this.combo>1){this.combo--;this.dir=this.face=a;this.clock=this.windMax=this.phase===3?.64:.8;return;}this.combo=0;this.recover(this.phase===2?2.2:1.55);
  }
  update(dt,g){if(this.dead||!this.active||g.state!=='play')return;dt*=Specializations.fieldFactor(this,g);if(dt<=0)return;this.t+=dt;this.hitFlash=Math.max(0,this.hitFlash-dt);this.frozen=this.stagger=0;this.clock-=dt;const p=g.player;
@@ -18606,7 +18645,7 @@ class OriginWren extends WorksEnemy{
   if(['intro','mutate'].includes(this.mode)){if(this.clock<=0)this.recover(1.3);return;}
   if(this.mode==='recover'){if(this.clock<=0){this.mode='stalk';this.clock=this.phase===3?.38:.6;}return;}
   if(this.mode==='wind'){if(this.clock<=0)this.execute(g);return;}
-  if(this.mode==='rush'){const ox=this.x,oy=this.y,speed=this.phase===3?650:this.phase===2?490:545,move=speed*dt;Level.move(this,Math.cos(this.dir)*move,Math.sin(this.dir)*move);const [x,y]=Endgame.clamp(this.x,this.y,this.r),wall=Math.hypot(this.x-ox,this.y-oy)<move*.6||x!==this.x||y!==this.y;this.x=x;this.y=y;if(!this.rushHit&&FinalEncounter.segmentDistance(p.x,p.y,ox,oy,this.x,this.y)<this.r+p.r&&Level.los(this.x,this.y,p.x,p.y)){p.hurt(this.phase===3?46:38,this.dir,g);this.rushHit=true;}if(wall||this.clock<=0){this.recover(wall?2.6:1.7);if(wall){g.cam.shake=12;g.ring(this.x,this.y,95,'#b6cdb8');}}return;}
+  if(this.mode==='rush'){const ox=this.x,oy=this.y,speed=this.phase===3?650:this.phase===2?490:545,move=speed*dt;Level.move(this,Math.cos(this.dir)*move,Math.sin(this.dir)*move);const [x,y]=Endgame.clamp(this.x,this.y,this.r),wall=Math.hypot(this.x-ox,this.y-oy)<move*.6||x!==this.x||y!==this.y;this.x=x;this.y=y;if(!this.rushHit&&FinalEncounter.segmentDistance(p.x,p.y,ox,oy,this.x,this.y)<this.r+p.r&&Level.los(this.x,this.y,p.x,p.y)){p.hurt(this.phase===3?51:43,this.dir,g);this.rushHit=true;}if(wall||this.clock<=0){this.recover(wall?2.6:1.7,wall);if(wall){g.cam.shake=12;g.ring(this.x,this.y,95,'#b6cdb8');}}return;}
   if(this.mode==='air'){const t=Math.max(0,Math.min(1,1-this.clock/.4));this.x=this.origin[0]+(this.target[0]-this.origin[0])*t;this.y=this.origin[1]+(this.target[1]-this.origin[1])*t;if(this.clock<=0){[this.x,this.y]=this.target;this.clamp();if(Math.hypot(p.x-this.x,p.y-this.y)<135+p.r&&Level.los(this.x,this.y,p.x,p.y))p.hurt(47,this.dir,g);g.ring(this.x,this.y,135,'#c5b9ce');g.cam.shake=14;this.recover(2);}return;}
   const dx=p.x-this.x,dy=p.y-this.y,d=Math.hypot(dx,dy)||1;this.face=Math.atan2(dy,dx);if(d>170){const n=(this.phase===1?160:this.phase===2?112:175)*dt;Level.move(this,dx/d*n,dy/d*n);}this.clamp();if(this.clock<=0)this.choose(g);
  }
@@ -18776,6 +18815,49 @@ SkillBalance.apply();
 
 </script>
 <script>
+// Presión compartida por los jefes de RIUTEX 2, en ambas perspectivas.
+// No aumenta su vida ni altera recompensas o partidas guardadas.
+const BossPressure = {
+  meleeDamage(enemy, damage, blade) {
+    if (!enemy.isBoss) return damage;
+    const exposed = enemy.mode === 'recover' || enemy.mode === 'stun';
+    return damage * (blade ? (exposed ? 1 : .72) : (exposed ? .65 : .38));
+  },
+  wind(enemy) {
+    const factor = enemy.phase === 3 || enemy.enraged ? .88 : .93;
+    enemy.clock = enemy.windMax = Math.max(.6, enemy.clock * factor);
+  },
+  recovery(enemy, seconds, wall = false) {
+    // Chocar sigue siendo la mejor oportunidad; los peligros persistentes
+    // conservan todo su tiempo para no superponerse al siguiente ataque.
+    const hazards = enemy.attack === 'vents' || enemy.attack === 'marks' || enemy.attack === 'quake';
+    return hazards || seconds >= 3 ? seconds : Math.max(wall ? 1.65 : .7, seconds * (wall ? .9 : .8));
+  },
+  closeAttack(enemy, kind, g) {
+    if (Math.hypot(g.player.x - enemy.x, g.player.y - enemy.y) > 112) return kind;
+    if (enemy instanceof SpiderMatriarch) return enemy.attack === 'claw' ? kind : 'claw';
+    if (enemy instanceof FinalCarnicero) return enemy.attack === 'cleave' ? kind : 'cleave';
+    if (enemy instanceof RoyalRegent) return enemy.phase === 2 ? 'hammer' : 'slash';
+    if (enemy instanceof OriginWren) return enemy.phase === 2 ? 'slam' : 'chain';
+    return kind;
+  }
+};
+
+// Solo los cuatro encuentros de tres fases usan estas funciones. Las pausas
+// de reanudación de una partida y las transiciones de mutación se mantienen.
+for (const Boss of [FinalCarnicero, SpiderMatriarch, RoyalRegent, OriginWren]) {
+  const begin = Boss.prototype.begin, recover = Boss.prototype.recover;
+  Boss.prototype.begin = function(kind, g) {
+    begin.call(this, kind, g);
+    BossPressure.wind(this);
+  };
+  Boss.prototype.recover = function(seconds, wall = false) {
+    return recover.call(this, BossPressure.recovery(this, seconds, wall), wall);
+  };
+}
+
+</script>
+<script>
 // v0.15.1 · Hospital abandonado: sangre húmeda y luz de disparos, sin figuras humanas.
 const MenuScene = {
   ready:false, reduced:false, ticks:0, last:0, volume:.65,
@@ -18789,7 +18871,7 @@ const MenuScene = {
     menu.querySelector('h1').innerHTML='<span>RIUTEX</span><em>2</em>';menu.querySelector('h1').setAttribute('aria-label','RIUTEX 2');
     menu.querySelector('h2').textContent='EL CUSTODIO';
     UI.$('bNew').querySelectorAll('span')[1].textContent='Nueva partida';
-    menu.querySelector('.menu-footer').innerHTML='<span>HISTORIA COMPLETA / v0.21.0</span><span>EL SILENCIO NO TE SALVARÁ.</span><span>CUATRO FASES</span>';menu.appendChild(menu.querySelector('.menu-footer'));
+    menu.querySelector('.menu-footer').innerHTML='<span>HISTORIA COMPLETA / v0.22.0</span><span>EL SILENCIO NO TE SALVARÁ.</span><span>CUATRO FASES</span>';menu.appendChild(menu.querySelector('.menu-footer'));
     const opt=document.createElement('button');opt.id='bMenuOptions';opt.innerHTML='<span class="button-index">03</span><span>Opciones</span><span class="button-arrow">↗</span>';menu.querySelector('.menu-actions').appendChild(opt);
     const panel=document.createElement('section');panel.id='menuOptions';panel.className='screen hidden';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-labelledby','presentationOptionsTitle');
     panel.innerHTML='<div class="presentation-options"><span class="eyebrow">RIUTEX 2 / CONFIGURACIÓN</span><h2 id="presentationOptionsTitle">OPCIONES</h2><label for="menuVolume">Volumen <output id="menuVolumeValue"></output><input id="menuVolume" type="range" min="0" max="100" step="1"></label><label for="menuReduceMotion">Reducir movimiento y destellos<input id="menuReduceMotion" type="checkbox"></label><p>WASD · moverte &nbsp; / &nbsp; Ratón · apuntar y disparar<br>Shift · correr &nbsp; / &nbsp; E · interactuar &nbsp; / &nbsp; R · recargar<br>Tab · maletín &nbsp; / &nbsp; J · documentos &nbsp; / &nbsp; M · mapa<br>K · habilidades &nbsp; / &nbsp; Esc · pausa</p><button id="bMenuOptionsClose">Volver al menú</button></div>';
@@ -19999,11 +20081,13 @@ const POVCharacterArt={
     const m=A.palette,root=A.group(),body=A.group(root),legs=[],rat=id==='rata',frog=id==='escupidor',skin=this.material(id==='cl_hound'?m.pale:frog?m.poison:m.bruise,'skin'),dark=m.dark;
     this.volume(body,0,14,-4,frog?8:5.6,frog?8:5.8,11.5,skin);this.volume(body,0,17,5,6,6.5,7.5,skin);
     this.loft(body,[[11,3.4,4,12],[15,4.2,5.4,11],[19,3.6,4.7,10],[21,2.2,3.1,9]],skin);
-    this.box(body,0,13.6,17,4.5,1.9,7.4,skin);this.box(body,0,11.7,16.5,4.4,.9,6.8,dark);
+    this.box(body,0,13.6,17,4.5,1.9,7.4,skin);
+    const jaw=A.group(body,0,12.4,13),tail=rat?A.group(body,0,13,-14):null;
+    this.box(jaw,0,-.7,3.5,4.4,.9,6.8,dark);
     for(const s of [-1,1]){
       this.box(body,s*3.1,18.3,13.5,.4,.65,1.8,dark);this.box(body,s*3.15,18.4,14,.22,.23,.7,m.eyes);
       if(!frog){const ear=this.loft(body,[[19.5,1.35,1.1,9],[22,1,.75,8],[25,.05,.05,7]],skin);ear.position.x=s*3.1;}
-      for(let i=0;i<3;i++)this.cylinder(body,s*(.8+i*.65),12.3,15.1+i*.95,0,.35,2,m.ivory);
+      for(let i=0;i<3;i++)this.cylinder(jaw,s*(.8+i*.65),-.1,2.1+i*.95,0,.35,2,m.ivory);
       for(const [j,z]of [-9,6].entries()){
         const leg=A.group(body,s*4.5,14,z);legs.push(leg);const knee=[s*1.8,-5,j?-1.5:3.2],ankle=[s*2.4,-11.3,j?1:1.8];
         this.rod(leg,[0,0,0],knee,j?1.55:2.1,skin);this.rod(leg,knee,ankle,j?1:1.15,skin);this.box(leg,ankle[0],-12.6,ankle[2]+1.6,2.7,1.5,4.1,skin);
@@ -20012,9 +20096,9 @@ const POVCharacterArt={
     }
     if(id==='cl_hound')for(let i=0;i<4;i++)for(const s of [-1,1])this.rod(body,[s*1.4,19-i*.5,-8+i*3],[s*5.8,14-i*.2,-8+i*3],.26,m.ivory);
     if(frog)for(let i=0;i<6;i++)this.volume(body,Math.sin(i*2.3)*6,18+Math.cos(i*2.3)*2,-5+i,1.2,1.5,1.4,m.poison);
-    if(rat){root.scale.setScalar(.64);this.rod(body,[0,13,-14],[3,8,-25],.7,m.bruise);this.rod(body,[3,8,-25],[0,4,-33],.4,m.bruise);}
+    if(rat){root.scale.setScalar(.64);this.rod(tail,[0,0,0],[3,-5,-11],.7,m.bruise);this.rod(tail,[3,-5,-11],[0,-9,-19],.4,m.bruise);}
     if(id==='rastrero')root.scale.set(1.1,.76,1.1);
-    root.userData.rig={body,quadrupedLegs:legs};return root;
+    root.userData.rig={body,quadrupedLegs:legs,jaw,tail};return root;
   },
   moth(A){
     const T=this.T,m=A.palette,root=A.group(),body=A.group(root),wings=[];this.volume(body,0,27,0,2.4,10,2.6,m.bruise);this.volume(body,0,36,0,3.1,3.3,2.6,m.pale);
@@ -20029,18 +20113,21 @@ const POVCharacterArt={
     root.userData.rig={body,wings};return root;
   },
   spider(A,boss,phase=1){
-    const m=A.palette,root=A.group(),body=A.group(root),legs=[];root.scale.setScalar(boss?1+(phase-1)*.13:.27);
+    const m=A.palette,root=A.group(),body=A.group(root),legs=[],knees=[],fangs=[];root.scale.setScalar(boss?1+(phase-1)*.13:.27);
     const shell=this.material(m.bruise,'chitin'),plate=this.material(m.iron,'chitin');this.volume(body,0,22,-12,16,13,22,shell);this.volume(body,0,18,10,10,8,11,plate);this.volume(body,0,15.5,22,6.6,4.4,5.6,shell);
     for(const s of [-1,1]){
       for(let i=0;i<4;i++){
         const z=-11+i*7.4,leg=A.group(body,s*6.5,16,z);legs.push(leg);const knee=[s*(18+Math.abs(i-1.5)*2),11-i%2*2,(i-1.5)*5],ankle=[s*(29+Math.abs(i-1.5)*2),-13,(i-1.5)*12];
-        this.rod(leg,[0,0,0],knee,1.8,plate);this.volume(leg,...knee,2,2,2,shell);this.rod(leg,knee,ankle,1.05,plate);this.rod(leg,ankle,[ankle[0]+s*3,-16,ankle[2]+2],.48,m.ivory);
+        this.rod(leg,[0,0,0],knee,1.8,plate);this.volume(leg,...knee,2,2,2,shell);
+        const lower=A.group(leg,...knee);knees.push(lower);const foot=ankle.map((v,j)=>v-knee[j]);
+        this.rod(lower,[0,0,0],foot,1.05,plate);this.rod(lower,foot,[foot[0]+s*3,-16-knee[1],foot[2]+2],.48,m.ivory);
       }
       for(let i=0;i<3;i++){this.box(body,s*(1.4+i*1.4),17.1-i*.25,26.1-i*.6,.7,.7,.3,m.dark);this.volume(body,s*(1.4+i*1.4),17.2-i*.25,26.3-i*.6,.18,.16,.15,m.eyes);}
-      this.rod(body,[s*2.9,13.5,24],[s*5,9.5,29],1,m.ivory);this.rod(body,[s*5,9.5,29],[s*2.6,8,31],.45,m.ivory);
+      const fang=A.group(body,s*2.9,13.5,24);fangs.push(fang);
+      this.rod(fang,[0,0,0],[s*2.1,-4,5],1,m.ivory);this.rod(fang,[s*2.1,-4,5],[-s*.3,-5.5,7],.45,m.ivory);
     }
     if(boss){for(let i=0;i<5;i++)this.volume(body,Math.sin(i*2.4)*8,31+Math.cos(i*2.4)*2,-12+Math.cos(i*2.3)*11,2.1,2.6,2.1,m.poison);A.spikes(body,3+phase,19,29,-4,5+phase*2);if(phase>1)for(const s of [-1,1])this.volume(body,s*8,25,7,5,2.5,7,m.ivory);}
-    root.userData.rig={body,spiderLegs:legs};return root;
+    root.userData.rig={body,spiderLegs:legs,spiderKnees:knees,fangs};return root;
   }
 };
 (()=>{
@@ -20060,6 +20147,125 @@ const POVCharacterArt={
   for(const name of ['enemy','ally']){const base=A[name];A[name]=function(e,g){const previous=C.entity;C.entity=e;C.depth++;try{const root=base.call(this,e,g);root.userData.artStyle='pixel-sculpt';return root;}finally{C.depth--;C.entity=previous;}};}
   const animate=A.animateEnemy;A.animateEnemy=function(root,...args){animate.call(this,root,...args);const r=root.userData.rig;if(r?.body)r.body.rotation.x+=r.lean||0;if(root.userData.ally&&r){r.arms[0].rotation.set(-1.0,0,.42);r.elbows[0].rotation.x=-.45;r.arms[1].rotation.set(-.55,0,-.33);r.elbows[1].rotation.x=-1;}};
 })();
+
+</script>
+<script>
+// Animación exclusiva del POV. Todo el estado visual vive en la malla:
+// no adelanta ataques, no desplaza hitboxes y no se guarda en la partida.
+const POVEnemyMotion = {
+  bind(root) {
+    const rig = root.userData.rig, nodes = new Set();
+    for (const value of Object.values(rig)) {
+      if (Array.isArray(value)) value.forEach(n => n?.isObject3D && nodes.add(n));
+      else if (value?.isObject3D) nodes.add(value);
+    }
+    return root.userData.motion = {
+      base: [...nodes].map(node => ({node, p: node.position.clone(), r: node.rotation.clone(), s: node.scale.clone()})),
+      time: root.userData.clock || 0, gait: 0, speed: 0, impact: 0,
+      x: null, y: null, mode: null, clock: 0, hit: 0
+    };
+  },
+  animate(root, e, g, time, dt = .016) {
+    const data = root.userData, rig = data.rig;
+    if (!rig) return;
+    const m = data.motion || this.bind(root), step = Math.max(0, Math.min(.05, dt));
+    if (g?.state !== 'play') { m.x = e.x; m.y = e.y; return; }
+    if (e.frozen > 0) { m.x = e.x; m.y = e.y; return; }
+    m.time += step; data.clock = m.time;
+    const id = data.modelIdentifier || '', seed = (Number(e.id) || 0) * 1.713;
+    const mode = id === 'carnicero' && !e.active && e.state ? e.state : (e.mode || e.state || 'idle');
+    const winding = /wind|listen/.test(mode) || e.windup > 0;
+    const charging = /^(rush|charge|lunge)$/.test(mode);
+    const clock = e.windup > 0 ? e.windup : (e.clock ?? e.mt ?? 0);
+    const duration = e.windup > 0 ? .38 : (e.windMax || (mode === 'rushWind' ? .7 : mode === 'windup' ? .48 : .8));
+    const progress = Math.max(0, Math.min(1, 1 - clock / duration));
+    // Un combo puede seguir en «wind»: el reinicio del reloj marca otro golpe.
+    if (m.mode && ((m.winding && !winding) ||
+        (winding && m.winding && clock > m.clock + .12))) m.impact = .28;
+    if ((e.hitFlash || 0) > m.hit + .015) m.recoil = .18;
+    m.impact = Math.max(0, m.impact - step); m.recoil = Math.max(0, (m.recoil || 0) - step);
+    const distance = m.x === null ? 0 : Math.hypot((e.x || 0) - m.x, (e.y || 0) - m.y);
+    const travel = distance < 35 ? distance : 0; // Reaparecer tras oclusión no reproduce una zancada enorme.
+    const desired = step > 0 ? Math.min(1.5, travel / step / 125) : 0;
+    m.speed += (desired - m.speed) * Math.min(1, step * 15);
+    m.gait += travel * (/carnicero|regent|guard|keeper/.test(id) ? .075 : .115);
+    m.x = e.x || 0; m.y = e.y || 0; m.mode = mode; m.winding = winding; m.clock = clock; m.hit = e.hitFlash || 0;
+    for (const b of m.base) { b.node.position.copy(b.p); b.node.rotation.copy(b.r); b.node.scale.copy(b.s); }
+    const t = m.time, walk = Math.min(1, m.speed), gait = m.gait, breath = Math.sin(t * 2.8 + seed);
+    const recover = mode === 'recover' || mode === 'stun', mutate = mode === 'mutate' || mode === 'intro';
+    const impact = Math.sin(m.impact / .28 * Math.PI), hit = Math.sin(m.recoil / .18 * Math.PI);
+    const blind = id === 'cl_blind' || id === 'wx_listener';
+    const heavy = /carnicero|regent|guard|keeper|wren|bruto|coloso/.test(id);
+    const roof = typeof POV3DRenderer !== 'undefined' ? POV3DRenderer.ceilingAt(e.x || 0, e.y || 0, g) : Infinity;
+    const tight = Number.isFinite(roof) && roof < (data.height || 45) * 1.45;
+    const sleeping = data.sleeping && !e.alert;
+    if (rig.body) {
+      rig.body.position.y += .32 * breath + Math.abs(Math.sin(gait)) * (heavy ? .7 : 1) * walk - (recover ? .6 : 0);
+      rig.body.position.z += impact * 1.7;
+      rig.body.scale.y *= 1 + breath * .014;
+      const room = tight ? .4 : 1;
+      rig.body.rotation.x += (rig.lean || 0) + room * ((charging ? .28 : winding ? -.1 * progress : 0) + impact * .2 - hit * .15);
+      rig.body.rotation.y += room * (Math.sin(gait) * .045 * walk + (winding ? -.16 * progress : impact * .22));
+      rig.body.rotation.z += room * Math.sin(gait) * (heavy ? .055 : .08) * walk;
+      if (mutate) { rig.body.rotation.x += Math.sin(t * 8) * .13 * room; rig.body.scale.x *= 1 + Math.sin(t * 6) * .025; }
+      if (sleeping) rig.body.rotation.x += .7;
+    }
+    if (rig.head) {
+      rig.head.rotation.x += breath * .035 + (winding ? -.2 * progress : recover ? .12 : 0) - hit * .18;
+      rig.head.rotation.y += Math.sin(t * (blind ? 1.7 : .75) + seed) * (blind ? .25 : .13);
+      rig.head.rotation.z += Math.sin(t * .9 + seed) * .045;
+    }
+    rig.legs?.forEach((n, i) => {
+      n.rotation.x += sleeping ? -1.15 : Math.sin(gait + i * Math.PI) * .55 * walk + (winding ? (i ? .1 : -.18) * progress : 0);
+      n.rotation.z += (i ? -.025 : .025) + (recover ? (i ? -.045 : .045) : 0);
+    });
+    rig.knees?.forEach((n, i) => { n.rotation.x += sleeping ? 1.3 : Math.max(0, Math.sin(gait + i * Math.PI)) * .65 * walk + (recover ? .12 : 0); });
+    rig.arms?.forEach((n, i) => {
+      const side = i ? 1 : -1, strikeArm = heavy ? i === 1 : (Math.floor((e.id || 0) + (e.step || 0)) % 2) === i;
+      if (data.ally) { n.rotation.set(i ? -.55 : -1, 0, i ? -.33 : .42); n.rotation.x += Math.sin(gait) * .035 * walk; return; }
+      n.rotation.x += -.18 + Math.sin(gait + (1-i) * Math.PI) * .5 * walk + Math.sin(t * 1.9 + seed + i) * .07;
+      n.rotation.z += side * -.06 + Math.sin(t * 1.3 + seed + i) * .035;
+      if (blind && !winding && !charging) { n.rotation.x -= .28; n.rotation.z -= side * .15; }
+      if (winding) {
+        // En un pasillo bajo prepara el corte al costado, sin meter el arma en el techo.
+        n.rotation.x = strikeArm ? -1.02 - progress * (tight ? .22 : 1.1) : -.6 - progress * .35;
+        n.rotation.z += side * (strikeArm ? .3 : .15) * progress;
+        n.rotation.y += side * -.22 * progress;
+        if (/spit|venom|needles|wave|roar|vents|marks|quake/.test(e.attack || '')) n.rotation.x = -.75 - progress * .3;
+      }
+      if (charging) { n.rotation.x = i ? -1.1 : -.55; n.rotation.z += side * -.18; }
+      if (impact > 0 && strikeArm) { n.rotation.x = (tight ? -1.3 : -1.95) + impact * (tight ? 1.9 : 2.55); n.rotation.y += impact * .35 * side; }
+      if (recover && !m.impact) n.rotation.x += .18 + breath * .08;
+      n.rotation.x -= hit * .2;
+      if (mutate) { n.rotation.x = -.5 + Math.sin(t * 9 + i) * .25; n.rotation.z += side * .5; }
+    });
+    rig.elbows?.forEach((n, i) => {
+      n.rotation.x += data.ally ? (i ? -1 : -.45) : winding ? -(tight ? .08 : .7) * progress : charging ? -.4 : -.12 + breath * .06;
+      if (impact) n.rotation.x -= .3 * (1 - impact);
+    });
+    rig.extraArms?.forEach((n, i) => { n.rotation.x += Math.sin(t * 2.8 + i) * .23 - (winding ? .65 * progress : 0); n.rotation.y += Math.sin(t * 2 + i) * .25 + impact * .5; });
+    rig.quadrupedLegs?.forEach((n, i) => {
+      const phase = gait + (i === 0 || i === 3 ? 0 : Math.PI);
+      n.rotation.x += Math.sin(phase) * .65 * walk;
+      n.position.y += Math.max(0, Math.sin(phase)) * 1.3 * walk;
+      if (winding) n.rotation.x += (i % 2 ? -.26 : .22) * progress;
+    });
+    rig.jaw && (rig.jaw.rotation.x += .04 + breath * .05 + (winding ? progress * .4 : impact * .55));
+    rig.tail && (rig.tail.rotation.y += Math.sin(t * 3 + gait) * (.15 + walk * .25));
+    rig.spiderLegs?.forEach((n, i) => {
+      const phase = gait + i * Math.PI * .75, side = i < 4 ? -1 : 1;
+      n.rotation.y += Math.sin(phase) * (.025 + walk * .18);
+      n.rotation.z += side * (Math.max(0, Math.sin(phase)) * .22 * walk + breath * .025);
+      if (winding) { n.rotation.z += side * .1 * progress; if (i % 4 >= 2) n.rotation.x -= .15 * progress; }
+      if (e.mode === 'air') n.rotation.z += side * .35;
+    });
+    rig.spiderKnees?.forEach((n, i) => { n.rotation.z += (i < 4 ? 1 : -1) * Math.max(0, Math.sin(gait + i * Math.PI * .75)) * .2 * walk; });
+    rig.fangs?.forEach((n, i) => { n.rotation.x += winding ? -.35 * progress : impact * .35; n.rotation.y += (i ? -1 : 1) * (breath * .05 + progress * (winding ? .18 : 0)); });
+    rig.wings?.forEach((n, i) => { n.rotation.y += Math.sin(t * (winding ? 14 : 10) + i * Math.PI) * .65; n.rotation.z += Math.cos(t * 5 + i * Math.PI) * .08; });
+    if (rig.wings && rig.body) rig.body.position.y += Math.sin(t * 3.2) * 1.9;
+  }
+};
+POV3DAssets.animateEnemy = function(root, e, g, time, dt) { POVEnemyMotion.animate(root, e, g, time, dt); };
 
 </script>
 <script>
@@ -20652,6 +20858,7 @@ const FirstPersonRenderer = {
     for(const e of g.enemies){if(e.dead||e.dormant)continue;
       if(typeof e.drawTelegraphs==='function')e.drawTelegraphs(adapter);
       else if(typeof e.drawCue==='function')e.drawCue(adapter);
+      else if(e.state==='rushWind'||e.state==='rush'){adapter.save();c.fillStyle='rgba(214,114,68,.16)';c.strokeStyle='#d9aa82';adapter.translate(e.x,e.y);adapter.rotate(e.dir);adapter.fillRect(0,-22,180,44);adapter.strokeRect(0,-22,180,44);adapter.restore();}
       else if(e.state==='windup'){c.fillStyle='rgba(203,114,76,.2)';c.strokeStyle='#dda17e';const angle=e.face||0,r=e.def.range+30,pts=[[e.x,e.y]];for(let i=0;i<=20;i++){const a=angle-1.1+2.2*i/20;pts.push([e.x+Math.cos(a)*r,e.y+Math.sin(a)*r]);}pts.push(pts[0]);this.groundPolygon(pts,true);this.groundPolygon(pts,false);}
     }
     for(const q of g.story.works?.arena?.pending||[])this.groundCircle(q.x,q.y,42,'#dbba81','rgba(165,97,60,.2)');
@@ -20747,7 +20954,7 @@ const FirstPersonRenderer = {
     if(g.state==='play'&&!p.hidden&&!g.collapse){
       POVArt.drawWeapon(c,g,W,H,g.t);
       const aimY=H/2,gap=p.focus>0?5:8+Math.min(10,(p.spreadAdd||0)*35);this.stats.crosshair={x:W/2,y:aimY};c.strokeStyle=p.stamina<12?'#c28a79':'#d4ded2b0';c.lineWidth=1;c.beginPath();for(const sign of [-1,1]){c.moveTo(W/2+sign*gap,aimY);c.lineTo(W/2+sign*(gap+5),aimY);c.moveTo(W/2,aimY+sign*gap);c.lineTo(W/2,aimY+sign*(gap+5));}c.stroke();c.fillStyle='#dde4d5';c.fillRect(W/2-1,aimY-1,2,2);
-      let threat=null,dist=420;for(const e of g.enemies){if(e.dead||e.dormant||!['wind','windup','air'].includes(e.mode||e.state))continue;const d=Math.hypot(e.x-p.x,e.y-p.y);if(d<dist&&Level.los(p.x,p.y,e.x,e.y)){dist=d;threat=e;}}
+      let threat=null,dist=420;for(const e of g.enemies){const mode=e instanceof Carnicero&&!e.active?e.state:e.mode||e.state;if(e.dead||e.dormant||!['wind','windup','rushWind','air'].includes(mode))continue;const d=Math.hypot(e.x-p.x,e.y-p.y);if(d<dist&&Level.los(p.x,p.y,e.x,e.y)){dist=d;threat=e;}}
       if(threat){const angle=Math.atan2(threat.y-p.y,threat.x-p.x)-p.angle,relative=Math.atan2(Math.sin(angle),Math.cos(angle));if(Math.abs(relative)>this.fov*.42){const x=relative>0?W*.91:W*.09,y=H*.52;c.fillStyle='#e5aa7f';c.beginPath();c.moveTo(x+(relative>0?8:-8),y);c.lineTo(x,y-7);c.lineTo(x,y+7);c.closePath();c.fill();c.font='600 11px Rajdhani,sans-serif';c.textAlign='center';c.fillText(Math.abs(relative)>2?'DETRÁS':'PELIGRO',x,y+23);}}
     }
     if(p.hurtFlash>0){c.fillStyle=`rgba(128,24,38,${Math.min(.19,p.hurtFlash*.5)})`;c.fillRect(0,0,W,H);}
@@ -21014,7 +21221,7 @@ const POV3DRenderer={
   ceilingAt(x,y,g=Game){if(g.lvl==='hospitalstreet')return Infinity;const tx=x/TILE,ty=y/TILE;if((Level.rooms||[]).some(r=>/jard[ií]n|patio|exterior|calle|invernadero/i.test(r.n||'')&&tx>=r.x&&tx<r.x+r.w&&ty>=r.y&&ty<r.y+r.h))return Infinity;return this.worldState?.ceilingHeight||62;},
   bodyHeight(e){const root=this.actors.get(e.id)?.root;if(root?.userData.height)return root.userData.height;const type=POVModels.identity(e);return /spider/.test(type)&&!/matriarch/.test(type)?13:/hound|scuttler/.test(type)?27:/moth/.test(type)?36:/wren/.test(type)?60+(e.phase||1)*14:/regent|carnicero|blind|keeper|guard/.test(type)?64:45;},
   fitActor(root,e,g){
-    const height=root.userData.height,roof=this.ceilingAt(e.x,e.y,g),clearance=roof-(e.mode==='air'?16:1.5);
+    const height=root.userData.height,roof=this.ceilingAt(e.x,e.y,g),clearance=roof-(e.mode==='air'?21:6);
     if(Number.isFinite(roof)&&height>clearance&&clearance>20){root.scale.multiplyScalar(clearance/height);root.userData.height=clearance;}
     return root;
   },
@@ -21752,6 +21959,11 @@ const SessionSave = {
     // No reanudamos un golpe invisible: cada jefe vuelve a un aviso o recuperación.
     for(const e of g.enemies)if(!e.dead&&e.mode&&['wind','rush','charge','attack','leap'].includes(e.mode)){
       if(typeof e.recover==='function')e.recover(1);else {e.mode='recover';e.clock=1;}
+    }
+    // El perseguidor usa state en lugar de mode. No reanudar una carga a mitad
+    // de recorrido antes de que el jugador pueda ver su aviso.
+    for(const e of g.enemies)if(e instanceof Carnicero&&!e.active&&!e.dead&&['windup','rushWind','rush'].includes(e.state)){
+      e.state='recover';e.mt=Math.max(e.mt||0,1);e.atkCd=Math.max(e.atkCd||0,1);e.burstCd=Math.max(e.burstCd||0,3);e.rushHit=true;
     }
     if(r.ending){g.state='end';UI.$('endH').textContent=r.ending.title;UI.$('endS').textContent=r.ending.subtitle;UI.$('endB').textContent=r.ending.body;UI.screen('end');}
     g.keys={};g.mouse.down=g.mouse.clicked=g.mouse.rclick=false;

@@ -152,6 +152,7 @@ const FirstPersonRenderer = {
     for(const e of g.enemies){if(e.dead||e.dormant)continue;
       if(typeof e.drawTelegraphs==='function')e.drawTelegraphs(adapter);
       else if(typeof e.drawCue==='function')e.drawCue(adapter);
+      else if(e.state==='rushWind'||e.state==='rush'){adapter.save();c.fillStyle='rgba(214,114,68,.16)';c.strokeStyle='#d9aa82';adapter.translate(e.x,e.y);adapter.rotate(e.dir);adapter.fillRect(0,-22,180,44);adapter.strokeRect(0,-22,180,44);adapter.restore();}
       else if(e.state==='windup'){c.fillStyle='rgba(203,114,76,.2)';c.strokeStyle='#dda17e';const angle=e.face||0,r=e.def.range+30,pts=[[e.x,e.y]];for(let i=0;i<=20;i++){const a=angle-1.1+2.2*i/20;pts.push([e.x+Math.cos(a)*r,e.y+Math.sin(a)*r]);}pts.push(pts[0]);this.groundPolygon(pts,true);this.groundPolygon(pts,false);}
     }
     for(const q of g.story.works?.arena?.pending||[])this.groundCircle(q.x,q.y,42,'#dbba81','rgba(165,97,60,.2)');
@@ -247,7 +248,7 @@ const FirstPersonRenderer = {
     if(g.state==='play'&&!p.hidden&&!g.collapse){
       POVArt.drawWeapon(c,g,W,H,g.t);
       const aimY=H/2,gap=p.focus>0?5:8+Math.min(10,(p.spreadAdd||0)*35);this.stats.crosshair={x:W/2,y:aimY};c.strokeStyle=p.stamina<12?'#c28a79':'#d4ded2b0';c.lineWidth=1;c.beginPath();for(const sign of [-1,1]){c.moveTo(W/2+sign*gap,aimY);c.lineTo(W/2+sign*(gap+5),aimY);c.moveTo(W/2,aimY+sign*gap);c.lineTo(W/2,aimY+sign*(gap+5));}c.stroke();c.fillStyle='#dde4d5';c.fillRect(W/2-1,aimY-1,2,2);
-      let threat=null,dist=420;for(const e of g.enemies){if(e.dead||e.dormant||!['wind','windup','air'].includes(e.mode||e.state))continue;const d=Math.hypot(e.x-p.x,e.y-p.y);if(d<dist&&Level.los(p.x,p.y,e.x,e.y)){dist=d;threat=e;}}
+      let threat=null,dist=420;for(const e of g.enemies){const mode=e instanceof Carnicero&&!e.active?e.state:e.mode||e.state;if(e.dead||e.dormant||!['wind','windup','rushWind','air'].includes(mode))continue;const d=Math.hypot(e.x-p.x,e.y-p.y);if(d<dist&&Level.los(p.x,p.y,e.x,e.y)){dist=d;threat=e;}}
       if(threat){const angle=Math.atan2(threat.y-p.y,threat.x-p.x)-p.angle,relative=Math.atan2(Math.sin(angle),Math.cos(angle));if(Math.abs(relative)>this.fov*.42){const x=relative>0?W*.91:W*.09,y=H*.52;c.fillStyle='#e5aa7f';c.beginPath();c.moveTo(x+(relative>0?8:-8),y);c.lineTo(x,y-7);c.lineTo(x,y+7);c.closePath();c.fill();c.font='600 11px Rajdhani,sans-serif';c.textAlign='center';c.fillText(Math.abs(relative)>2?'DETRÁS':'PELIGRO',x,y+23);}}
     }
     if(p.hurtFlash>0){c.fillStyle=`rgba(128,24,38,${Math.min(.19,p.hurtFlash*.5)})`;c.fillRect(0,0,W,H);}

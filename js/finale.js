@@ -138,7 +138,7 @@ class FinalCarnicero extends Carnicero {
     const deck = decks[this.phase];
     let attack = deck[this.step++ % deck.length];
     if (attack === 'cleave' && d > 165) attack = this.phase === 1 ? 'hook' : 'leap';
-    this.begin(attack, g);
+    this.begin(BossPressure.closeAttack(this, attack, g), g);
   }
   hitPlayer(g, dmg, angle = this.dir) {
     if (Level.los(this.x, this.y, g.player.x, g.player.y)) g.player.hurt(dmg, angle, g);
@@ -147,7 +147,7 @@ class FinalCarnicero extends Carnicero {
     const p = g.player, d = Math.hypot(p.x - this.x, p.y - this.y);
     if (this.attack === 'cleave') {
       const a = Math.atan2(p.y - this.y, p.x - this.x), arc = Math.abs(Math.atan2(Math.sin(a - this.dir), Math.cos(a - this.dir)));
-      if (d < 120 + p.r && arc < 1.12) this.hitPlayer(g, this.phase === 1 ? 26 : 30);
+      if (d < 120 + p.r && arc < 1.12) this.hitPlayer(g, this.phase === 1 ? 30 : 35);
       g.ring(this.x, this.y, 125, '#cc865c'); Sound.play('attack');
       if (this.combo === 2) {
         this.combo = 1; this.dir = this.face = a; this.clock = this.windMax = .85; return;
@@ -204,7 +204,7 @@ class FinalCarnicero extends Carnicero {
       const hitWall = Math.hypot(this.x - ox, this.y - oy) < speed * dt * .75 || cx !== this.x || cy !== this.y;
       this.x = cx; this.y = cy;
       if (!this.chargeHit && FinalEncounter.segmentDistance(p.x, p.y, ox, oy, this.x, this.y) < this.r + p.r) {
-        this.hitPlayer(g, this.phase === 3 ? 36 : 32); this.chargeHit = true;
+        this.hitPlayer(g, this.phase === 3 ? 41 : 36); this.chargeHit = true;
       }
       if (hitWall || this.clock <= 0) {
         this.recover(hitWall ? 2.5 : 1.75, hitWall);
@@ -218,7 +218,7 @@ class FinalCarnicero extends Carnicero {
       this.y = this.origin[1] + (this.target[1] - this.origin[1]) * k;
       if (this.clock <= 0) {
         [this.x, this.y] = this.target;
-        if (Math.hypot(p.x - this.x, p.y - this.y) < 115 + p.r) this.hitPlayer(g, this.phase === 3 ? 36 : 32);
+        if (Math.hypot(p.x - this.x, p.y - this.y) < 115 + p.r) this.hitPlayer(g, this.phase === 3 ? 41 : 36);
         g.ring(this.x, this.y, 125, '#db9571'); g.cam.shake = 10; Sound.play('attack');
         this.recover(1.8);
       }

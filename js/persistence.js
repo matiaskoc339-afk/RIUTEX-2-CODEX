@@ -98,6 +98,11 @@ const SessionSave = {
     for(const e of g.enemies)if(!e.dead&&e.mode&&['wind','rush','charge','attack','leap'].includes(e.mode)){
       if(typeof e.recover==='function')e.recover(1);else {e.mode='recover';e.clock=1;}
     }
+    // El perseguidor usa state en lugar de mode. No reanudar una carga a mitad
+    // de recorrido antes de que el jugador pueda ver su aviso.
+    for(const e of g.enemies)if(e instanceof Carnicero&&!e.active&&!e.dead&&['windup','rushWind','rush'].includes(e.state)){
+      e.state='recover';e.mt=Math.max(e.mt||0,1);e.atkCd=Math.max(e.atkCd||0,1);e.burstCd=Math.max(e.burstCd||0,3);e.rushHit=true;
+    }
     if(r.ending){g.state='end';UI.$('endH').textContent=r.ending.title;UI.$('endS').textContent=r.ending.subtitle;UI.$('endB').textContent=r.ending.body;UI.screen('end');}
     g.keys={};g.mouse.down=g.mouse.clicked=g.mouse.rclick=false;
     if(FirstPerson.enabled){FirstPerson.pitch=Math.max(-FirstPerson.maxPitch,Math.min(FirstPerson.maxPitch,Number(r.povPitch)||0));FirstPerson.sync(g);}

@@ -139,11 +139,13 @@ const POVCharacterArt={
     const m=A.palette,root=A.group(),body=A.group(root),legs=[],rat=id==='rata',frog=id==='escupidor',skin=this.material(id==='cl_hound'?m.pale:frog?m.poison:m.bruise,'skin'),dark=m.dark;
     this.volume(body,0,14,-4,frog?8:5.6,frog?8:5.8,11.5,skin);this.volume(body,0,17,5,6,6.5,7.5,skin);
     this.loft(body,[[11,3.4,4,12],[15,4.2,5.4,11],[19,3.6,4.7,10],[21,2.2,3.1,9]],skin);
-    this.box(body,0,13.6,17,4.5,1.9,7.4,skin);this.box(body,0,11.7,16.5,4.4,.9,6.8,dark);
+    this.box(body,0,13.6,17,4.5,1.9,7.4,skin);
+    const jaw=A.group(body,0,12.4,13),tail=rat?A.group(body,0,13,-14):null;
+    this.box(jaw,0,-.7,3.5,4.4,.9,6.8,dark);
     for(const s of [-1,1]){
       this.box(body,s*3.1,18.3,13.5,.4,.65,1.8,dark);this.box(body,s*3.15,18.4,14,.22,.23,.7,m.eyes);
       if(!frog){const ear=this.loft(body,[[19.5,1.35,1.1,9],[22,1,.75,8],[25,.05,.05,7]],skin);ear.position.x=s*3.1;}
-      for(let i=0;i<3;i++)this.cylinder(body,s*(.8+i*.65),12.3,15.1+i*.95,0,.35,2,m.ivory);
+      for(let i=0;i<3;i++)this.cylinder(jaw,s*(.8+i*.65),-.1,2.1+i*.95,0,.35,2,m.ivory);
       for(const [j,z]of [-9,6].entries()){
         const leg=A.group(body,s*4.5,14,z);legs.push(leg);const knee=[s*1.8,-5,j?-1.5:3.2],ankle=[s*2.4,-11.3,j?1:1.8];
         this.rod(leg,[0,0,0],knee,j?1.55:2.1,skin);this.rod(leg,knee,ankle,j?1:1.15,skin);this.box(leg,ankle[0],-12.6,ankle[2]+1.6,2.7,1.5,4.1,skin);
@@ -152,9 +154,9 @@ const POVCharacterArt={
     }
     if(id==='cl_hound')for(let i=0;i<4;i++)for(const s of [-1,1])this.rod(body,[s*1.4,19-i*.5,-8+i*3],[s*5.8,14-i*.2,-8+i*3],.26,m.ivory);
     if(frog)for(let i=0;i<6;i++)this.volume(body,Math.sin(i*2.3)*6,18+Math.cos(i*2.3)*2,-5+i,1.2,1.5,1.4,m.poison);
-    if(rat){root.scale.setScalar(.64);this.rod(body,[0,13,-14],[3,8,-25],.7,m.bruise);this.rod(body,[3,8,-25],[0,4,-33],.4,m.bruise);}
+    if(rat){root.scale.setScalar(.64);this.rod(tail,[0,0,0],[3,-5,-11],.7,m.bruise);this.rod(tail,[3,-5,-11],[0,-9,-19],.4,m.bruise);}
     if(id==='rastrero')root.scale.set(1.1,.76,1.1);
-    root.userData.rig={body,quadrupedLegs:legs};return root;
+    root.userData.rig={body,quadrupedLegs:legs,jaw,tail};return root;
   },
   moth(A){
     const T=this.T,m=A.palette,root=A.group(),body=A.group(root),wings=[];this.volume(body,0,27,0,2.4,10,2.6,m.bruise);this.volume(body,0,36,0,3.1,3.3,2.6,m.pale);
@@ -169,18 +171,21 @@ const POVCharacterArt={
     root.userData.rig={body,wings};return root;
   },
   spider(A,boss,phase=1){
-    const m=A.palette,root=A.group(),body=A.group(root),legs=[];root.scale.setScalar(boss?1+(phase-1)*.13:.27);
+    const m=A.palette,root=A.group(),body=A.group(root),legs=[],knees=[],fangs=[];root.scale.setScalar(boss?1+(phase-1)*.13:.27);
     const shell=this.material(m.bruise,'chitin'),plate=this.material(m.iron,'chitin');this.volume(body,0,22,-12,16,13,22,shell);this.volume(body,0,18,10,10,8,11,plate);this.volume(body,0,15.5,22,6.6,4.4,5.6,shell);
     for(const s of [-1,1]){
       for(let i=0;i<4;i++){
         const z=-11+i*7.4,leg=A.group(body,s*6.5,16,z);legs.push(leg);const knee=[s*(18+Math.abs(i-1.5)*2),11-i%2*2,(i-1.5)*5],ankle=[s*(29+Math.abs(i-1.5)*2),-13,(i-1.5)*12];
-        this.rod(leg,[0,0,0],knee,1.8,plate);this.volume(leg,...knee,2,2,2,shell);this.rod(leg,knee,ankle,1.05,plate);this.rod(leg,ankle,[ankle[0]+s*3,-16,ankle[2]+2],.48,m.ivory);
+        this.rod(leg,[0,0,0],knee,1.8,plate);this.volume(leg,...knee,2,2,2,shell);
+        const lower=A.group(leg,...knee);knees.push(lower);const foot=ankle.map((v,j)=>v-knee[j]);
+        this.rod(lower,[0,0,0],foot,1.05,plate);this.rod(lower,foot,[foot[0]+s*3,-16-knee[1],foot[2]+2],.48,m.ivory);
       }
       for(let i=0;i<3;i++){this.box(body,s*(1.4+i*1.4),17.1-i*.25,26.1-i*.6,.7,.7,.3,m.dark);this.volume(body,s*(1.4+i*1.4),17.2-i*.25,26.3-i*.6,.18,.16,.15,m.eyes);}
-      this.rod(body,[s*2.9,13.5,24],[s*5,9.5,29],1,m.ivory);this.rod(body,[s*5,9.5,29],[s*2.6,8,31],.45,m.ivory);
+      const fang=A.group(body,s*2.9,13.5,24);fangs.push(fang);
+      this.rod(fang,[0,0,0],[s*2.1,-4,5],1,m.ivory);this.rod(fang,[s*2.1,-4,5],[-s*.3,-5.5,7],.45,m.ivory);
     }
     if(boss){for(let i=0;i<5;i++)this.volume(body,Math.sin(i*2.4)*8,31+Math.cos(i*2.4)*2,-12+Math.cos(i*2.3)*11,2.1,2.6,2.1,m.poison);A.spikes(body,3+phase,19,29,-4,5+phase*2);if(phase>1)for(const s of [-1,1])this.volume(body,s*8,25,7,5,2.5,7,m.ivory);}
-    root.userData.rig={body,spiderLegs:legs};return root;
+    root.userData.rig={body,spiderLegs:legs,spiderKnees:knees,fangs};return root;
   }
 };
 (()=>{

@@ -30,7 +30,7 @@ const Nav = {
 class Carnicero extends Carcelero {
   constructor(id, x, y) {
     super(id, x, y); this.def = { name: 'El Carnicero', hp: 900, speed: 92, dmg: 34, detect: 9999, range: 52, cooldown: 1.3, xp: 200, small: false };
-    Object.assign(this, { hp: 900, maxHp: 900, r: 14, state: 'patrol', mt: 0, dormant: true, path: null, pathT: 0, wp: 0, hookCd: 4, hooks: [], stuckT: 0, tgt: null, lostT: 0, searchT: 0, atkCd: 0, growlT: 3, hunt: false, openT: 0, opening: null, scripted: false });
+    Object.assign(this, { hp: 900, maxHp: 900, r: 14, state: 'patrol', mt: 0, dormant: true, path: null, pathT: 0, wp: 0, hookCd: 4, hooks: [], stuckT: 0, tgt: null, lostT: 0, searchT: 0, atkCd: 0, growlT: 3, hunt: false, openT: 0, opening: null, scripted: false, burstCd: 0, rushHit: false });
   }
   get active() { return !!this._act; }
   set active(v) { if (v && !this._act) { this._act = true; this.onBoss(); } else if (!v) this._act = false; }
@@ -38,7 +38,12 @@ class Carnicero extends Carcelero {
     if (Math.hypot(this.x - g.player.x, this.y - g.player.y) < 300 || Level.blocked(this.x, this.y, 20)) { this.x = 60 * TILE; this.y = 41 * TILE; } }
   hurt(dmg, angle, g) {
     if (this.dead) return; if (this.active) return super.hurt(dmg, angle, g);
-    this.hitFlash = .08; this.stagger = Math.max(this.stagger, .25); g.sparks(this.x, this.y, 5, '#7a0a14'); Sound.play('enemyhit'); // en acecho es imparable: solo lo frenas
+    this.hitFlash = .08;
+    // Resiste el bloqueo por golpes repetidos; preparar un corte no se cancela.
+    if ((this.braceUntil || 0) <= g.t && !['windup', 'rushWind', 'rush'].includes(this.state)) {
+      this.stagger = Math.max(this.stagger, .16); this.braceUntil = g.t + 1.6;
+    }
+    g.sparks(this.x, this.y, 5, '#7a0a14'); Sound.play('enemyhit');
     if (!this.hunt && !this.dormant) { this.hunt = true; this.state = 'chase'; this.tgt = [g.player.x, g.player.y]; }
   }
   die(g) { this.dead = true; g.killed.add(this.id); g.player.xp += mutationXPReward(this.def, true, g.mut); g.player.onKill(g); g.bodies.push({ x: this.x, y: this.y, a: 0 }); g.ring(this.x, this.y, 220, '#c2eeff'); g.cam.shake = 18; Sound.play('enemydie');
@@ -71,7 +76,7 @@ class Carnicero extends Carcelero {
     const dx = p.x - this.x, dy = p.y - this.y, d = Math.hypot(dx, dy) || 1, inSafe = Nav.safe((p.x / TILE) | 0, (p.y / TILE) | 0) && !this.scripted, hid = p.hidden; this.atkCd -= dt; this.pathT -= dt;
     if (this.state === 'windup') { this.mt -= dt; if (this.mt <= 0) { if (Math.hypot(p.x - this.x, p.y - this.y) < this.def.range + 26 && !inSafe && Level.los(this.x,this.y,p.x,p.y)) this.hitPlayer(g); this.atkCd = 1.2; this.state = 'recover'; this.mt = .55; } return; }
     if (this.state === 'recover') { this.mt -= dt; if (this.mt <= 0) this.state = this.hunt ? 'chase' : 'search'; return; }
-    const sees = !hid && !inSafe && (this.scripted || (d < 360 && Level.los(this.x, this.y, p.x, p.y))), n = g.noise, spd = this.scripted ? .55 : 1; // en la persecución inicial va más lento que tú: fácil de superar
+    const sees = !hid && !inSafe && (this.scripted || (d < 360 && Level.los(this.x, this.y, p.x, p.y))), n = g.noise, spd = this.scripted ? .93 : 1; // Caminar ya no basta: correr conserva ventaja y el golpe de la puerta sigue siendo guionizado.
     if (sees) { this.hunt = true; this.state = 'chase'; this.tgt = [p.x, p.y]; this.lostT = 0; }
     else if (n && !inSafe && !hid && Math.hypot(n.x - this.x, n.y - this.y) < n.r && this.state !== 'chase') { this.state = 'investigate'; this.tgt = [n.x, n.y]; this.pathT = 0; if (!this.hunt) Sound.play('attack'); }
     if (this.state === 'chase') {
@@ -97,6 +102,7 @@ class Carnicero extends Carcelero {
     if (this.active && this.mode === 'windS') { ctx.strokeStyle = 'rgba(255,60,60,.6)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, 175, 0, 6.283); ctx.stroke(); }
     if (this.active && this.mode === 'windH') { ctx.strokeStyle = 'rgba(255,190,60,.55)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(this.face) * 440, Math.sin(this.face) * 440); ctx.stroke(); }
     if (this.state === 'windup') { ctx.strokeStyle = 'rgba(255,60,60,.55)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, this.def.range + 26, this.face - .8, this.face + .8); ctx.stroke(); }
+    if (this.state === 'rushWind' || this.state === 'rush') { ctx.save(); ctx.rotate(this.dir); ctx.fillStyle = 'rgba(214,114,68,.16)'; ctx.strokeStyle = '#d9aa82'; ctx.lineWidth = 2; ctx.fillRect(0, -22, 180, 44); ctx.strokeRect(0, -22, 180, 44); ctx.restore(); }
     ctx.rotate(this.face); const wu = this.state === 'windup' || this.mode === 'windM', lunge = wu ? 10 : 0, stun = this.mode === 'stun';
     ctx.fillStyle = this.hitFlash > 0 ? '#fff' : stun ? '#8a7a9a' : '#5b5048'; ctx.beginPath(); ctx.ellipse(0, 0, 21, 28, 0, 0, 6.283); ctx.fill();
     ctx.fillStyle = '#b7aea0'; ctx.beginPath(); ctx.ellipse(-1, 0, 15, 22, 0, 0, 6.283); ctx.fill(); ctx.fillStyle = 'rgba(120,10,16,.75)'; ctx.fillRect(-10, -14, 20, 10); ctx.fillRect(-6, 4, 14, 9);

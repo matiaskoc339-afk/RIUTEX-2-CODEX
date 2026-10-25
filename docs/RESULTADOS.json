@@ -1,19 +1,25 @@
 {
-  "version": "0.21.0",
-  "date": "2026-10-24",
+  "version": "0.22.0",
+  "date": "2026-10-25",
   "scope": "RIUTEX 2 completo: mansión, hospital, fábrica, castillo, laboratorio UMBRAL, Wren/ORIGEN y dos epílogos",
-  "system_tests": 353,
+  "system_tests": 370,
   "system_failures": 0,
   "integration_checks": 103,
   "map_validations": 15,
   "browser_groups": {
+    "hospital_final": 38,
+    "depths": 29,
+    "works": 61,
+    "castle": 76,
+    "endgame": 63,
     "pov_webgl": 52,
     "capture_native": 26,
     "standalone": 17,
-    "persistence": 26
+    "persistence": 26,
+    "enemy_motion": 14
   },
-  "browser_checks_total": 121,
-  "validation_scope": "353 pruebas de motor, 103 comprobaciones de integración y 15 mapas sin fallos. 121 comprobaciones de navegador: WebGL 52, captura nativa 26, HTML integrado 17 y persistencia 26. Se renderizan 43 especies y 12 fases de jefes, se comprueban geometrías y UV finitos, materiales de píxel con nearest, brazos sin piezas esféricas, animaciones, golpe, infección/amputación/cura, oclusión, puertas, fundidos y retorno topdown. Las pruebas de aislamiento verifican materiales de mobiliario y datos de combate intactos al generar personajes. La galería usa luz y poses preparadas; no mide una campaña humana ni rendimiento de GPU física.",
+  "browser_checks_total": 402,
+  "validation_scope": "370 pruebas de motor, 103 comprobaciones de integración y 15 mapas sin fallos. 402 comprobaciones de navegador. Animación con mallas WebGL, reposo, ataques, seguimiento, recuperación, marcha, colmillos/mandíbulas/rodillas, pausa y congelación; doce mutaciones animadas sin atravesar techo bajo. Golpe real contra jefes en ambos modos, avisos evitables y respuesta cercana. Cargas del perseguidor con dirección comprometida, colisión continua y refugios. Controladores con IA y recursos finitos vencen los cuatro jefes principales y los encuentros opcionales comprobados. Incluye rutas de salida, guardado, controles nativos, 15 mapas y HTML integrado. Son escenarios preparados, no una campaña humana ni una medición de FPS en GPU física.",
   "new_map": {
     "factory_dimensions": [
       148,
@@ -1094,5 +1100,73 @@
     },
     "browser_checks_total": 213,
     "validation_scope": "350 pruebas de motor, 103 comprobaciones de integración y 15 mapas sin fallos. 213 comprobaciones de navegador en seis grupos: captura nativa con rechazo asíncrono y recuperación por movimiento, foco/pausa/reanudación, WebGL con señal de recogida y ausencia de luces de destello, fábrica y ocho oleadas, XP, persistencia al cerrar/reabrir perfil e iframe y HTML final sin recursos externos. Cuatro patrullas finitas y bajas nuevas guardadas se prueban en motor. Las escenas y combates son preparados; no equivalen a una campaña humana ni garantizan FPS en otra GPU."
+  },
+  "previous_validation_v0210": {
+    "version": "0.21.0",
+    "date": "2026-10-24",
+    "system_tests": 353,
+    "system_failures": 0,
+    "integration_checks": 103,
+    "map_validations": 15,
+    "browser_groups": {
+      "pov_webgl": 52,
+      "capture_native": 26,
+      "standalone": 17,
+      "persistence": 26
+    },
+    "browser_checks_total": 121,
+    "validation_scope": "353 pruebas de motor, 103 comprobaciones de integración y 15 mapas sin fallos. 121 comprobaciones de navegador: WebGL 52, captura nativa 26, HTML integrado 17 y persistencia 26. Se renderizan 43 especies y 12 fases de jefes, se comprueban geometrías y UV finitos, materiales de píxel con nearest, brazos sin piezas esféricas, animaciones, golpe, infección/amputación/cura, oclusión, puertas, fundidos y retorno topdown. Las pruebas de aislamiento verifican materiales de mobiliario y datos de combate intactos al generar personajes. La galería usa luz y poses preparadas; no mide una campaña humana ni rendimiento de GPU física."
+  },
+  "enemy_motion": {
+    "pov_only": true,
+    "states": [
+      "idle",
+      "walk",
+      "windup",
+      "strike",
+      "recover",
+      "mutate",
+      "hit_reaction"
+    ],
+    "spider_knees": 8,
+    "articulated_fangs": true,
+    "quadruped_jaw": true,
+    "rat_tail": true,
+    "pause_freezes_pose": true,
+    "frozen_freezes_pose": true,
+    "simulation_entities_unchanged": true,
+    "per_frame_mesh_allocation": false,
+    "low_ceiling_poses_verified": 12
+  },
+  "boss_pressure": {
+    "both_views": true,
+    "max_hp_unchanged": true,
+    "xp_unchanged": true,
+    "close_response_distance": 112,
+    "normal_recovery_factor": 0.8,
+    "wall_recovery_factor": 0.9,
+    "recovery_3_seconds_or_more_preserved": true,
+    "persistent_hazard_windows_preserved": true,
+    "minimum_main_boss_warning_seconds": 0.6,
+    "fist_damage_factor": 0.38,
+    "exposed_fist_damage_factor": 0.65,
+    "blade_damage_factor": 0.72,
+    "exposed_blade_damage_factor": 1,
+    "unskilled_melee_chase_loses_before_phase_2_in_both_views": true
+  },
+  "carnicero_pursuer": {
+    "path_speed": 158,
+    "near_speed": 184,
+    "player_base_sprint": 215,
+    "charge_speed": 330,
+    "charge_warning_seconds": 0.7,
+    "charge_duration_seconds": 0.5,
+    "charge_cooldown_seconds": 6.5,
+    "charge_turning": false,
+    "charge_stops_at_walls_and_sanctuary": true,
+    "stagger_gate_seconds": 1.6,
+    "scripted_door_preserved": true,
+    "no_charge_during_tutorial": true,
+    "charge_resume_recovery_seconds": 1
   }
 }

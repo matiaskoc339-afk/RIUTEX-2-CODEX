@@ -3,6 +3,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const {X,run}=require('./harness');X.Game.init();X.Game.startLvl='mansion';X.Game.start(false);
 const context={POVModels:run('POVModels'),POVArt:run('POVArt')};vm.createContext(context);vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../js/pov3d-assets.js'),'utf8')+';globalThis.A=POV3DAssets;',context);const A=context.A;
 vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../js/pov-character-art.js'),'utf8'),context);
+vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../js/pov-enemy-motion.js'),'utf8'),context);
 const materials=new Map(),sphere=new T.SphereGeometry(1,14,10),box=new T.BoxGeometry(1,1,1);
 function mesh(parent,geometry,material,x,y,z,sx=1,sy=1,sz=1){const m=new T.Mesh(geometry,material);m.position.set(x,y,z);m.scale.set(sx,sy,sz);parent.add(m);return m;}
 A.init({THREE:T,mat:(c,r=.8,metal=0,e=null)=>{const k=[c,r,metal,e].join(':');if(!materials.has(k))materials.set(k,new T.MeshStandardMaterial({color:c,roughness:r,metalness:metal,emissive:e||'#000000'}));return materials.get(k);},
@@ -39,4 +40,60 @@ test('Crear personajes no cambia los materiales ni la geometría del mobiliario'
 });
 test('El nuevo diseño y las tres mutaciones no modifican los datos de combate',()=>{
  for(const type of ['carnicero','ds_matriarch','cl_regent','lf_wren'])for(const phase of [1,2,3]){const e={type,phase,def:X.ENEMY_TYPES[type]||{name:type},id:57,hp:71,r:17,x:200,y:400},before=JSON.stringify(e);A.enemy(e,X.Game);assert.equal(JSON.stringify(e),before);}
+});
+function pose(root){const out=[];root.traverse(n=>{if(n.isGroup)out.push(...n.position.toArray(),...n.quaternion.toArray(),...n.scale.toArray());});return out;}
+test('El reposo mueve cabeza y hombros; caminar articula caderas y rodillas con la distancia',()=>{
+ const e={type:'sonambulo',def:X.ENEMY_TYPES.sonambulo,id:22,x:0,y:0,mode:'idle'},root=A.enemy(e,X.Game),rig=root.userData.rig;
+ A.animateEnemy(root,e,{state:'play'},0,.016);const head=rig.head.rotation.y,arm=rig.arms[0].rotation.x;
+ for(let i=0;i<45;i++)A.animateEnemy(root,e,{state:'play'},i/60,1/60);
+ assert.notEqual(rig.head.rotation.y,head);assert.notEqual(rig.arms[0].rotation.x,arm);
+ for(let i=0;i<40;i++){e.x+=2;A.animateEnemy(root,e,{state:'play'},i/60,1/60);}
+ assert.ok(root.userData.motion.gait>5);assert.ok(Math.abs(rig.legs[0].rotation.x)>.1);assert.ok(rig.knees.some(n=>n.rotation.x>.1));
+});
+test('Preparar, soltar el corte y recuperar muestran poses distintas, también con windup genérico',()=>{
+ for(const type of ['sonambulo','carnicero','cl_regent']){
+  const e={type,def:X.ENEMY_TYPES[type]||{},id:22,x:0,y:0,mode:'idle',active:true},root=A.enemy(e,X.Game);
+  A.animateEnemy(root,e,{state:'play'},0,.016);
+  if(type==='sonambulo')e.windup=.38;else{e.mode='wind';e.clock=e.windMax=.8;}
+  A.animateEnemy(root,e,{state:'play'},0,.016);const wind=pose(root);
+  if(type==='sonambulo')e.windup=.03;else e.clock=.03;
+  A.animateEnemy(root,e,{state:'play'},0,.016);assert.notDeepEqual(pose(root),wind);
+  e.windup=0;e.mode='recover';e.clock=1;
+  for(let i=0;i<7;i++)A.animateEnemy(root,e,{state:'play'},0,1/60);
+  const strike=pose(root);assert.ok(root.userData.motion.impact>0);
+  for(let i=0;i<25;i++)A.animateEnemy(root,e,{state:'play'},0,1/60);
+  assert.notDeepEqual(pose(root),strike);assert.equal(root.userData.motion.impact,0);
+ }
+});
+test('El Carnicero anima su estado de persecución aunque herede mode=chase',()=>{
+ const e={type:'carnicero',def:{},id:900,x:0,y:0,active:false,mode:'chase',state:'windup',mt:.1},r=A.enemy(e,X.Game);
+ A.animateEnemy(r,e,{state:'play'},0,.016);assert.equal(r.userData.motion.mode,'windup');assert.ok(r.userData.rig.arms[1].rotation.x<-1.5);
+});
+test('Pausar y congelar detienen las articulaciones; repetir un frame no acumula inclinación',()=>{
+ const e={type:'lf_wren',def:X.ENEMY_TYPES.lf_wren,id:4,x:0,y:0,phase:3,mode:'wind',clock:.1,windMax:.8},r=A.enemy(e,X.Game);
+ A.animateEnemy(r,e,{state:'play'},0,.016);const initial=pose(r),clock=r.userData.clock;
+ for(let i=0;i<40;i++)A.animateEnemy(r,e,{state:'pause'},i,.05);
+ assert.deepEqual(pose(r),initial);assert.equal(r.userData.clock,clock);e.frozen=5;
+ A.animateEnemy(r,e,{state:'play'},0,.05);assert.deepEqual(pose(r),initial);e.frozen=0;
+ A.animateEnemy(r,e,{state:'play'},0,0);const zero=pose(r);
+ for(let i=0;i<100;i++)A.animateEnemy(r,e,{state:'play'},0,0);
+ assert.deepEqual(pose(r),zero);
+});
+test('Arañas y cuadrúpedos tienen colmillos, rodillas, mandíbula o cola articuladas',()=>{
+ for(const type of ['ds_matriarch','ds_spider','cl_hound','rata']){
+  const e={type,def:X.ENEMY_TYPES[type],id:4,x:0,y:0,mode:'idle'},r=A.enemy(e,X.Game),rig=r.userData.rig;
+  A.animateEnemy(r,e,{state:'play'},0,.016);const initial=pose(r);
+  for(let i=0;i<25;i++){e.x+=2;A.animateEnemy(r,e,{state:'play'},0,1/60);}
+  assert.notDeepEqual(pose(r),initial);if(type.startsWith('ds_')){assert.equal(rig.spiderKnees.length,8);assert.equal(rig.fangs.length,2);}else assert.ok(rig.jaw);
+  if(type==='rata')assert.ok(rig.tail);
+ }
+});
+test('Todos los rigs y fases mantienen matrices finitas sin alterar simulación ni crear mallas por frame',()=>{
+ for(const type of [...Object.keys(X.ENEMY_TYPES),'carnicero'])for(const phase of [1,3]){
+  const e={type,def:X.ENEMY_TYPES[type]||{},phase,id:3,hp:71,x:200,y:400,mode:'idle'},r=A.enemy(e,X.Game);let count=0;r.traverse(()=>count++);
+  for(const mode of ['idle','stalk','wind','rush','recover','mutate','air']){
+   e.mode=mode;e.clock=.2;e.windMax=.8;const before=JSON.stringify(e);A.animateEnemy(r,e,{state:'play'},0,.033);assert.equal(JSON.stringify(e),before);
+   r.updateMatrixWorld(true);let after=0;r.traverse(n=>{after++;assert.ok(n.matrixWorld.elements.every(Number.isFinite),type+mode);});assert.equal(after,count);
+  }
+ }
 });

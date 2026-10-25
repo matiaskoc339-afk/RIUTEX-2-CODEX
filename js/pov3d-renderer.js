@@ -72,7 +72,7 @@ const POV3DRenderer={
   ceilingAt(x,y,g=Game){if(g.lvl==='hospitalstreet')return Infinity;const tx=x/TILE,ty=y/TILE;if((Level.rooms||[]).some(r=>/jard[ií]n|patio|exterior|calle|invernadero/i.test(r.n||'')&&tx>=r.x&&tx<r.x+r.w&&ty>=r.y&&ty<r.y+r.h))return Infinity;return this.worldState?.ceilingHeight||62;},
   bodyHeight(e){const root=this.actors.get(e.id)?.root;if(root?.userData.height)return root.userData.height;const type=POVModels.identity(e);return /spider/.test(type)&&!/matriarch/.test(type)?13:/hound|scuttler/.test(type)?27:/moth/.test(type)?36:/wren/.test(type)?60+(e.phase||1)*14:/regent|carnicero|blind|keeper|guard/.test(type)?64:45;},
   fitActor(root,e,g){
-    const height=root.userData.height,roof=this.ceilingAt(e.x,e.y,g),clearance=roof-(e.mode==='air'?16:1.5);
+    const height=root.userData.height,roof=this.ceilingAt(e.x,e.y,g),clearance=roof-(e.mode==='air'?21:6);
     if(Number.isFinite(roof)&&height>clearance&&clearance>20){root.scale.multiplyScalar(clearance/height);root.userData.height=clearance;}
     return root;
   },

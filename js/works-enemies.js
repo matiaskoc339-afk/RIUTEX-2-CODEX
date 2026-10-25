@@ -55,7 +55,7 @@ class WorksEnemy extends Enemy {
  wind(kind,g) {
   this.mode='wind';this.attack=kind;this.dir=this.face=Math.atan2((this.target?.[1]??g.player.y)-this.y,(this.target?.[0]??g.player.x)-this.x);
   this.clock=this.windMax=kind==='spit'?.85:kind==='charge'?1.05:kind==='roar'?1.15:kind==='lunge'?.6:.65;
-  if(this.isBoss&&this.enraged)this.clock=this.windMax*=.88;
+  if(this.isBoss){this.clock=this.windMax=Math.max(.6,this.clock*(this.enraged?.82:.92));}
  }
  execute(g) {
   const p=g.player,d=Math.hypot(p.x-this.x,p.y-this.y),a=Math.atan2(p.y-this.y,p.x-this.x),arc=Math.abs(Math.atan2(Math.sin(a-this.dir),Math.cos(a-this.dir)));
@@ -66,7 +66,7 @@ class WorksEnemy extends Enemy {
    if(d<175&&Level.los(this.x,this.y,p.x,p.y))p.hurt(25,a,g);
    g.ring(this.x,this.y,175,'#d2b487');g.cam.shake=7;
   } else if(d<this.def.range+22&&arc<1.2&&Level.los(this.x,this.y,p.x,p.y))p.hurt(this.def.dmg,a,g);
-  this.mode='recover';this.clock=this.isBoss?1.4:1.2;this.skillCd=2.1;Sound.play('attack');
+  this.mode='recover';this.clock=this.isBoss?1.05:1.2;this.skillCd=2.1;Sound.play('attack');
  }
  update(dt,g) {
   if(this.dead||g.state!=='play')return;
@@ -87,7 +87,7 @@ class WorksEnemy extends Enemy {
    const p=g.player;
    if(!this.rushHit&&FinalEncounter.segmentDistance(p.x,p.y,ox,oy,this.x,this.y)<this.r+p.r&&Level.los(this.x,this.y,p.x,p.y)){p.hurt(this.def.dmg,this.dir,g);this.rushHit=true;}
    const wall=Math.hypot(this.x-ox,this.y-oy)<dist*.65;
-   if(wall||this.clock<=0){this.mode='recover';this.clock=wall?1.9:1.3;this.skillCd=this.isBoss?1.3:2.7;if(wall)g.ring(this.x,this.y,55,'#b8ab89');}
+   if(wall||this.clock<=0){this.mode='recover';this.clock=this.isBoss?(wall?1.65:1):wall?1.9:1.3;this.skillCd=this.isBoss?1.3:2.7;if(wall)g.ring(this.x,this.y,55,'#b8ab89');}
    return;
   }
   if(this.mode==='recover'){if(this.clock<=0){this.mode='stalk';this.clock=this.isBoss?.5:.7;}return;}

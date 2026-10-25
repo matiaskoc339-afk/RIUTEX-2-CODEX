@@ -40,6 +40,14 @@ test('El encuentro del frasco conserva al Custodio y su temporizador, sin atasca
 test('La huida herido conserva el brazo perdido, la puerta y al perseguidor',()=>{
  start();g.story.armCut=true;g.story.armHealed=false;g.story.seq='wounded_run';g.player.hp=12;g.carn.dormant=false;g.carn.scripted=true;g.carn.state='chase';const s=S.capture(g);S.resume(s);assert.equal(g.player.hp,12);assert.ok(g.story.armCut&&!g.story.armHealed);assert.equal(g.story.seq,'wounded_run');assert.equal(g.carn.dormant,false);assert.equal(g.carn.scripted,true);
 });
+test('Cerrar durante una carga del perseguidor conserva su posición y reanuda con pausa segura',()=>{
+ for(const state of ['windup','rushWind','rush']){
+  start();g.carn.dormant=false;g.carn.active=false;g.carn.state=state;g.carn.mt=.1;g.carn.dir=.5;g.carn.burstCd=5;g.carn.rushHit=false;g.player.hp=41;
+  const s=S.capture(g),x=g.carn.x,y=g.carn.y;S.resume(s);
+  assert.equal(g.carn.state,'recover');assert.ok(g.carn.mt>=1);assert.equal(g.carn.burstCd,5);assert.equal(g.carn.x,x);assert.equal(g.carn.y,y);assert.equal(g.player.hp,41);
+  const hp=g.player.hp;g.carn.update(.2,g);assert.equal(g.player.hp,hp);assert.equal(g.carn.state,'recover');
+ }
+});
 test('El periódico guarda cada diez segundos y el menú no sobrescribe la última sesión',()=>{
  start();g.player.xp=77;for(let i=0;i<9;i++)S.tick(g,1);assert.notEqual(S.read().data.xp,77);S.tick(g,1);assert.equal(S.read().data.xp,77);g.toMenu();g.player.xp=999;assert.equal(S.flush(g),false);assert.equal(S.read().data.xp,77);
 });

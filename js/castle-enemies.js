@@ -47,7 +47,7 @@ class BlindCarver extends WorksEnemy{
    if(dist<110||this.clock<=0){this.mode='wind';this.dir=this.face;this.clock=.8;return;}
    this.moveToward(x,y,340*dt);return;
   }
-  if(this.mode==='wind'){if(this.clock<=0){const a=Math.atan2(p.y-this.y,p.x-this.x),arc=Math.abs(Math.atan2(Math.sin(a-this.dir),Math.cos(a-this.dir)));if(d<155+p.r&&arc<1.35&&Level.los(this.x,this.y,p.x,p.y))p.hurt(34,a,g);g.ring(this.x,this.y,150,'#d4ad88');Sound.play('attack');this.mode='recover';this.clock=2.2;this.target=null;}return;}
+  if(this.mode==='wind'){if(this.clock<=0){const a=Math.atan2(p.y-this.y,p.x-this.x),arc=Math.abs(Math.atan2(Math.sin(a-this.dir),Math.cos(a-this.dir)));if(d<155+p.r&&arc<1.35&&Level.los(this.x,this.y,p.x,p.y))p.hurt(38,a,g);g.ring(this.x,this.y,150,'#d4ad88');Sound.play('attack');this.mode='recover';this.clock=1.65;this.target=null;}return;}
   if(this.mode==='recover'){if(this.clock<=0){this.mode='patrol';this.patrolTarget=null;}return;}
   this.mode='patrol';if(!this.patrolTarget||Math.hypot(this.patrolTarget[0]-this.x,this.patrolTarget[1]-this.y)<22){this.patrolIndex=(this.patrolIndex+1)%6;this.patrolTarget=this.anchors()[this.patrolIndex];}
   this.face=Math.atan2(this.patrolTarget[1]-this.y,this.patrolTarget[0]-this.x);this.moveToward(...this.patrolTarget,73*dt);
@@ -65,13 +65,13 @@ class RoyalRegent extends WorksEnemy{
  die(g){if(this.dead)return;this.dead=true;this.hp=0;this.active=false;this.mode='dead';this.marks=[];g.killed.add(this.id);g.pz['h:cl_regent']=true;Castle.data(g).regent={won:true,active:false,hp:0,phase:3};g.player.xp+=mutationXPReward(this.def,true,g.mut);g.player.onKill(g);g.eproj=[];g.pools=[];g.projectiles=[];g.curBoss=null;for(const d of Level.doors)Level.openDoor(d);g.ring(this.x,this.y,210,'#d6c398');g.cam.shake=18;g.save(3);UI.msg('El Regente cae. La puerta tras el trono se libera.',6500);}
  recover(t){this.mode='recover';this.clock=t;}
  begin(kind,g){const p=g.player;this.attack=kind;this.mode='wind';this.dir=this.face=Math.atan2(p.y-this.y,p.x-this.x);this.target=Castle.clamp(p.x,p.y,90);this.origin=[this.x,this.y];this.clock=this.windMax=kind==='quake'?1.15:kind==='leap'?1.1:kind==='charge'?.95:this.phase===2?1.15:.75;this.combo=kind==='slash'?(this.phase===3?3:this.phase===1?2:1):0;Sound.tone(kind==='charge'?80:150,.14,.12,'triangle');}
- choose(g){const decks={1:['charge','slash','bash'],2:['hammer','quake','charge'],3:['slash','charge','leap','quake']};let k=decks[this.phase][this.step++%decks[this.phase].length];if((k==='slash'||k==='bash'||k==='hammer')&&Math.hypot(g.player.x-this.x,g.player.y-this.y)>195)k='charge';this.begin(k,g);}
+ choose(g){const decks={1:['charge','slash','bash'],2:['hammer','quake','charge'],3:['slash','charge','leap','quake']};let k=decks[this.phase][this.step++%decks[this.phase].length];if((k==='slash'||k==='bash'||k==='hammer')&&Math.hypot(g.player.x-this.x,g.player.y-this.y)>195)k='charge';this.begin(BossPressure.closeAttack(this,k,g),g);}
  execute(g){const p=g.player,a=Math.atan2(p.y-this.y,p.x-this.x),d=Math.hypot(p.x-this.x,p.y-this.y),arc=Math.abs(Math.atan2(Math.sin(a-this.dir),Math.cos(a-this.dir)));
   if(this.attack==='charge'){this.mode='rush';this.clock=this.phase===1?.7:.9;this.rushHit=false;return;}
   if(this.attack==='leap'){this.mode='air';this.clock=.35;return;}
   if(this.attack==='quake'){const [x,y]=this.target;this.marks=[[x,y],[x-165,y],[x+165,y]].map(([a,b])=>{const [xx,yy]=Castle.clamp(a,b,65);return {x:xx,y:yy,r:68,warning:1.25,life:.8};});this.recover(3);return;}
   const reach=this.attack==='hammer'?185:this.attack==='bash'?115:155,spread=this.attack==='hammer'?1.5:1.1;
-  if(d<reach+p.r&&arc<spread&&Level.los(this.x,this.y,p.x,p.y)){p.hurt(this.phase===2?38:this.phase===3?33:28,a,g);if(this.attack==='bash')p.stamina=Math.max(0,p.stamina-20);}
+  if(d<reach+p.r&&arc<spread&&Level.los(this.x,this.y,p.x,p.y)){p.hurt(this.phase===2?43:this.phase===3?38:32,a,g);if(this.attack==='bash')p.stamina=Math.max(0,p.stamina-20);}
   g.ring(this.x,this.y,reach,'#d2b18d');Sound.play('attack');
   if(this.attack==='slash'&&this.combo>1){this.combo--;this.dir=this.face=a;this.clock=this.windMax=this.phase===3?.62:.78;return;}
   this.combo=0;this.recover(this.phase===2?2.1:1.5);
@@ -83,7 +83,7 @@ class RoyalRegent extends WorksEnemy{
   if(this.mode==='wind'){if(this.clock<=0)this.execute(g);return;}
   if(this.mode==='rush'){const ox=this.x,oy=this.y,speed=this.phase===3?560:this.phase===2?375:490,dist=speed*dt;Level.move(this,Math.cos(this.dir)*dist,Math.sin(this.dir)*dist);const [x,y]=Castle.clamp(this.x,this.y,this.r);const wall=Math.hypot(this.x-ox,this.y-oy)<dist*.65||x!==this.x||y!==this.y;this.x=x;this.y=y;
    if(!this.rushHit&&FinalEncounter.segmentDistance(p.x,p.y,ox,oy,this.x,this.y)<this.r+p.r&&Level.los(this.x,this.y,p.x,p.y)){p.hurt(this.phase===2?40:this.phase===3?36:30,this.dir,g);this.rushHit=true;}
-   if(wall||this.clock<=0){this.recover(wall?2.5:1.65);if(wall){g.cam.shake=11;g.ring(this.x,this.y,75,'#ccbea0');}}return;}
+   if(wall||this.clock<=0){this.recover(wall?2.5:1.65,wall);if(wall){g.cam.shake=11;g.ring(this.x,this.y,75,'#ccbea0');}}return;}
   if(this.mode==='air'){const k=Math.max(0,Math.min(1,1-this.clock/.35));this.x=this.origin[0]+(this.target[0]-this.origin[0])*k;this.y=this.origin[1]+(this.target[1]-this.origin[1])*k;if(this.clock<=0){[this.x,this.y]=this.target;if(Math.hypot(p.x-this.x,p.y-this.y)<105+p.r&&Level.los(this.x,this.y,p.x,p.y))p.hurt(37,this.dir,g);g.ring(this.x,this.y,110,'#d3b799');g.cam.shake=10;this.recover(1.9);}return;}
   const dx=p.x-this.x,dy=p.y-this.y,d=Math.hypot(dx,dy)||1;this.face=Math.atan2(dy,dx);const speed=this.phase===2?88:this.phase===3?165:155;if(d>120)Level.move(this,dx/d*speed*dt,dy/d*speed*dt);if(this.clock<=0)this.choose(g);
  }

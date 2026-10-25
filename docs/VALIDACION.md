@@ -1,3 +1,17 @@
+# Validación de v0.22.0 · Animaciones y presión de jefes
+
+- **370 pruebas de motor**, **103 comprobaciones de integración** y **15 mapas**, sin fallos.
+- **402 comprobaciones de navegador**: hospital/final 38, fábrica 61, colonia 29, castillo 76, laboratorio/finales 63, WebGL 52, captura nativa 26, HTML integrado 17, persistencia 26 y animación 14. Sin errores JavaScript.
+- El golpe real contra jefes se prueba en ambos modos, con costes y diferencias de puño/cuchilla. Perseguirlos a puro puño sin esquivar pierde antes de superar la primera fase. Los avisos permiten salir del arco; las pausas de reanudación y peligros persistentes conservan su duración.
+- Los controladores de combate vencen al Carnicero, Matriarca, Regente y Wren con IA activa y recursos finitos. También se comprueban el Custodio del traje y la arena de ocho oleadas. Las victorias y las salidas se conservan al cargar.
+- La carga del perseguidor se anuncia, mantiene dirección, usa colisión continua, conecta una vez y se detiene ante paredes y refugios. Cerrar durante una carga conserva posición y enfriamiento al reanudar, con pausa de seguridad. Las pruebas conservan ocultación, investigación, puerta inicial y amputación guionizada. El estrés de navegación vuelve a pasar en las tres plantas.
+- Las articulaciones distinguen reposo, marcha, preparación, golpe, recuperación e impactos. Pausa y congelación detienen la pose; repetir un frame no acumula inclinación. Todas las especies y fases tienen matrices finitas; no se modifican entidades ni se crean mallas por frame. Se comprueba holgura de techo para doce mutaciones animadas.
+- El HTML integrado incluye todos los recursos y su `index.html` coincide con el ZIP de itch.io. Guardado probado al cerrar/reabrir el perfil y en un iframe local de otro origen.
+
+Los combates automatizados utilizan escenarios preparados y controladores que conocen los peligros; verifican que se puede vencer, no que la dificultad sea idéntica para todas las personas. WebGL usa SwiftShader y no mide FPS de una GPU física. La prueba local de iframe no publica el juego en itch.io. [Detalle de los cambios](COMBATE_ANIMACIONES.md).
+
+---
+
 # Validación de v0.21.0 · Personajes y brazos en POV
 
 - **353 pruebas de motor**, **103 comprobaciones de integración** y **15 mapas**, sin fallos.

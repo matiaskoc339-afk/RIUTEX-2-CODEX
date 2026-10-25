@@ -255,7 +255,7 @@ const StalkerMind = {
     ) {
       c.metalT = c.state === "routine" ? 5 : 1.8;
       if (d < 600) {
-        const vol = 0.045 * (1 - d / 600);
+        const vol = 0.075 * (1 - d / 600);
         Sound.noise(0.2, vol, 360);
         Sound.tone(74, 0.18, vol * 0.5, "triangle");
       }
@@ -263,7 +263,7 @@ const StalkerMind = {
     const a = Math.atan2(p.y - c.y, p.x - c.x),
       safe = Nav.safe(Math.floor(p.x / 32), Math.floor(p.y / 32)),
       inView =
-        c.state === "chase" ||
+        ["chase", "rushWind", "rush", "windup"].includes(c.state) ||
         Math.abs(Math.atan2(Math.sin(a - c.face), Math.cos(a - c.face))) < 1.35;
     const sees =
       !p.hidden && !safe && d < 340 && inView && (typeof POVPerception!=='undefined'&&POVPerception.active(g)?POVPerception.line(c,p):Level.los(c.x,c.y,p.x,p.y));
@@ -272,15 +272,42 @@ const StalkerMind = {
       c.tgt = c.lastSeen.slice();
       c.lostT = 0;
       c.hunt = true;
-      if (!["windup", "recover"].includes(c.state)) c.state = "chase";
+      if (!["windup", "recover", "rushWind", "rush"].includes(c.state)) c.state = "chase";
+    }
+    c.burstCd = Math.max(0, (c.burstCd || 0) - dt);
+    if (c.state === "rushWind") {
+      c.mt -= dt;
+      if (c.mt <= 0) { c.state = "rush"; c.mt = .5; c.rushHit = false; }
+      return;
+    }
+    if (c.state === "rush") {
+      c.mt -= dt;
+      const ox = c.x, oy = c.y, step = 330 * dt;
+      const nx = c.x + Math.cos(c.dir) * step, ny = c.y + Math.sin(c.dir) * step;
+      const sanctuary = Nav.safe(Math.floor(nx / 32), Math.floor(ny / 32));
+      if (!sanctuary) Level.move(c, Math.cos(c.dir) * step, Math.sin(c.dir) * step);
+      const wall = sanctuary || Math.hypot(c.x - ox, c.y - oy) < step * .6;
+      if (!c.rushHit && !safe && !p.hidden && Level.los(c.x, c.y, p.x, p.y) &&
+          FinalEncounter.segmentDistance(p.x, p.y, ox, oy, c.x, c.y) < c.r + p.r + 6) {
+        c.hitPlayer(g); c.rushHit = true;
+      }
+      if (wall || c.mt <= 0) {
+        c.state = "recover"; c.mt = wall ? 1.3 : .65; c.atkCd = .65;
+        if (wall) { g.cam.shake = Math.max(g.cam.shake, 4); Sound.noise(.18, .08, 100); }
+      }
+      return;
     }
     if (c.state === "windup") {
       c.mt -= dt;
+      // Adelanta el peso antes del corte; después mantiene la dirección.
+      if (c.mt > .22 && sees && d > c.r + p.r + 8)
+        Level.move(c, Math.cos(c.dir) * 110 * dt, Math.sin(c.dir) * 110 * dt);
       if (c.mt <= 0) {
-        if (sees && d < c.def.range + 20) c.hitPlayer(g);
-        c.atkCd = 1.4;
+        const reach = Math.hypot(p.x - c.x, p.y - c.y), arc = Math.abs(Math.atan2(Math.sin(a - c.dir), Math.cos(a - c.dir)));
+        if (sees && reach < c.def.range + 30 && arc < 1.2) c.hitPlayer(g);
+        c.atkCd = 1.05;
         c.state = "recover";
-        c.mt = 0.7;
+        c.mt = 0.5;
       }
       return;
     }
@@ -309,18 +336,23 @@ const StalkerMind = {
           return;
         }
       }
-      if (sees && d < c.def.range + 5 && c.atkCd <= 0) {
+      if (sees && d < c.def.range + 24 && c.atkCd <= 0) {
         c.state = "windup";
-        c.mt = 0.6;
-        c.face = a;
+        c.mt = .48;
+        c.dir = c.face = a;
         Sound.play("attack");
+        return;
+      }
+      if (sees && d > 140 && d < 310 && c.burstCd <= 0 && Nav.fatLos(c.x, c.y, p.x, p.y, c.r)) {
+        c.state = "rushWind"; c.mt = .7; c.dir = c.face = a; c.burstCd = 6.5;
+        Sound.tone(65, .45, .12, "sawtooth");
         return;
       }
       if (c.pathT <= 0 && c.tgt) c.setPath(...c.tgt);
       if (sees && d < 125 && Nav.fatLos(c.x, c.y, p.x, p.y, c.r - 1)) {
-        Level.move(c, Math.cos(a) * 150 * dt, Math.sin(a) * 150 * dt);
+        Level.move(c, Math.cos(a) * 184 * dt, Math.sin(a) * 184 * dt);
         c.face = a;
-      } else c.follow(dt, 132);
+      } else c.follow(dt, 158);
       return;
     }
     if (c.hideWitness && p.hidden) {

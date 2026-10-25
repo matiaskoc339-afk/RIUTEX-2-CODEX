@@ -56,7 +56,7 @@ const CombatPressure = {
         Math.abs(Math.atan2(Math.sin(a - p.angle), Math.cos(a - p.angle))) <
           1.15
       )
-        e.hurt(dmg, a, g);
+        e.hurt(BossPressure.meleeDamage(e, dmg, blade), a, g);
     }
     Sound.play("enemyhit");
     return true;
