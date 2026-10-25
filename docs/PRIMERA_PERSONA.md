@@ -1,4 +1,4 @@
-# Primera Persona POV · v0.20.1
+# Primera Persona POV · v0.21.0
 
 ## Uso y ratón
 
@@ -51,3 +51,9 @@ Los escenarios preparados no equivalen a una primera partida humana completa. El
 Los disparos conservan retroceso e impactos y dejan de producir fogonazo, luz en manos o incremento de linterna. Los recogibles tienen halo sobre el suelo y una señal pequeña en 3D con profundidad; en topdown conservan el mismo criterio de recogida. Se ocultan al recoger, fuera del alcance visual o tras puertas y paredes. Reducción de movimiento mantiene la señal estática.
 
 Tras un rechazo de captura, la siguiente tecla de desplazamiento o clic puede reintentar con interacción real, una vez por retorno al juego. Se mantiene el respaldo si el navegador sigue rechazando la API; no se reintenta en cada cuadro. Perder el foco pausa, y Reanudar recupera el cursor automáticamente.
+
+## Personajes y brazos de v0.21.0
+
+Las fábricas de personajes utilizan `pov-character-art.js`: perfiles cerrados de ocho lados, superficies biseladas, UV y texturas locales de 32–64 píxeles con filtrado de vecino más cercano. Sustituye las piezas esféricas de los personajes; conserva las geometrías y los materiales del escenario y los objetos. Los rostros tienen cuencas, cejas y heridas dibujadas sobre el volumen, con variantes para personal clínico, pacientes, soldados y Wren. Se ajustan gorros, máscaras y cascos a las nuevas proporciones.
+
+El rig conserva articulaciones y nombres de especies. Los animales tienen patas, garras y mandíbula propias, y la polilla usa alas con espesor y silueta dentada. Los tres estados de los cuatro jefes continúan aumentando su volumen y detalle. El protagonista utiliza palmas y dedos biselados, antebrazos cónicos, piel de píxel y un agarre más próximo al cuerpo; no se añade una tercera mano al golpear.

@@ -1,21 +1,19 @@
 {
-  "version": "0.20.1",
+  "version": "0.21.0",
   "date": "2026-10-24",
   "scope": "RIUTEX 2 completo: mansión, hospital, fábrica, castillo, laboratorio UMBRAL, Wren/ORIGEN y dos epílogos",
-  "system_tests": 350,
+  "system_tests": 353,
   "system_failures": 0,
   "integration_checks": 103,
   "map_validations": 15,
   "browser_groups": {
+    "pov_webgl": 52,
     "capture_native": 26,
-    "pov_webgl": 49,
-    "factory": 61,
-    "xp": 34,
-    "persistence": 26,
-    "standalone": 17
+    "standalone": 17,
+    "persistence": 26
   },
-  "browser_checks_total": 213,
-  "validation_scope": "350 pruebas de motor, 103 comprobaciones de integración y 15 mapas sin fallos. 213 comprobaciones de navegador en seis grupos: captura nativa con rechazo asíncrono y recuperación por movimiento, foco/pausa/reanudación, WebGL con señal de recogida y ausencia de luces de destello, fábrica y ocho oleadas, XP, persistencia al cerrar/reabrir perfil e iframe y HTML final sin recursos externos. Cuatro patrullas finitas y bajas nuevas guardadas se prueban en motor. Las escenas y combates son preparados; no equivalen a una campaña humana ni garantizan FPS en otra GPU.",
+  "browser_checks_total": 121,
+  "validation_scope": "353 pruebas de motor, 103 comprobaciones de integración y 15 mapas sin fallos. 121 comprobaciones de navegador: WebGL 52, captura nativa 26, HTML integrado 17 y persistencia 26. Se renderizan 43 especies y 12 fases de jefes, se comprueban geometrías y UV finitos, materiales de píxel con nearest, brazos sin piezas esféricas, animaciones, golpe, infección/amputación/cura, oclusión, puertas, fundidos y retorno topdown. Las pruebas de aislamiento verifican materiales de mobiliario y datos de combate intactos al generar personajes. La galería usa luz y poses preparadas; no mide una campaña humana ni rendimiento de GPU física.",
   "new_map": {
     "factory_dimensions": [
       148,
@@ -90,7 +88,7 @@
     "status": "blocked_by_environment",
     "reason": "Chromium administrado bloquea file:// con ERR_BLOCKED_BY_ADMINISTRATOR. HTML validado por HTTP, sin recursos externos."
   },
-  "notes": "v0.20.1 elimina el fogonazo y el aumento de luz al disparar, añade halo y brillo a recogibles en ambas perspectivas y recupera la captura desde una interacción si falló el intento automático. Fábrica: 16 enemigos nuevos, cuatro patrullas y seis apoyos finitos; refugio protegido, bajas persistidas y XP por muerte conservada. El presupuesto de ocho mapas pasa de 716 a 739. v0.20.0 sustituye el POV por una escena WebGL real con mallas y modelos articulados, materiales físicos, puertas y techos sólidos, escaleras visibles, armas y brazos 3D. La captura se recupera al volver al juego, se libera en ventanas y Esc pausa sin recaptura; X e Y comparten sensibilidad angular. En ambos modos se retiran artefactos al terminar todos sus usos y se añaden 24 documentos narrativos. El presupuesto colocado de ocho mapas sube de 670 a 716 XP por 23 de esas hojas; otra está en calabozos. La validación actual se consolida separada del historial. v0.19.0 añade sesión periódica y al salir, tres huecos y Reintentar independientes, copias JSON y almacenamiento comprimido compatible con JSON previo. Se prueba reabrir el mismo perfil de Chromium con el HTML integrado en un iframe de otro origen local. Toda la cartografía preparada de 53.114 casillas cabe con los huecos y respaldos en aproximadamente 1,4 MB, frente a unos 8 MB sin comprimir, bajo una cuota simulada de 5 MiB. El POV adquiere enemigos visibles por puertas abiertas sin descubrir salas; respeta distancia, ciegos, refugios y ocultación. El rig reutiliza los dos brazos, muestra infección azul y ambos desenlaces, con siete armas distintas. v0.18.1 limita los ingresos de XP a bajas, documentos nuevos (2) y muestras consumidas (15). Salas, puzles, armas, traje, maletín de oleadas, campanas, ingredientes y primera inyección dan cero. Se conservan las bajas pequeñas de v0.18.0, los objetos de recompensa y el progreso guardado. Presupuesto colocado de ocho mapas: 670 XP; se comprueban por separado rutas avanzadas humana de 310 y mutante de 348 con requisitos reales. v0.18.0 sustituye la bonificación ×2,5 por bajas pequeñas y predecibles, crecientes por zona y peligrosidad. Conserva premios superiores para minijefes y jefes, XP de exploración y progreso guardado. Los cadáveres no vuelven a conceder XP ni botín por daño repetido. v0.17.2 amplía cinco veces el recorrido vertical de cámara en POV para ratón y flechas, manteniendo velocidad, sensibilidad y retícula centrada. v0.17.1 añade sensibilidad del ratón 25–250 %, sincronizada entre Opciones y Pausa, aplicada a ambos ejes y guardada sin alterar la preferencia POV ni las partidas. v0.17.0 diferencia las criaturas y objetos de primera persona, separa Carnicero/Vacío y C-17/Camillero antes de la caché, recorta el margen transparente de objetos sueltos y centra la mira al inclinar la cámara. v0.16.2 añade el botón Bloquear ratón, visible solo en POV sin captura y durante la partida; Esc libera y pausa. v0.16.1 corrige el sentido vertical de ratón/flechas y elimina únicamente en POV la máscara de salas sin visitar, manteniendo oclusión física, descubrimiento del plano y oscuridad clásica. v0.16 añade la opción Primera Persona POV en ajustes y pausa, con vista clásica predeterminada, materiales, enemigos frontales, armas y avisos proyectados. v0.15.1 renueva exclusivamente la presentación del menú; se elimina la figura humana y se intensifican disparos, material de sangre, entorno y botones. v0.15 conserva balance porcentual, opciones persistentes y fundidos. Rutas, mecanismos y finales con movimiento, puertas y botones reales; enemigos retirados solo para aislar geometría. Combates independientes con IA y recursos preparados finitos. El controlador conoce posiciones y avisos y no representa una primera partida humana ni valida los recursos de la campaña íntegra. UMBRAL se recorre en sus 26 espacios; sus tres cámaras no permiten eludir cierres. Wren atraviesa tres mutaciones sin saltos. El GL-6 tiene identidad independiente de la migración LG-4/FL-4, granadas fabricables, explosión y cuatro mejoras. La decisión del antídoto se guarda, elimina poderes mutantes y el brazo reconstruido al curarse, o conserva la transformación. Ambos finales caminan por la calle y muestran el helicóptero antes del resultado. Capturas preparadas de formas no se cuentan como combates. La inyección de vida máxima sustituye al rifle del hospital. HTML integrado probado por HTTP sin recursos externos; Chromium administrado bloquea file://, intento que no se cuenta como superado.",
+  "notes": "v0.21.0 rehace personajes y brazos exclusivamente en POV con geometría de planos biselados, rostros dibujados, texturas de píxel, equipo ajustado, nuevas patas/mandíbulas/alas y postura de agarre. Se conserva el entorno, topdown y los datos de combate. v0.20.1 elimina el fogonazo y el aumento de luz al disparar, añade halo y brillo a recogibles en ambas perspectivas y recupera la captura desde una interacción si falló el intento automático. Fábrica: 16 enemigos nuevos, cuatro patrullas y seis apoyos finitos; refugio protegido, bajas persistidas y XP por muerte conservada. El presupuesto de ocho mapas pasa de 716 a 739. v0.20.0 sustituye el POV por una escena WebGL real con mallas y modelos articulados, materiales físicos, puertas y techos sólidos, escaleras visibles, armas y brazos 3D. La captura se recupera al volver al juego, se libera en ventanas y Esc pausa sin recaptura; X e Y comparten sensibilidad angular. En ambos modos se retiran artefactos al terminar todos sus usos y se añaden 24 documentos narrativos. El presupuesto colocado de ocho mapas sube de 670 a 716 XP por 23 de esas hojas; otra está en calabozos. La validación actual se consolida separada del historial. v0.19.0 añade sesión periódica y al salir, tres huecos y Reintentar independientes, copias JSON y almacenamiento comprimido compatible con JSON previo. Se prueba reabrir el mismo perfil de Chromium con el HTML integrado en un iframe de otro origen local. Toda la cartografía preparada de 53.114 casillas cabe con los huecos y respaldos en aproximadamente 1,4 MB, frente a unos 8 MB sin comprimir, bajo una cuota simulada de 5 MiB. El POV adquiere enemigos visibles por puertas abiertas sin descubrir salas; respeta distancia, ciegos, refugios y ocultación. El rig reutiliza los dos brazos, muestra infección azul y ambos desenlaces, con siete armas distintas. v0.18.1 limita los ingresos de XP a bajas, documentos nuevos (2) y muestras consumidas (15). Salas, puzles, armas, traje, maletín de oleadas, campanas, ingredientes y primera inyección dan cero. Se conservan las bajas pequeñas de v0.18.0, los objetos de recompensa y el progreso guardado. Presupuesto colocado de ocho mapas: 670 XP; se comprueban por separado rutas avanzadas humana de 310 y mutante de 348 con requisitos reales. v0.18.0 sustituye la bonificación ×2,5 por bajas pequeñas y predecibles, crecientes por zona y peligrosidad. Conserva premios superiores para minijefes y jefes, XP de exploración y progreso guardado. Los cadáveres no vuelven a conceder XP ni botín por daño repetido. v0.17.2 amplía cinco veces el recorrido vertical de cámara en POV para ratón y flechas, manteniendo velocidad, sensibilidad y retícula centrada. v0.17.1 añade sensibilidad del ratón 25–250 %, sincronizada entre Opciones y Pausa, aplicada a ambos ejes y guardada sin alterar la preferencia POV ni las partidas. v0.17.0 diferencia las criaturas y objetos de primera persona, separa Carnicero/Vacío y C-17/Camillero antes de la caché, recorta el margen transparente de objetos sueltos y centra la mira al inclinar la cámara. v0.16.2 añade el botón Bloquear ratón, visible solo en POV sin captura y durante la partida; Esc libera y pausa. v0.16.1 corrige el sentido vertical de ratón/flechas y elimina únicamente en POV la máscara de salas sin visitar, manteniendo oclusión física, descubrimiento del plano y oscuridad clásica. v0.16 añade la opción Primera Persona POV en ajustes y pausa, con vista clásica predeterminada, materiales, enemigos frontales, armas y avisos proyectados. v0.15.1 renueva exclusivamente la presentación del menú; se elimina la figura humana y se intensifican disparos, material de sangre, entorno y botones. v0.15 conserva balance porcentual, opciones persistentes y fundidos. Rutas, mecanismos y finales con movimiento, puertas y botones reales; enemigos retirados solo para aislar geometría. Combates independientes con IA y recursos preparados finitos. El controlador conoce posiciones y avisos y no representa una primera partida humana ni valida los recursos de la campaña íntegra. UMBRAL se recorre en sus 26 espacios; sus tres cámaras no permiten eludir cierres. Wren atraviesa tres mutaciones sin saltos. El GL-6 tiene identidad independiente de la migración LG-4/FL-4, granadas fabricables, explosión y cuatro mejoras. La decisión del antídoto se guarda, elimina poderes mutantes y el brazo reconstruido al curarse, o conserva la transformación. Ambos finales caminan por la calle y muestran el helicóptero antes del resultado. Capturas preparadas de formas no se cuentan como combates. La inyección de vida máxima sustituye al rifle del hospital. HTML integrado probado por HTTP sin recursos externos; Chromium administrado bloquea file://, intento que no se cuenta como superado.",
   "presentation": {
     "skill_stats_updated": 62,
     "fractional_stats_updated": 50,
@@ -119,8 +117,8 @@
     "renderer": "Three.js r160 / WebGL: mallas articuladas, geometría del entorno, profundidad, materiales físicos, iluminación y sombras.",
     "camera_relative_movement": true,
     "pointer_lock_fallback": true,
-    "saves_unchanged": false,
-    "coverage": "49 comprobaciones WebGL y 26 de captura nativa en v0.20.1. Se comprueba ausencia de luces de disparo, recogibles 3D con profundidad, reanudación y recuperación tras un rechazo sin pulsar el botón de captura.",
+    "saves_unchanged": true,
+    "coverage": "52 comprobaciones WebGL y 26 de captura nativa en v0.21.0; 17 del HTML final y 26 de persistencia. Galería de especies y brazos revisada en Chromium con WebGL por software.",
     "normal_vertical_look": true,
     "unvisited_rooms_visible_through_open_doors": true,
     "walls_and_closed_doors_occlude": true,
@@ -178,10 +176,13 @@
     "boss_phase_models": 12,
     "firing_flash": false,
     "pickup_feedback_3d": true,
-    "capture_retry_from_movement_or_click": true
+    "capture_retry_from_movement_or_click": true,
+    "character_style": "Geometría facetada, superficies biseladas y texturas de píxel de 32–64 px con filtrado nearest, solo en personajes POV.",
+    "world_materials_preserved": true,
+    "character_sphere_parts": false
   },
   "kill_xp_balance": {
-    "version": "0.20.1",
+    "version": "0.21.0",
     "floors": {
       "mansion": {
         "count": 7,
@@ -1075,5 +1076,23 @@
     "xp_per_kill_unchanged": true,
     "additional_finite_kill_xp": 23,
     "eight_map_xp_budget": 739
+  },
+  "previous_validation_v0201": {
+    "version": "0.20.1",
+    "date": "2026-10-24",
+    "system_tests": 350,
+    "system_failures": 0,
+    "integration_checks": 103,
+    "map_validations": 15,
+    "browser_groups": {
+      "capture_native": 26,
+      "pov_webgl": 49,
+      "factory": 61,
+      "xp": 34,
+      "persistence": 26,
+      "standalone": 17
+    },
+    "browser_checks_total": 213,
+    "validation_scope": "350 pruebas de motor, 103 comprobaciones de integración y 15 mapas sin fallos. 213 comprobaciones de navegador en seis grupos: captura nativa con rechazo asíncrono y recuperación por movimiento, foco/pausa/reanudación, WebGL con señal de recogida y ausencia de luces de destello, fábrica y ocho oleadas, XP, persistencia al cerrar/reabrir perfil e iframe y HTML final sin recursos externos. Cuatro patrullas finitas y bajas nuevas guardadas se prueban en motor. Las escenas y combates son preparados; no equivalen a una campaña humana ni garantizan FPS en otra GPU."
   }
 }

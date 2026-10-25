@@ -1,3 +1,16 @@
+# Validación de v0.21.0 · Personajes y brazos en POV
+
+- **353 pruebas de motor**, **103 comprobaciones de integración** y **15 mapas**, sin fallos.
+- **121 comprobaciones de navegador**: WebGL 52, captura nativa 26, HTML integrado 17 y persistencia 26. Sin errores JavaScript ni geometrías no finitas.
+- Las 43 especies usan la nueva dirección visual con superficies biseladas, materiales de píxel y filtrado nearest. No conservan piezas esféricas. Los materiales de escenario y mobiliario mantienen su estado anterior.
+- Se generan las doce formas de los cuatro jefes; sus fases cambian volumen y detalle. Crear las mallas no modifica salud, radio, posición, fase ni definiciones de combate. Se comprueban respiración, articulaciones y movimientos.
+- Las manos conservan dos brazos como máximo, golpe sobre el brazo existente, infección azul y estados de amputación y cura. Se prueban siete armas, oclusión, techo físico, puertas operadas con E, fundidos y regreso a topdown.
+- El HTML final contiene todos los recursos y se ejecuta sin peticiones externas. El guardado se recupera al cerrar y reabrir el mismo perfil, también en un iframe local de otro origen.
+
+La galería visual usa luz de estudio y poses preparadas para revisar las formas. Las capturas dentro del hospital usan la iluminación del juego. El contexto WebGL real se ejecuta mediante SwiftShader; estas pruebas no representan una campaña humana ni una garantía de FPS en GPU física. Los resultados anteriores quedan como historial.
+
+---
+
 # Validación de v0.20.1 · Disparos, recogibles y fábrica
 
 - **350 pruebas de motor**, **103 comprobaciones de integración** y **15 mapas**, sin fallos.

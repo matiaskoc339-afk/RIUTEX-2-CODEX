@@ -2,6 +2,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),T=require('../vendor/three.min.js');
 const {X,run}=require('./harness');X.Game.init();X.Game.startLvl='mansion';X.Game.start(false);
 const context={POVModels:run('POVModels'),POVArt:run('POVArt')};vm.createContext(context);vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../js/pov3d-assets.js'),'utf8')+';globalThis.A=POV3DAssets;',context);const A=context.A;
+vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../js/pov-character-art.js'),'utf8'),context);
 const materials=new Map(),sphere=new T.SphereGeometry(1,14,10),box=new T.BoxGeometry(1,1,1);
 function mesh(parent,geometry,material,x,y,z,sx=1,sy=1,sz=1){const m=new T.Mesh(geometry,material);m.position.set(x,y,z);m.scale.set(sx,sy,sz);parent.add(m);return m;}
 A.init({THREE:T,mat:(c,r=.8,metal=0,e=null)=>{const k=[c,r,metal,e].join(':');if(!materials.has(k))materials.set(k,new T.MeshStandardMaterial({color:c,roughness:r,metalness:metal,emissive:e||'#000000'}));return materials.get(k);},
@@ -26,4 +27,16 @@ test('Los muebles y objetos tienen volumen; las escaleras poseen peldaños y fle
 });
 test('Las armas recogibles tienen cuerpos sólidos y la librería reutiliza materiales',()=>{
  const before=materials.size;for(const id of ['pistol','shotgun','viper','ak','r98','flamethrower','gl6'])checkMesh(A.weapon(id,.75));for(let i=0;i<10;i++)A.enemy({type:'sonambulo',def:X.ENEMY_TYPES.sonambulo,id:i},X.Game);assert.ok(materials.size-before<5);
+});
+test('Todas las especies comparten la dirección de píxel 3D y abandonan las piezas esféricas',()=>{
+ for(const [type,def]of Object.entries(X.ENEMY_TYPES)){const root=A.enemy({type,def,id:1,phase:1},X.Game);assert.equal(root.userData.artStyle,'pixel-sculpt');root.traverse(o=>{if(o.isMesh){assert.notEqual(o.geometry.type,'SphereGeometry');assert.equal(o.material.userData.pixelCharacter,true);assert.equal(o.material.flatShading,true);}});}
+});
+test('Crear personajes no cambia los materiales ni la geometría del mobiliario',()=>{
+ const palette=Object.values(A.palette),before=palette.map(m=>[m.color.getHex(),m.flatShading,m.map]);
+ A.enemy({type:'lf_wren',id:4,phase:3,def:X.ENEMY_TYPES.lf_wren},X.Game);A.ally({name:'Rojas',col:'#44554c'},X.Game);
+ palette.forEach((m,i)=>assert.deepEqual([m.color.getHex(),m.flatShading,m.map],before[i]));
+ const bed=A.prop('bed',X.Game);bed.traverse(o=>{if(o.isMesh)assert.notEqual(o.material.userData.pixelCharacter,true);});assert.equal(vm.runInContext('POVCharacterArt.depth',context),0);
+});
+test('El nuevo diseño y las tres mutaciones no modifican los datos de combate',()=>{
+ for(const type of ['carnicero','ds_matriarch','cl_regent','lf_wren'])for(const phase of [1,2,3]){const e={type,phase,def:X.ENEMY_TYPES[type]||{name:type},id:57,hp:71,r:17,x:200,y:400},before=JSON.stringify(e);A.enemy(e,X.Game);assert.equal(JSON.stringify(e),before);}
 });

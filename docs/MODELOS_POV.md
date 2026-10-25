@@ -1,3 +1,21 @@
+# Dirección de personajes POV · v0.21.0
+
+El rediseño afecta a 43 especies, el escuadrón y los dos brazos del protagonista. Los personajes comparten una paleta apagada y texturas de píxel nítidas sobre geometría 3D de planos biselados. No se añade un filtro de pantalla ni se modifica el escenario o el dibujo topdown.
+
+- Cuerpos con torso, pelvis, rodillas, muñecas y mandíbula proporcionados, sin las piezas esféricas anteriores. Los rostros dibujados sustituyen los ojos y labios volumétricos; enfermera, pacientes, Wren y soldados tienen variantes.
+- Gorros, máscaras y cascos ajustados a la cabeza; ropa con costuras, cierres, bolsillos y manchas distribuidas. El delantal del Carnicero tiene forma, tirantes y sangre de píxel.
+- Corredores y lebreles con patas, garras y colmillos; arañas con ocho patas articuladas y quitina; polilla con alas dentadas de espesor físico y patrón dibujado.
+- Brazos y manos nuevos en primera persona: planos biselados, textura de piel y postura de agarre corregida. La piel azul conserva la infección y los desenlaces; el golpe usa el brazo existente.
+- Las doce combinaciones de jefe y fase conservan su progresión y anatomía propia. La geometría visual no modifica los datos de salud, daño, radio, costes o requisitos del juego.
+
+La galería se genera con `python3 tests/pov_character_gallery.py` en Chromium/WebGL. Usa luz de estudio y poses preparadas para revisar formas y texturas; el juego conserva la iluminación de cada zona. No mide dificultad ni rendimiento de GPU física.
+
+![Personajes renderizados en WebGL](images/personajes-pov-v0.21.0.png)
+
+El historial de identidades y caché anterior se conserva debajo.
+
+---
+
 # Modelos y objetos en primera persona · v0.20.0
 
 Esta revisión sustituye las imágenes frontales del POV por grupos de mallas Three.js. La vista clásica conserva sus dibujos. Las estadísticas, ataques, avisos y progresión de los encuentros se comparten entre vistas; el disparo normal en POV considera también la altura de la mira y del cuerpo.

@@ -1,12 +1,12 @@
-# RIUTEX 2 · Historia completa · v0.20.1
+# RIUTEX 2 · Historia completa · v0.21.0
 
 La campaña parte de tu base v0.2.2 y recorre mansión, hospital, cloacas/fábrica, museo-castillo y laboratorio UMBRAL, con cuatro jefes finales de tres formas y dos desenlaces.
 
 ## Jugar y publicar
 
-Abre `RIUTEX2_Historia_Completa_v0.20.1.html` en un navegador de escritorio con teclado y ratón. Para el proyecto fuente, ejecuta `npm start` y visita `http://localhost:8000`. El sonido comienza con la primera interacción. No hay dependencias de npm que instalar.
+Abre `RIUTEX2_Historia_Completa_v0.21.0.html` en un navegador de escritorio con teclado y ratón. Para el proyecto fuente, ejecuta `npm start` y visita `http://localhost:8000`. El sonido comienza con la primera interacción. No hay dependencias de npm que instalar.
 
-Para itch.io utiliza **RIUTEX2_itchio_v0.20.1.zip**, que contiene un `index.html` integrado en la raíz. Súbelo como juego HTML para navegador y permite pantalla completa. El HTML incluye código, estilos, fuentes, Three.js y recursos locales: no descarga modelos ni bibliotecas de una CDN. Los archivos se generan con `npm run build`.
+Para itch.io utiliza **RIUTEX2_itchio_v0.21.0.zip**, que contiene un `index.html` integrado en la raíz. Súbelo como juego HTML para navegador y permite pantalla completa. El HTML incluye código, estilos, fuentes, Three.js y recursos locales: no descarga modelos ni bibliotecas de una CDN. Los archivos se generan con `npm run build`.
 
 ## Primera persona 3D
 
@@ -62,3 +62,7 @@ Consulta [README.md](README.md) para el contenido completo y [docs/VALIDACION.md
 Disparar ya no produce destello ni ilumina de golpe el escenario. Los objetos recogibles muestran un halo y un brillo pequeño, también en topdown. La captura del ratón se recupera con una interacción si el navegador rechazó el intento automático; no hace falta pulsar un botón de bloqueo aparte. Al perder el foco se pausa y Reanudar vuelve a capturarlo.
 
 La fábrica tiene 58 enemigos ambientales (16 más), con cuatro patrullas, grupos variados y seis suministros finitos adicionales. El vestíbulo se mantiene como refugio. No se aumenta la XP por enemigo.
+
+## Personajes de v0.21.0
+
+Solo en primera persona: enemigos, personajes y brazos adoptan un estilo de píxel 3D, con anatomía facetada, rostros dibujados, ropa con costuras y equipo propio. Se reconstruyen las patas y mandíbulas de las criaturas y las alas de la polilla. Las manos sujetan el arma con una postura nueva y conservan la mutación azul y los dos desenlaces. El escenario y la presentación topdown mantienen su estilo.
