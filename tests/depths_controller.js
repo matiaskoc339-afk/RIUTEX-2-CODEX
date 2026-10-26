@@ -26,7 +26,10 @@
   g.keys=best?{KeyA:best.dx<0,KeyD:best.dx>0,KeyW:best.dy<0,KeyS:best.dy>0}:{};
   if(p.hp<55&&heals<(cfg.maxHeals??4)){const j=g.inv.items.findIndex(it=>it.type==='inj_green');if(j>=0){g.inv.sel=j;g.useInj();heals++;}}
   if(p.stamina<28)shoot=false;if(p.stamina>87)shoot=true;
-  const targetEnemy=small.filter(e=>Math.hypot(e.x-p.x,e.y-p.y)<255&&Level.los(p.x,p.y,e.x,e.y)).sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0]||b;
+  // Las crías que flanquean ya no forman una fila: guarda balas evitando tiros
+  // lejanos a objetivos diminutos y prioriza terminar el jefe al quedar poca reserva.
+  const threatRadius=nest&&g.inv.reserve('pistol')<32?105:145;
+  const targetEnemy=small.filter(e=>Math.hypot(e.x-p.x,e.y-p.y)<threatRadius&&Level.los(p.x,p.y,e.x,e.y)).sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0]||b;
   if(targetEnemy&&Level.los(p.x,p.y,targetEnemy.x,targetEnemy.y)){g.mouse.x=targetEnemy.x-g.cam.x;g.mouse.y=targetEnemy.y-g.cam.y;if(shoot&&p.fireCd<=0&&(!targetEnemy.isBoss||!['intro','mutate'].includes(targetEnemy.mode)))g.mouse.clicked=true;}
   const mag=p.weapon.mag;if(mag===0)Weapons.reload(p);g.update(1/30);if(p.weapon.mag<mag){shots++;if(targetEnemy===b)shotsOpen++;}if(i%30===0)g.render();
  }

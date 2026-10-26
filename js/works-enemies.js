@@ -16,7 +16,8 @@ class WorksEnemy extends Enemy {
   if(this.isBoss){this.hp-=dmg;this.hitFlash=.15;g.sparks(this.x,this.y,7,'#a14c5b');if(this.hp<=0)this.die(g);}
   else super.hurt(dmg,angle,g);
   if(this.dead)return;
-  this.target=[g.player.x,g.player.y];this.memory=7;
+  if(typeof MonsterIntelligence!=='undefined'&&MonsterIntelligence.enabled(this,g)){MonsterIntelligence.injured(this,angle,g);this.target=[this.miLastX,this.miLastY];this.memory=this.miMemory;}
+  else {this.target=[g.player.x,g.player.y];this.memory=7;}
   if(this.mode==='idle'||this.mode==='search')this.mode='stalk';
  }
  acquire(g,dt) {
@@ -58,7 +59,7 @@ class WorksEnemy extends Enemy {
   if(this.isBoss){this.clock=this.windMax=Math.max(.6,this.clock*(this.enraged?.82:.92));}
  }
  execute(g) {
-  const p=g.player,d=Math.hypot(p.x-this.x,p.y-this.y),a=Math.atan2(p.y-this.y,p.x-this.x),arc=Math.abs(Math.atan2(Math.sin(a-this.dir),Math.cos(a-this.dir)));
+  const p=g.player,d=p.hidden?Infinity:Math.hypot(p.x-this.x,p.y-this.y),a=Math.atan2(p.y-this.y,p.x-this.x),arc=Math.abs(Math.atan2(Math.sin(a-this.dir),Math.cos(a-this.dir)));
   if(this.attack==='lunge'||this.attack==='charge'){this.mode='rush';this.clock=this.attack==='lunge'?.36:.84;this.rushHit=false;return;}
   if(this.attack==='spit') {
    for(const off of [-.12,.12])g.eproj.push({x:this.x,y:this.y,vx:Math.cos(this.dir+off)*260,vy:Math.sin(this.dir+off)*260,life:1.7,dmg:this.def.dmg,poison:3.5});
@@ -79,6 +80,7 @@ class WorksEnemy extends Enemy {
   if(this.frozen>0){this.frozen-=dt;return;}
   if(!this.isBoss&&this.stagger>0){this.stagger-=dt;return;}
   if(this.grace>0){this.grace-=dt;return;}
+  if(typeof MonsterIntelligence!=='undefined'&&MonsterIntelligence.enabled(this,g))return MonsterIntelligence.works(this,dt,g);
   this.acquire(g,dt);this.clock-=dt;
   if(this.mode==='wind'){if(this.clock<=0)this.execute(g);return;}
   if(this.mode==='rush') {

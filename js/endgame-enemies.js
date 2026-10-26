@@ -13,13 +13,13 @@ class EndEnemy extends WorksEnemy{
  draw(c){EndArt.creature(c,this);}
 }
 class OriginWren extends WorksEnemy{
- constructor(x,y){super('lf_wren',x,y,12000);Object.assign(this,{isBoss:true,active:false,phase:1,r:27,hp:3600,maxHp:3600,mode:'dormant',clock:0,step:0,marks:[],waves:[],combo:0});}
+ constructor(x,y){super('lf_wren',x,y,12000);Object.assign(this,{isBoss:true,active:false,phase:1,r:27,hp:3600,maxHp:3600,mode:'dormant',clock:0,step:0,marks:[],waves:[],combo:0});if(typeof BossIntelligence!=='undefined')BossIntelligence.init(this);}
  clamp(){[this.x,this.y]=Endgame.clamp(this.x,this.y,this.r);}
  hurt(d,a,g){if(this.dead||!this.active||['intro','mutate'].includes(this.mode)||!Number.isFinite(d)||d<=0)return;const floor=(3-this.phase)*1200;this.hp=Math.max(floor,this.hp-d*(this.mode==='recover'?1.25:this.phase===3?.9:1));this.hitFlash=.15;g.sparks(this.x,this.y,6,'#a36b85');if(this.hp<=floor){if(this.phase===3)return this.die(g);this.phase++;this.r=this.phase===2?40:54;this.clamp();this.mode='mutate';this.clock=3.8;this.step=0;this.marks=[];this.waves=[];g.eproj=[];g.pools=[];g.cam.shake=18;Sound.tone(42,.9,.22,'sawtooth');UI.msg(this.phase===2?'Wren rompe su propio tórax. La segunda dosis sigue creciendo.':'La voz desaparece bajo el tejido. ORIGEN ya no cabe en un cuerpo humano.',6000);}}
  die(g){if(this.dead)return;this.dead=true;this.hp=0;this.active=false;this.marks=[];this.waves=[];g.killed.add(this.id);g.pz['h:lf_wren']=true;const q=Endgame.data(g);q.boss={won:true,active:false,phase:3,hp:0};q.cureWait=3;g.player.xp+=mutationXPReward(this.def,true,g.mut);g.player.onKill(g);g.eproj=[];g.pools=[];g.projectiles=[];g.curBoss=null;g.temporalField=g.gravityWell=g.fleshEcho=null;g.ring(this.x,this.y,220,'#a8d7c0');g.cam.shake=18;Hospital.checkpoint(g);UI.msg('Wren cae. La síntesis completa su último ciclo. La cura está a punto de salir.',5500);}
  recover(t){this.mode='recover';this.clock=t;}
  begin(kind,g){const p=g.player;this.attack=kind;this.mode='wind';this.dir=this.face=Math.atan2(p.y-this.y,p.x-this.x);this.target=Endgame.clamp(p.x,p.y,110);this.origin=[this.x,this.y];this.combo=kind==='chain'?(this.phase===3?3:2):0;this.clock=this.windMax=kind==='leap'?1.15:kind==='marks'?1.2:kind==='wave'?1.15:kind==='charge'?.95:this.phase===2?1.1:.82;Sound.tone(100,.15,.12,'triangle');}
- choose(g){const decks={1:['needles','charge','chain'],2:['slam','marks','charge','wave'],3:['chain','leap','needles','charge','marks','wave']};let kind=decks[this.phase][this.step++%decks[this.phase].length];if(['chain','slam'].includes(kind)&&Math.hypot(g.player.x-this.x,g.player.y-this.y)>270)kind='charge';this.begin(BossPressure.closeAttack(this,kind,g),g);}
+ choose(g){if(typeof BossIntelligence!=='undefined')return BossIntelligence.choose(this,g);this.begin(BossPressure.closeAttack(this,'needles',g),g);}
  execute(g){const p=g.player,d=Math.hypot(p.x-this.x,p.y-this.y),a=Math.atan2(p.y-this.y,p.x-this.x),arc=Math.abs(Math.atan2(Math.sin(a-this.dir),Math.cos(a-this.dir)));
   if(this.attack==='charge'){this.mode='rush';this.clock=this.phase===3?.9:.8;this.rushHit=false;return;}
   if(this.attack==='leap'){this.mode='air';this.clock=.4;return;}
@@ -37,6 +37,7 @@ class OriginWren extends WorksEnemy{
   if(this.mode==='wind'){if(this.clock<=0)this.execute(g);return;}
   if(this.mode==='rush'){const ox=this.x,oy=this.y,speed=this.phase===3?650:this.phase===2?490:545,move=speed*dt;Level.move(this,Math.cos(this.dir)*move,Math.sin(this.dir)*move);const [x,y]=Endgame.clamp(this.x,this.y,this.r),wall=Math.hypot(this.x-ox,this.y-oy)<move*.6||x!==this.x||y!==this.y;this.x=x;this.y=y;if(!this.rushHit&&FinalEncounter.segmentDistance(p.x,p.y,ox,oy,this.x,this.y)<this.r+p.r&&Level.los(this.x,this.y,p.x,p.y)){p.hurt(this.phase===3?51:43,this.dir,g);this.rushHit=true;}if(wall||this.clock<=0){this.recover(wall?2.6:1.7,wall);if(wall){g.cam.shake=12;g.ring(this.x,this.y,95,'#b6cdb8');}}return;}
   if(this.mode==='air'){const t=Math.max(0,Math.min(1,1-this.clock/.4));this.x=this.origin[0]+(this.target[0]-this.origin[0])*t;this.y=this.origin[1]+(this.target[1]-this.origin[1])*t;if(this.clock<=0){[this.x,this.y]=this.target;this.clamp();if(Math.hypot(p.x-this.x,p.y-this.y)<135+p.r&&Level.los(this.x,this.y,p.x,p.y))p.hurt(47,this.dir,g);g.ring(this.x,this.y,135,'#c5b9ce');g.cam.shake=14;this.recover(2);}return;}
+  if(typeof BossIntelligence!=='undefined')return BossIntelligence.stalk(this,dt,g);
   const dx=p.x-this.x,dy=p.y-this.y,d=Math.hypot(dx,dy)||1;this.face=Math.atan2(dy,dx);if(d>170){const n=(this.phase===1?160:this.phase===2?112:175)*dt;Level.move(this,dx/d*n,dy/d*n);}this.clamp();if(this.clock<=0)this.choose(g);
  }
  draw(c){EndArt.creature(c,this);}

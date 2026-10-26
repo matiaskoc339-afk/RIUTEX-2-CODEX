@@ -31,7 +31,7 @@ class CastleEnemy extends WorksEnemy{
 }
 class BlindCarver extends WorksEnemy{
  moveToward(x,y,amount){CastleNav.move(this,x,y,amount);}
- constructor(x,y){super('cl_blind',x,y,10001);Object.assign(this,{isBoss:true,active:false,mode:'patrol',patrolIndex:0,patrolTarget:null,clock:0,heardId:0,face:0,grace:0});}
+ constructor(x,y){super('cl_blind',x,y,10001);Object.assign(this,{isBoss:true,active:false,mode:'patrol',patrolIndex:0,patrolTarget:null,clock:0,heardId:0,face:0,grace:0});if(typeof HunterIntelligence!=='undefined')HunterIntelligence.initialize(this);this.hiSearchTime=0;}
  anchors(){return [[17,15],[31,14],[43,17],[43,28],[31,29],[16,28]].map(([x,y])=>[(x+.5)*32,(y+.5)*32]);}
  hear(n){if(!this.active||['wind','recover'].includes(this.mode))return;this.heardId=Math.max(this.heardId,n.id||0);this.target=[Math.max(11*32,Math.min(49*32,n.x)),Math.max(11*32,Math.min(33*32,n.y))];if(this.mode!=='listen'){this.mode='listen';this.clock=.65;}this.memory=5;Sound.tone(118,.16,.13,'triangle');}
  hurt(d,a,g){if(this.dead||!this.active||!Number.isFinite(d)||d<=0)return;this.hp-=d*(this.mode==='recover'?1.4:.9);this.hitFlash=.15;g.sparks(this.x,this.y,5,'#a96562');if(this.hp<=0)return this.die(g);if(Math.hypot(g.player.x-this.x,g.player.y-this.y)<90)this.hear({x:g.player.x,y:g.player.y,id:g.clSoundSerial||0});}
@@ -56,7 +56,7 @@ class BlindCarver extends WorksEnemy{
  drawCue(c){if(this.mode!=='wind')return;c.save();c.fillStyle='rgba(202,143,87,.16)';c.strokeStyle='#e1be91';c.lineWidth=2;c.beginPath();c.moveTo(this.x,this.y);c.arc(this.x,this.y,155,this.dir-1.35,this.dir+1.35);c.closePath();c.fill();c.stroke();c.restore();}
 }
 class RoyalRegent extends WorksEnemy{
- constructor(x,y){super('cl_regent',x,y,10300);Object.assign(this,{isBoss:true,active:false,phase:1,mode:'dormant',clock:0,step:0,combo:0,marks:[],dir:0});}
+ constructor(x,y){super('cl_regent',x,y,10300);Object.assign(this,{isBoss:true,active:false,phase:1,mode:'dormant',clock:0,step:0,combo:0,marks:[],dir:0});if(typeof BossIntelligence!=='undefined')BossIntelligence.init(this);}
  hurt(d,a,g){if(this.dead||!this.active||['intro','mutate'].includes(this.mode)||!Number.isFinite(d)||d<=0)return;
   const shield=this.phase===1&&this.mode!=='recover'&&Math.cos(a+Math.PI-this.face)>.25;
   const floor=(3-this.phase)*800;this.hp=Math.max(floor,this.hp-d*(shield?.28:this.mode==='recover'?1.25:1));this.hitFlash=.12;g.sparks(this.x,this.y,shield?3:6,shield?'#d9c7a0':'#a85e69');
@@ -65,7 +65,7 @@ class RoyalRegent extends WorksEnemy{
  die(g){if(this.dead)return;this.dead=true;this.hp=0;this.active=false;this.mode='dead';this.marks=[];g.killed.add(this.id);g.pz['h:cl_regent']=true;Castle.data(g).regent={won:true,active:false,hp:0,phase:3};g.player.xp+=mutationXPReward(this.def,true,g.mut);g.player.onKill(g);g.eproj=[];g.pools=[];g.projectiles=[];g.curBoss=null;for(const d of Level.doors)Level.openDoor(d);g.ring(this.x,this.y,210,'#d6c398');g.cam.shake=18;g.save(3);UI.msg('El Regente cae. La puerta tras el trono se libera.',6500);}
  recover(t){this.mode='recover';this.clock=t;}
  begin(kind,g){const p=g.player;this.attack=kind;this.mode='wind';this.dir=this.face=Math.atan2(p.y-this.y,p.x-this.x);this.target=Castle.clamp(p.x,p.y,90);this.origin=[this.x,this.y];this.clock=this.windMax=kind==='quake'?1.15:kind==='leap'?1.1:kind==='charge'?.95:this.phase===2?1.15:.75;this.combo=kind==='slash'?(this.phase===3?3:this.phase===1?2:1):0;Sound.tone(kind==='charge'?80:150,.14,.12,'triangle');}
- choose(g){const decks={1:['charge','slash','bash'],2:['hammer','quake','charge'],3:['slash','charge','leap','quake']};let k=decks[this.phase][this.step++%decks[this.phase].length];if((k==='slash'||k==='bash'||k==='hammer')&&Math.hypot(g.player.x-this.x,g.player.y-this.y)>195)k='charge';this.begin(BossPressure.closeAttack(this,k,g),g);}
+ choose(g){if(typeof BossIntelligence!=='undefined')return BossIntelligence.choose(this,g);this.begin(BossPressure.closeAttack(this,'charge',g),g);}
  execute(g){const p=g.player,a=Math.atan2(p.y-this.y,p.x-this.x),d=Math.hypot(p.x-this.x,p.y-this.y),arc=Math.abs(Math.atan2(Math.sin(a-this.dir),Math.cos(a-this.dir)));
   if(this.attack==='charge'){this.mode='rush';this.clock=this.phase===1?.7:.9;this.rushHit=false;return;}
   if(this.attack==='leap'){this.mode='air';this.clock=.35;return;}
@@ -85,6 +85,7 @@ class RoyalRegent extends WorksEnemy{
    if(!this.rushHit&&FinalEncounter.segmentDistance(p.x,p.y,ox,oy,this.x,this.y)<this.r+p.r&&Level.los(this.x,this.y,p.x,p.y)){p.hurt(this.phase===2?40:this.phase===3?36:30,this.dir,g);this.rushHit=true;}
    if(wall||this.clock<=0){this.recover(wall?2.5:1.65,wall);if(wall){g.cam.shake=11;g.ring(this.x,this.y,75,'#ccbea0');}}return;}
   if(this.mode==='air'){const k=Math.max(0,Math.min(1,1-this.clock/.35));this.x=this.origin[0]+(this.target[0]-this.origin[0])*k;this.y=this.origin[1]+(this.target[1]-this.origin[1])*k;if(this.clock<=0){[this.x,this.y]=this.target;if(Math.hypot(p.x-this.x,p.y-this.y)<105+p.r&&Level.los(this.x,this.y,p.x,p.y))p.hurt(37,this.dir,g);g.ring(this.x,this.y,110,'#d3b799');g.cam.shake=10;this.recover(1.9);}return;}
+  if(typeof BossIntelligence!=='undefined')return BossIntelligence.stalk(this,dt,g);
   const dx=p.x-this.x,dy=p.y-this.y,d=Math.hypot(dx,dy)||1;this.face=Math.atan2(dy,dx);const speed=this.phase===2?88:this.phase===3?165:155;if(d>120)Level.move(this,dx/d*speed*dt,dy/d*speed*dt);if(this.clock<=0)this.choose(g);
  }
  draw(c){CastleArt.creature(c,this);}

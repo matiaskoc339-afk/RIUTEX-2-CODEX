@@ -1,12 +1,18 @@
-# RIUTEX 2 · Historia completa · v0.25.0
+# RIUTEX 2 · Historia completa · v0.26.0
 
 La campaña parte de tu base v0.2.2 y recorre mansión, hospital, cloacas/fábrica, museo-castillo y laboratorio UMBRAL, con cuatro jefes finales de tres formas y dos desenlaces.
 
 ## Jugar y publicar
 
-Abre `RIUTEX2_Historia_Completa_v0.25.0.html` en un navegador de escritorio con teclado y ratón. Para el proyecto fuente, ejecuta `npm start` y visita `http://localhost:8000`. El sonido comienza con la primera interacción. No hay dependencias de npm que instalar.
+Abre `RIUTEX2_Historia_Completa_v0.26.0.html` en un navegador de escritorio con teclado y ratón. Para el proyecto fuente, ejecuta `npm start` y visita `http://localhost:8000`. El sonido comienza con la primera interacción. No hay dependencias de npm que instalar.
 
-Para itch.io utiliza **RIUTEX2_itchio_v0.25.0.zip**, que contiene un `index.html` integrado en la raíz. Súbelo como juego HTML para navegador y permite pantalla completa. El HTML incluye código, estilos, fuentes, Three.js y recursos locales: no descarga modelos ni bibliotecas de una CDN. Los archivos se generan con `npm run build`.
+Para itch.io utiliza **RIUTEX2_itchio_v0.26.0.zip**, que contiene un `index.html` integrado en la raíz. Súbelo como juego HTML para navegador y permite pantalla completa. El HTML incluye código, estilos, fuentes, Three.js y recursos locales: no descarga modelos ni bibliotecas de una CDN. Los archivos se generan con `npm run build`.
+
+## IA táctica · v0.26.0
+
+Los cuatro jefes principales eligen según fase, distancia, recargas observadas y movimiento reciente; buscan posiciones y reducen repeticiones. La anticipación es limitada y termina al anunciar el ataque. Los monstruos recuerdan pistas, revisan lugares y buscan flancos o una línea de fuego despejada. El Carnicero y el Tallador investigan el último rastro sin conocer tu posición oculta. [Comportamientos y pruebas](docs/IA_ADAPTATIVA.md).
+
+El ZIP editable omite compilados duplicados, registros, capturas y exportaciones regenerables. Se retiró la antigua carátula del hospital, tapada por el fondo Canvas del menú actual, junto con su referencia CSS. El auditor comprueba dependencias y licencias antes de empaquetar. [Contenido de la distribución](docs/DISTRIBUCION.md).
 
 ## Revisión general · v0.25.0
 

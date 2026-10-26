@@ -21,12 +21,13 @@ const ENEMY_TYPES = {
 };
 class Enemy {
   constructor(type, x, y, id) {
-    Object.assign(this, { type, def: ENEMY_TYPES[type], id, x, y, r: ENEMY_TYPES[type].r || 11, hp: ENEMY_TYPES[type].hp, mhp: ENEMY_TYPES[type].hp, lastHit: 9, alert: false, dead: false, stagger: 0, frozen: 0, cd: 0, windup: 0, shots: 0, shotT: 0, attackFace: 0, attackLocked: false, face: Math.random() * 6.28, t: Math.random() * 10, hitFlash: 0, grace: 0 });
+    Object.assign(this, { type, def: ENEMY_TYPES[type], id, x, y, r: ENEMY_TYPES[type].r || 11, hp: ENEMY_TYPES[type].hp, mhp: ENEMY_TYPES[type].hp, lastHit: 9, alert: false, dead: false, stagger: 0, frozen: 0, cd: 0, windup: 0, shots: 0, shotT: 0, attackFace: 0, attackLocked: false, face: Math.random() * 6.28, t: Math.random() * 10, hitFlash: 0, grace: 0, path: null, pathClock: 0, heardId: 0, miState: 'idle', miMemory: 0, miVisible: false, miLastX: null, miLastY: null, miVx: 0, miVy: 0, miPlanT: 0, miHearT: 0, miGoalX: null, miGoalY: null, miSide: Number(id)%2 ? 1 : -1, miSearchStep: 0, miSearchWait: 0, miWasSearching: false, miSearchAngle: 0, miPathGoal: '' });
   }
   hurt(dmg, angle, g) {
     if (this.dead) return;
     this.hp -= dmg * (1 - (this.def.armor || 0)); this.stagger = .18; this.lastHit = 0; this.alert = true; this.windup = 0; this.hitFlash = .1;
     if (!(this.def.rng && this.def.rng.fixed)) Level.move(this, Math.cos(angle) * 9, Math.sin(angle) * 9); g.sparks(this.x, this.y, 7, '#7a0a14'); Sound.play('enemyhit');
+    if (typeof MonsterIntelligence !== 'undefined' && MonsterIntelligence.enabled(this,g)) MonsterIntelligence.injured(this,angle,g);
     if (this.hp <= 0) this.die(g);
   }
   die(g) {
@@ -43,6 +44,7 @@ class Enemy {
     if (d < R.range && this.cd <= 0 && Level.los(this.x, this.y, g.player.x, g.player.y)) { this.windup = R.wind; this.attackFace = this.face; this.attackLocked = true; }
   }
   update(dt, g) {
+    if (typeof MonsterIntelligence !== 'undefined' && MonsterIntelligence.enabled(this,g)) return MonsterIntelligence.generic(this,dt,g);
     if (this.dead) return; const p = g.player; this.t += dt; this.lastHit += dt; if (this.def.regen && this.lastHit > 2 && this.hp < this.mhp) this.hp = Math.min(this.mhp, this.hp + this.def.regen * dt); // el Regenerador se cura si no lo atacas
     this.hitFlash = Math.max(0, this.hitFlash - dt);
     // Reanudar una sesión devuelve un aviso completo, no un golpe invisible ya terminado.

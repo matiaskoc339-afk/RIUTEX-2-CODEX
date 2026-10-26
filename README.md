@@ -1,12 +1,18 @@
-# RIUTEX 2 · El Custodio · Historia completa · v0.25.0
+# RIUTEX 2 · El Custodio · Historia completa · v0.26.0
 
 Esta versión amplía **RIUTEX2_fase1_v0.2.2.zip**, la base que aportaste. Conserva su motor, historia, protagonistas y persecución. El contenido jugable comprende la mansión, el hospital las cloacas y fábrica de San Gabriel y el museo-fortaleza de Valcárcel y el laboratorio UMBRAL con sus dos desenlaces.
 
 ## Jugar
 
-La entrega incluye [RIUTEX2_Historia_Completa_v0.25.0.html](dist/RIUTEX2_Historia_Completa_v0.25.0.html), con gráficos, estilos y código integrados y sin descargas externas. Ábrelo en un navegador de escritorio con teclado y ratón. El modo 3D requiere WebGL; la vista clásica sigue disponible. El sonido comienza con la primera interacción.
+La entrega incluye [RIUTEX2_Historia_Completa_v0.26.0.html](dist/RIUTEX2_Historia_Completa_v0.26.0.html), con gráficos, estilos y código integrados y sin descargas externas. Ábrelo en un navegador de escritorio con teclado y ratón. El modo 3D requiere WebGL; la vista clásica sigue disponible. El sonido comienza con la primera interacción.
 
 Para ejecutar el proyecto fuente: `npm start` (o `python3 -m http.server 8000`). No hay dependencias de npm que instalar. Los guardados se almacenan en el navegador y dependen de la ubicación desde la que abras el juego. Esta edición utiliza guardados propios; conserva los de v0.2.2 sin importarlos a mapas que han cambiado.
+
+## IA táctica · v0.26.0
+
+Los cuatro jefes principales eligen según fase, distancia, recargas observadas y movimiento reciente; buscan posiciones y reducen repeticiones. La anticipación es limitada y termina al anunciar el ataque. Los monstruos recuerdan pistas, revisan lugares y buscan flancos o una línea de fuego despejada. El Carnicero y el Tallador investigan el último rastro sin conocer tu posición oculta. [Comportamientos y pruebas](docs/IA_ADAPTATIVA.md).
+
+El ZIP editable omite compilados duplicados, registros, capturas y exportaciones regenerables. Se retiró la antigua carátula del hospital, tapada por el fondo Canvas del menú actual, junto con su referencia CSS. El auditor comprueba dependencias y licencias antes de empaquetar. [Contenido de la distribución](docs/DISTRIBUCION.md).
 
 ## Revisión general · v0.25.0
 
@@ -48,7 +54,7 @@ La fábrica pasa de 42 a 58 enemigos ambientales, distribuidos por sus tres sect
 
 ## Guardado web e itch.io · v0.20.1
 
-Para itch.io usa [RIUTEX2_itchio_v0.25.0.zip](dist/RIUTEX2_itchio_v0.25.0.zip): contiene un `index.html` integrado en la raíz. Se genera con `npm run build`. Sube ese ZIP como juego HTML para navegador y permite pantalla completa.
+Para itch.io usa [RIUTEX2_itchio_v0.26.0.zip](dist/RIUTEX2_itchio_v0.26.0.zip): contiene un `index.html` integrado en la raíz. Se genera con `npm run build`. Sube ese ZIP como juego HTML para navegador y permite pantalla completa.
 
 La sesión se guarda cada diez segundos, al cerrar u ocultar la página, al pausar o volver al menú y tras recoger objetos, fabricar, consumir muestras o comprar habilidades. **Continuar → Continuar sesión** recupera posición, recursos, inventario, documentos, habilidades, puzles, enemigos heridos y fases de jefes. Los datos se comprimen para evitar llenar la cuota del navegador, conservando la lectura de guardados anteriores. Los tres huecos de las camillas y el punto de Reintentar se mantienen separados. Tras morir, la sesión continúa desde ese punto de control.
 

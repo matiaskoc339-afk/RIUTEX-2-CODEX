@@ -84,6 +84,7 @@ class FinalCarnicero extends Carnicero {
     super(900, x, y);
     this.def = { ...this.def, hp: 1500, xp: 240, name: 'El Carnicero · Última contención' };
     Object.assign(this, { hp: won ? 0 : 1500, maxHp: 1500, phase: 1, r: 23, _act: true, dormant: false, dead: won, mode: won ? 'dead' : 'intro', clock: 3.5, step: 0, hooks: [], vents: [], combo: 0, hitFlash: 0 });
+    if(typeof BossIntelligence!=='undefined')BossIntelligence.init(this);
   }
   onBoss() {} // Nunca ejecuta la antigua recolocación del garaje.
   hurt(dmg, angle, g) {
@@ -133,13 +134,10 @@ class FinalCarnicero extends Carnicero {
     Sound.tone(attack === 'charge' ? 85 : 125, .18, .15, 'triangle');
   }
   choose(g) {
-    const d = Math.hypot(g.player.x - this.x, g.player.y - this.y);
-    const decks = { 1: ['charge', 'hook', 'cleave'], 2: ['leap', 'cleave', 'vents', 'charge'], 3: ['cleave', 'leap', 'vents', 'charge', 'hook'] };
-    const deck = decks[this.phase];
-    let attack = deck[this.step++ % deck.length];
-    if (attack === 'cleave' && d > 165) attack = this.phase === 1 ? 'hook' : 'leap';
-    this.begin(BossPressure.closeAttack(this, attack, g), g);
+    if(typeof BossIntelligence!=='undefined')return BossIntelligence.choose(this,g);
+    this.begin(BossPressure.closeAttack(this,'charge',g),g);
   }
+
   hitPlayer(g, dmg, angle = this.dir) {
     if (Level.los(this.x, this.y, g.player.x, g.player.y)) g.player.hurt(dmg, angle, g);
   }
@@ -224,6 +222,7 @@ class FinalCarnicero extends Carnicero {
       }
       return;
     }
+    if(typeof BossIntelligence!=='undefined')return BossIntelligence.stalk(this,dt,g);
     const dx = p.x - this.x, dy = p.y - this.y, d = Math.hypot(dx, dy) || 1;
     this.face = Math.atan2(dy, dx);
     if (d > 95) Level.move(this, dx / d * (this.phase === 3 ? 144 : this.phase === 2 ? 122 : 108) * dt, dy / d * (this.phase === 3 ? 144 : this.phase === 2 ? 122 : 108) * dt);

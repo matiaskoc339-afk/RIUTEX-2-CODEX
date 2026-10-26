@@ -1,3 +1,16 @@
+# Validación de v0.26.0 · IA táctica y distribución
+
+- **468 pruebas de motor**, **103 comprobaciones de integración** y **15 mapas**, sin fallos. Las 32 pruebas nuevas cubren los cuatro jefes, monstruos comunes y las investigaciones del Carnicero y el Tallador. La navegación del perseguidor vuelve a pasar en las tres plantas. La pausa se reforzó y volvió a comprobar en 20 casos focalizados.
+- **882 comprobaciones de navegador en 34 suites**, sin errores JavaScript declarados. Incluye cuatro fases, puzles, oleadas, minijefes, cuatro encuentros de tres mutaciones, ambos finales, interfaz, guardado, ratón, WebGL, sonido y HTML integrado. Las 30 comprobaciones nuevas prueban flancos, observación, pérdida de visión y dirección fija de ataques en ambas perspectivas y cuatro arenas reales.
+- Los cuatro jefes se vencen con daño, movimiento, estamina, recargas y recursos finitos, sin forzar salud ni victorias. El controlador de la Matriarca tuvo que priorizar amenazas cercanas y conservar munición ante las nuevas crías que flanquean; el juego no recibió una reducción de dificultad ni suministros extra para superar la prueba. La regresión de navegador se continuó por tramos desde ese caso corregido. También hay cuatro combates de motor reproducibles con M9 base y tres fases efectivas.
+- La IA no consulta teclas ni órdenes futuras. La anticipación de los jefes está limitada a 72 unidades antes del aviso; no cambia después. Se comprueban ocultación, camuflaje, refugios, límites de rutas, puertas cerradas, ralentización, recuperación, memoria y sesiones antiguas/nuevas.
+- **8 pruebas de distribución** verifican dependencias, licencias, exclusiones, rutas dinámicas, ZIP reproducible y arranque del proyecto extraído sin Git. La auditoría encuentra **109 archivos activos**, **0 dependencias ausentes**, **0 peticiones externas** y **0 medios sin referencias**. La carátula anterior se retiró junto con la referencia CSS, comprobando que el menú Canvas y sus reflejos siguen funcionando.
+- El HTML final pasó nuevamente las 17 comprobaciones integradas después del último ajuste de pausa. El ZIP de itch.io contiene exactamente su `index.html`. El ZIP editable se verifica entrada por entrada y omite copias de compilados, capturas, informes y planos regenerables; conserva código, pruebas, documentación, recursos activos y licencias.
+
+Los controladores de combate conocen los avisos y no representan una primera partida humana. WebGL usa Chromium con SwiftShader; no mide FPS de una GPU física. El entorno bloquea `file://`: el HTML se valida por HTTP sin recursos externos. El iframe local no es una publicación en el dominio de itch.io. [Comportamientos](IA_ADAPTATIVA.md) · [Distribución](DISTRIBUCION.md) · [Resultados](RESULTADOS.json).
+
+---
+
 # Validación de v0.25.0 · Revisión general
 
 - **436 pruebas de motor**, **103 comprobaciones de integración** y **15 mapas**, sin fallos. Los 50 casos nuevos cubren combate, audio, expediente, mundo 3D, opciones/HUD y persistencia de objetos. Navegación y puertas vuelven a pasar en las tres plantas del hospital.

@@ -90,9 +90,7 @@ h2 {
   content: "";
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(90deg, #07121e 0%, #07121ef5 24%, #07121e55 66%, #07121e10),
-    url("assets/blue-hospital.svg") right center/cover no-repeat;
+  background: linear-gradient(90deg, #07121e 0%, #07121ef5 24%, #07121e55 66%, #07121e10);
   z-index: -2;
 }
 #menu::after {

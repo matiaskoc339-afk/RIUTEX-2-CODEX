@@ -35,11 +35,15 @@ for (const args of [
     "tests/fielddesk-polish.test.js",
     "tests/pov-world-polish.test.js",
     "tests/persistence-world.test.js",
+    "tests/hunter-intelligence.test.js",
+    "tests/boss-intelligence.test.js",
+    "tests/monster-intelligence.test.js",
   ],
   ["tests/t3.js"],
   ["tests/t4.js"],
   ["tests/t5.js"],
   ["tests/t6.js"],
+  ["tests/boss_ai_combat_probe.js"],
 ]) {
   const result = spawnSync(process.execPath, args, { stdio: "inherit" });
   if (result.status !== 0) process.exit(result.status || 1);

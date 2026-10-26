@@ -1,8 +1,8 @@
 {
-  "version": "0.25.0",
+  "version": "0.26.0",
   "date": "2026-10-25",
   "scope": "RIUTEX 2 completo: mansión, hospital, fábrica, castillo, laboratorio UMBRAL, Wren/ORIGEN y dos epílogos",
-  "system_tests": 436,
+  "system_tests": 468,
   "system_failures": 0,
   "integration_checks": 103,
   "map_validations": 15,
@@ -39,10 +39,11 @@
     "fielddesk_polish_browser": 18,
     "audio_polish_browser": 11,
     "pov_world_polish_browser": 17,
-    "persistence_world_browser": 7
+    "persistence_world_browser": 7,
+    "intelligence_browser": 30
   },
-  "browser_checks_total": 852,
-  "validation_scope": "436 pruebas de motor, 103 comprobaciones de integración y 15 mapas, sin fallos. 852 comprobaciones declaradas en 33 suites de navegador. Campaña, rutas y mecanismos de cuatro fases; los cuatro jefes, arena de ocho oleadas y ambos finales con escenarios preparados y recursos finitos. HUD, archivo, ajustes, físicas de combate, captura nativa, WebGL, audio, guardado entre pestañas/perfiles e iframe y HTML integrado. Suites históricas ejecutadas por tramos tras adaptar dos fixtures a la EXP y al nuevo control de imagen; cada informe procede de una ejecución satisfactoria. La suite de ajustes y el HTML final se repitieron después del ajuste de distribución del HUD. No mide una campaña humana ni FPS de GPU física.",
+  "browser_checks_total": 882,
+  "validation_scope": "468 pruebas de motor, 103 comprobaciones de integración, 15 mapas y 8 pruebas de distribución, sin fallos. 882 comprobaciones en 34 suites de navegador; 30 nuevas comprueban decisiones, flancos, ocultación y compromiso de avisos en ambas vistas y cuatro arenas reales. Los cuatro jefes completan tres fases con recursos finitos en motor y navegador. La Matriarca exigió adaptar el controlador para ahorrar tiros a crías lejanas; no se redujeron salud/daño del encuentro ni se añadieron recursos. Regresión de campaña completa ejecutada por tramos desde la prueba de profundidad corregida. El HTML final se volvió a validar tras reforzar la pausa del perseguidor. Auditoría sin dependencias ausentes, peticiones externas ni medios huérfanos; el proyecto fuente extraído arranca sin Git. Son escenarios preparados, no una campaña humana ni una medición de FPS de GPU física.",
   "new_map": {
     "factory_dimensions": [
       148,
@@ -1330,7 +1331,8 @@
     "fielddesk_polish_browser": "fielddesk-polish-browser-results.json",
     "audio_polish_browser": "audio-polish-browser-results.json",
     "pov_world_polish_browser": "pov-world-polish-browser-results.json",
-    "persistence_world_browser": "persistence-world-browser-results.json"
+    "persistence_world_browser": "persistence-world-browser-results.json",
+    "intelligence_browser": "intelligence-browser-results.json"
   },
   "previous_validation_v0240": {
     "version": "0.24.0",
@@ -1442,21 +1444,176 @@
     }
   },
   "release_artifacts": [
-    "unit-v0250-final.txt",
-    "pov-world-polish-unit.txt",
-    "experience-unit-v0250-final.txt",
-    "combat-polish-v0250-integrated.txt",
-    "persistence-world-v0250-final.txt",
-    "browser-suite-v0250-final.txt",
-    "browser-suite-v0250-continued.txt",
-    "browser-suite-v0250-finish.txt",
-    "experience-settings-browser-v0250-final.txt",
-    "standalone-v0250-final.txt",
-    "survival-hud-pov-v0250.png",
-    "survival-hud-topdown-v0250.png",
-    "experience-settings-v0250.png",
-    "archivo-v0250.png",
-    "maletin-v0250.png",
-    "world-hospital-v025-after.png"
-  ]
+    "unit-v0260-final.txt",
+    "hunter-final-validation-v0260.txt",
+    "boss-intelligence-unit-final.txt",
+    "boss-ai-combat-results.json",
+    "boss-ai-combat-probe-final.txt",
+    "browser-v0260-full.txt",
+    "browser-v0260-continued.txt",
+    "intelligence-browser-v0260-final.txt",
+    "standalone-v0260-final.txt",
+    "assets-audit-v0260.json",
+    "distribution-tests-final-v0260.txt"
+  ],
+  "distribution_tests": 8,
+  "previous_validation_v0250": {
+    "version": "0.25.0",
+    "system_tests": 436,
+    "integration_checks": 103,
+    "map_validations": 15,
+    "browser_groups": {
+      "browser_blue": 24,
+      "horror_browser": 18,
+      "revision_browser": 14,
+      "presentation_browser": 18,
+      "adventure_browser": 29,
+      "fielddesk_browser": 42,
+      "survival_browser": 38,
+      "gold_browser": 11,
+      "finale_browser": 38,
+      "works_browser": 61,
+      "depths_browser": 29,
+      "depths_visual": 7,
+      "flamethrower_browser": 16,
+      "castle_combat_probe": 4,
+      "castle_browser": 76,
+      "castle_visual": 17,
+      "endgame_browser": 63,
+      "endgame_visual": 12,
+      "standalone_blue": 17,
+      "polish_browser": 41,
+      "pov_controls_v020_browser": 26,
+      "pov3d_browser": 52,
+      "artifacts_lore_browser": 13,
+      "experience_browser": 34,
+      "persistence_browser": 26,
+      "enemy_motion_browser": 14,
+      "perspective_choice_browser": 20,
+      "intro_pursuit_browser": 18,
+      "experience_settings_browser": 21,
+      "fielddesk_polish_browser": 18,
+      "audio_polish_browser": 11,
+      "pov_world_polish_browser": 17,
+      "persistence_world_browser": 7
+    },
+    "browser_checks_total": 852,
+    "validation_scope": "436 pruebas de motor, 103 comprobaciones de integración y 15 mapas, sin fallos. 852 comprobaciones declaradas en 33 suites de navegador. Campaña, rutas y mecanismos de cuatro fases; los cuatro jefes, arena de ocho oleadas y ambos finales con escenarios preparados y recursos finitos. HUD, archivo, ajustes, físicas de combate, captura nativa, WebGL, audio, guardado entre pestañas/perfiles e iframe y HTML integrado. Suites históricas ejecutadas por tramos tras adaptar dos fixtures a la EXP y al nuevo control de imagen; cada informe procede de una ejecución satisfactoria. La suite de ajustes y el HTML final se repitieron después del ajuste de distribución del HUD. No mide una campaña humana ni FPS de GPU física."
+  },
+  "tactical_ai": {
+    "main_bosses": {
+      "classes": [
+        "FinalCarnicero",
+        "SpiderMatriarch",
+        "RoyalRegent",
+        "OriginWren"
+      ],
+      "observed_context": [
+        "distancia",
+        "fase",
+        "recarga visible",
+        "quietud",
+        "movimiento lateral reciente",
+        "últimos ataques"
+      ],
+      "prediction_limit_world_units": 72,
+      "reload_observation_seconds": 0.28,
+      "reaction_cooldown_seconds": 3.5,
+      "goals_replanned_seconds": 0.4,
+      "warnings_and_recovery_preserved": true,
+      "hidden_target_tracking": false,
+      "damage_hp_xp_changed": false
+    },
+    "monsters": {
+      "visual_memory_seconds": 4.5,
+      "works_memory_seconds": 5.5,
+      "profiles": [
+        "presión frontal",
+        "flancos",
+        "distancia y línea de fuego",
+        "búsqueda local"
+      ],
+      "path_expansion_limit": 2200,
+      "opens_closed_doors": false,
+      "blind_and_boss_controllers_separate": true
+    },
+    "hunters": {
+      "carnicero_search_seconds": 6.5,
+      "blind_search_seconds": 4.8,
+      "search_points_max": 4,
+      "initial_script_preserved": true,
+      "unwitnessed_lockers_reveal_player": false,
+      "pause_respected": true
+    },
+    "save_schema": 1,
+    "boss_motor_combats": {
+      "hospitalchem": {
+        "hp": 100,
+        "shots": 50,
+        "phases": [
+          1,
+          2,
+          3
+        ],
+        "reserve": 32
+      },
+      "hospitalnest": {
+        "hp": 96.0625,
+        "shots": 114,
+        "phases": [
+          1,
+          2,
+          3
+        ],
+        "reserve": 60
+      },
+      "hospitalroyal": {
+        "hp": 100,
+        "shots": 82,
+        "phases": [
+          1,
+          2,
+          3
+        ],
+        "reserve": 96
+      },
+      "hospitalorigin": {
+        "hp": 77.5,
+        "shots": 140,
+        "phases": [
+          1,
+          2,
+          3
+        ],
+        "reserve": 36
+      }
+    }
+  },
+  "distribution_cleanup": {
+    "tests": 8,
+    "runtime_files": 109,
+    "runtime_bytes": 3028632,
+    "missing_dependencies": 0,
+    "external_requests": 0,
+    "unreferenced_media": 0,
+    "removed_resource": "assets/blue-hospital.svg",
+    "removed_resource_reason": "cubierto por el fondo Canvas opaco; retirada su referencia CSS",
+    "source_excludes": [
+      "dist duplicado",
+      "capturas e informes generados",
+      "planos exportados regenerables",
+      "cachés"
+    ],
+    "source_preserves": [
+      "código",
+      "pruebas",
+      "documentación",
+      "recursos activos",
+      "licencias"
+    ],
+    "itch_entries": [
+      "index.html"
+    ],
+    "previous_source_zip_bytes": 9170737
+  }
 }

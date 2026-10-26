@@ -31,6 +31,7 @@ class Carnicero extends Carcelero {
   constructor(id, x, y) {
     super(id, x, y); this.def = { name: 'El Carnicero', hp: 900, speed: 92, dmg: 34, detect: 9999, range: 52, cooldown: 1.3, xp: 200, small: false };
     Object.assign(this, { hp: 900, maxHp: 900, r: 14, state: 'patrol', mt: 0, dormant: true, path: null, pathT: 0, wp: 0, hookCd: 4, hooks: [], stuckT: 0, tgt: null, lostT: 0, searchT: 0, atkCd: 0, growlT: 3, hunt: false, openT: 0, opening: null, scripted: false, burstCd: 0, rushHit: false });
+    if(typeof HunterIntelligence!=='undefined')HunterIntelligence.initialize(this);
   }
   get active() { return !!this._act; }
   set active(v) { if (v && !this._act) { this._act = true; this.onBoss(); } else if (!v) this._act = false; }

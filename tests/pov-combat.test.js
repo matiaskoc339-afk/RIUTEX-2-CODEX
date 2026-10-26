@@ -16,7 +16,7 @@ test('No detectan desde lejos ni con visión omnidireccional; muy cerca sí reac
  start();e=enemy();e.face=Math.PI;e.update(.2,g);assert.equal(e.alert,false);g.player.x=e.x+70;e.update(.2,g);assert.equal(e.alert,true);
 });
 test('La detección tiene reacción breve y pierde al jugador al quedar oculto, sin seguirlo eternamente',()=>{
- start();const e=enemy();e.update(.03,g);assert.equal(e.alert,false);e.update(.16,g);assert.equal(e.alert,true);g.player.hidden=true;for(let i=0;i<30;i++)e.update(.1,g);assert.equal(e.alert,false);
+ start();const e=enemy();e.update(.03,g);assert.equal(e.alert,false);e.update(.16,g);assert.equal(e.alert,true);const clue=[e.miLastX,e.miLastY];g.player.hidden=true;g.player.x+=400;for(let i=0;i<30;i++)e.update(.1,g);assert.deepEqual([e.miLastX,e.miLastY],clue);for(let i=0;i<30;i++)e.update(.1,g);assert.equal(e.alert,false);
 });
 test('Los dos enemigos ciegos conservan la ceguera y el rastreador sigue respondiendo a sonidos',()=>{
  start();for(const type of ['wx_listener','cl_blind']){const e=new Enemy(type,180,320,8765);e.face=0;assert.equal(P.sees(e,g),false);}

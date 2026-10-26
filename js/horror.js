@@ -223,9 +223,10 @@ const StalkerMind = {
     c.searchT = 5.5;
     c.path = null;
     c.tgt = c.lastSeen ? c.lastSeen.slice() : [c.x, c.y];
+    if(typeof HunterIntelligence!=='undefined')HunterIntelligence.startSearch(c);
   },
   update(c, dt, g) {
-    if (c.dead || c.dormant) return;
+    if (c.dead || c.dormant || g.state !== 'play') return;
     const p = g.player;
     c.hitFlash = Math.max(0, c.hitFlash - dt);
     c.atkCd -= dt;
@@ -267,9 +268,10 @@ const StalkerMind = {
         Math.abs(Math.atan2(Math.sin(a - c.face), Math.cos(a - c.face))) < 1.35;
     const sees =
       !p.hidden && !safe && d < 340 && inView && (typeof POVPerception!=='undefined'&&POVPerception.active(g)?POVPerception.line(c,p):Level.los(c.x,c.y,p.x,p.y));
+    if(typeof HunterIntelligence!=='undefined')c.hiAge=Math.min(99,(c.hiAge||0)+dt);
     if (sees) {
       c.lastSeen = [p.x, p.y];
-      c.tgt = c.lastSeen.slice();
+      c.tgt = typeof HunterIntelligence!=='undefined'?HunterIntelligence.observe(c,p,dt):c.lastSeen.slice();
       c.lostT = 0;
       c.hunt = true;
       if (!["windup", "recover", "rushWind", "rush"].includes(c.state)) c.state = "chase";
@@ -323,6 +325,7 @@ const StalkerMind = {
         Math.hypot(c.x - n.x, c.y - n.y) <
           n.r * (Level.los(c.x, c.y, n.x, n.y) ? 1 : 0.65);
     if (heard && !sees && c.state !== "chase") {
+      if(typeof HunterIntelligence!=='undefined')HunterIntelligence.hear(c,n);
       c.tgt = [n.x, n.y];
       c.state = "investigate";
       c.searchT = 5;
@@ -385,6 +388,7 @@ const StalkerMind = {
       return;
     }
     if (c.state === "search") {
+      if(typeof HunterIntelligence!=='undefined')return HunterIntelligence.search(c,dt,g);
       c.searchT -=
         dt * (g.mut.has("sombra") && p.hidden && !c.hideWitness ? SkillBalance.value(g,'sombra',1.7) : 1);
       c.face += dt * 0.8;

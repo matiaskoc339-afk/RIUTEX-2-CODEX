@@ -1,6 +1,6 @@
 # Recursos
 
-`blue-hospital.svg`: ilustración vectorial original creada para el menú de esta ampliación. Los personajes, enemigos, mobiliario y efectos se dibujan con Canvas 2D; el audio se sintetiza con WebAudio. No se necesitan descargas, fuentes remotas ni imágenes de terceros para jugar.
+El fondo del menú se genera en `js/menu-scene.js` con suelo, sangre y reflejos en Canvas. La ilustración antigua del hospital se retiró en v0.26.0 porque quedaba completamente tapada por ese fondo. El gradiente CSS conserva un fondo de arranque. Los gráficos del juego combinan Canvas 2D y mallas Three.js locales; el audio se sintetiza con WebAudio. No se necesitan descargas, fuentes remotas ni imágenes de terceros para jugar.
 
 `fonts/Rajdhani-Medium.ttf` y `fonts/Rajdhani-SemiBold.ttf`: fuentes Rajdhani, de Indian Type Foundry, distribuidas bajo SIL Open Font License 1.1. La licencia completa está en `fonts/OFL.txt`. Se incluyen localmente y se integran en el HTML; no hay peticiones a servicios de fuentes. Fuente: https://github.com/google/fonts/tree/main/ofl/rajdhani
 
